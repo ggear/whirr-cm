@@ -29,10 +29,10 @@ import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandlerSupport;
 import org.apache.whirr.service.FirewallManager.Rule;
 
-public class CmNodeHandler extends ClusterActionHandlerSupport {
+public class CmAgentHandler extends ClusterActionHandlerSupport {
 
-  public static final String ROLE = "cmnode";
-  private static final String PORTS = "cmnode.ports";
+  public static final String ROLE = "cmagent";
+  private static final String PORTS = "cmagent.ports";
   
   @Override public String getRole() { return ROLE; }
   
@@ -46,6 +46,7 @@ public class CmNodeHandler extends ClusterActionHandlerSupport {
   	addStatement(event, call("configure_hostnames"));
   	addStatement(event, call("install_cdh_hadoop"));
   	addStatement(event, call("install_cm"));
+  	addStatement(event, call("install_cm_agent"));
   }
 
   @Override

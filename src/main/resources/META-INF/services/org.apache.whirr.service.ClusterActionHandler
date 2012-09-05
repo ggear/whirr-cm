@@ -17,4 +17,5 @@
 
 com.cloudera.whirr.cm.CdhClientHandler
 com.cloudera.whirr.cm.CmNodeHandler
+com.cloudera.whirr.cm.CmAgentHandler
 com.cloudera.whirr.cm.CmServerHandler

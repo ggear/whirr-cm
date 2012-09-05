@@ -15,5 +15,13 @@
 # limitations under the License.
 #
 
-cmnode.ports=8088,8888,50030,50060,50070,50090,60010,60030
-cmagent.ports=7182,9000
+set -x
+function install_cm_agent() {
+  if which dpkg &> /dev/null; then
+    retry_apt_get -y install cloudera-manager-agent
+  elif which rpm &> /dev/null; then
+    retry_yum install -y cloudera-manager-agent
+  fi
+  sed -i -e "s/server_host=.*/server_host=$PUBLIC_HOST_NAME/" /etc/cloudera-scm-agent/config.ini
+  service cloudera-scm-agent start
+}
