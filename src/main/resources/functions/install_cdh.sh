@@ -25,7 +25,6 @@ EOF
     curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add -
     sudo apt-get update
   elif which rpm &> /dev/null; then
-    rm -f /etc/yum.repos.d/cloudera.repo
     REPO_NUMBER=`echo $REPO | sed -e 's/cdh\([0-9][0-9]*\)/\1/'`
     cat > /etc/yum.repos.d/cloudera-$REPO.repo <<EOF
 [cloudera-$REPO]

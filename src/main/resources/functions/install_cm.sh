@@ -1,8 +1,8 @@
 #
-# Licensed to Cloudera, Inc. under one or more
+# Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
-# Cloudera, Inc. licenses this file to You under the Apache License, Version 2.0
+# The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
 # the License.  You may obtain a copy of the License at
 #
@@ -16,19 +16,30 @@
 #
 
 set -x
-function install_cm() {
-  yum install -y expect
-  wget http://archive.cloudera.com/cm4/installer/latest/cloudera-manager-installer.bin
-  chmod u+x cloudera-manager-installer.bin
-  
-  # Use expect for the install to make it appear interactive
-  cat >> install <<END
-#!/usr/bin/expect -f
-set timeout 300
-spawn ./cloudera-manager-installer.bin --ui=stdio --noprompt --noreadme --nooptions --i-agree-to-all-licenses
-expect EOF
-END
 
-  chmod +x install
-  ./install
+function install_cm() {
+  REPO=${REPO:-cm4}
+  REPO_HOST=${REPO_HOST:-archive.cloudera.com}
+  CM_MAJOR_VERSION=$(echo $REPO | sed -e 's/cm\([0-9]\).*/\1/')
+  CM_VERSION=$(echo $REPO | sed -e 's/cm\([0-9][0-9]*\)/\1/')
+  if [ $CM_MAJOR_VERSION -ge "4" ]; then
+	  if which dpkg &> /dev/null; then
+      cat > /etc/apt/sources.list.d/cloudera-$REPO.list <<EOF
+deb http://$REPO_HOST/$REPO/ubuntu/lucid/amd64/cm lucid-$REPO contrib
+deb-src http://$REPO_HOST/$REPO/ubuntu/lucid/amd64/cm lucid-$REPO contrib
+EOF
+      curl -s http://$REPO_HOST/$REPO/ubuntu/lucid/amd64/cm/archive.key | apt-key add -
+	    retry_apt_get -y update
+	  elif which rpm &> /dev/null; then
+      cat > /etc/yum.repos.d/cloudera-$REPO.repo <<EOF
+[cloudera-manager]
+# Packages for Cloudera Manager, Version $CM_VERSION, on RedHat or CentOS 6 x86_64
+name=Cloudera Manager
+baseurl=http://$REPO_HOST/$REPO/redhat/6/x86_64/cm/$CM_MAJOR_VERSION/
+gpgkey = http://archive.cloudera.com/$REPO/redhat/6/x86_64/cm/RPM-GPG-KEY-cloudera    
+gpgcheck = 1
+EOF
+	    retry_yum update -y retry_yum
+	  fi
+  fi
 }

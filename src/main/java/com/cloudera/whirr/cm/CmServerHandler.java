@@ -40,7 +40,7 @@ public class CmServerHandler extends ClusterActionHandlerSupport {
   
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
-    addStatement(event, call("install_cm"));
+    addStatement(event, call("install_cm_server"));
   }
 
   @Override
