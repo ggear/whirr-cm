@@ -17,12 +17,15 @@
 
 set -x
 function install_cm_server() {
+  
   if which dpkg &> /dev/null; then
     retry_apt_get -y install cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
   elif which rpm &> /dev/null; then
     retry_yum install -y cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
   fi
+  
   service cloudera-scm-server-db initdb
   service cloudera-scm-server-db start
   service cloudera-scm-server start
+  
 }

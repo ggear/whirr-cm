@@ -20,18 +20,17 @@ package com.cloudera.whirr.cm;
 import static org.apache.whirr.RolePredicates.role;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
-import com.google.common.collect.Iterables;
-
 import java.io.IOException;
 import java.util.Set;
 
 import org.apache.whirr.Cluster;
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
-import org.apache.whirr.service.ClusterActionHandlerSupport;
 import org.apache.whirr.service.FirewallManager.Rule;
 
-public class CmServerHandler extends ClusterActionHandlerSupport {
+import com.google.common.collect.Iterables;
+
+public class CmServerHandler extends BaseHandler {
 
   public static final String ROLE = "cmserver";
   private static final int CLIENT_PORT = 7180;
@@ -40,8 +39,7 @@ public class CmServerHandler extends ClusterActionHandlerSupport {
   
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
-  	addStatement(event, call("configure_hostnames"));
-  	addStatement(event, call("install_cdh_hadoop"));
+  	super.beforeBootstrap(event);
   	addStatement(event, call("install_cm"));
   	addStatement(event, call("install_cm_server"));
   }

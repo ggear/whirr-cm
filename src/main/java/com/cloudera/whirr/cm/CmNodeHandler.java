@@ -23,28 +23,19 @@ import static org.jclouds.scriptbuilder.domain.Statements.call;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
-import org.apache.whirr.service.ClusterActionHandlerSupport;
 import org.apache.whirr.service.FirewallManager.Rule;
 
-public class CmNodeHandler extends ClusterActionHandlerSupport {
+public class CmNodeHandler extends BaseHandler {
 
   public static final String ROLE = "cmnode";
   private static final String PORTS = "cmnode.ports";
   
   @Override public String getRole() { return ROLE; }
   
-  private Configuration getConfiguration(ClusterSpec spec)
-      throws IOException {
-    return getConfiguration(spec, "whirr-cm-default.properties");
-  }
-
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
-  	addStatement(event, call("configure_hostnames"));
-  	addStatement(event, call("install_cdh_hadoop"));
+  	super.beforeBootstrap(event);
   	addStatement(event, call("install_cm"));
   }
 

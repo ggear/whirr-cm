@@ -16,14 +16,26 @@
 #
 
 set -x
-function install_cm_agent() {
+function configure_cm_agent() {
   local OPTIND
   local OPTARG
 
-  if which dpkg &> /dev/null; then
-    retry_apt_get -y install cloudera-manager-agent
-  elif which rpm &> /dev/null; then
-    retry_yum install -y cloudera-manager-agent
-  fi
+	CM_SERVER_HOST=localhost
+	CM_SERVER_PORT=7180
+	while getopts "h:p:" OPTION; do
+	  case $OPTION in
+	  h)
+	    CM_SERVER_HOST="$OPTARG"
+	    ;;
+	  p)
+	    CM_SERVER_PORT="$OPTARG"
+	    ;;
+	  esac
+	done
+  
+  sed -i -e "s/server_host=.*/server_host=$CM_SERVER_HOST/" /etc/cloudera-scm-agent/config.ini
+  sed -i -e "s/server_port=.*/server_port=$CM_SERVER_PORT/" /etc/cloudera-scm-agent/config.ini
+  
+  service cloudera-scm-agent start
   
 }

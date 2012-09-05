@@ -17,28 +17,30 @@
  */
 package com.cloudera.whirr.cm;
 
-import static org.apache.whirr.RolePredicates.role;
+import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
 
-import org.apache.whirr.Cluster;
-import org.apache.whirr.Cluster.Instance;
+import org.apache.commons.configuration.Configuration;
+import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
+import org.apache.whirr.service.ClusterActionHandlerSupport;
 
-public class CdhClientHandler extends BaseHandler {
+public abstract class BaseHandler extends ClusterActionHandlerSupport {
 
-  public static final String ROLE = "cdhclient";
-  
-  @Override public String getRole() { return ROLE; }
-  
+	protected Configuration getConfiguration(ClusterSpec spec) throws IOException {
+		return getConfiguration(spec, "whirr-cm-default.properties");
+	}
+
   @Override
-  protected void afterConfigure(ClusterActionEvent event) throws IOException,
-      InterruptedException {
-    Cluster cluster = event.getCluster();
-    Instance client = cluster.getInstanceMatching(role(ROLE));
-    String clientAddress = client.getPublicAddress().getHostName();
-    System.out.printf("CDH client machine available at %s over SSH.\n",
-        clientAddress);
+  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+		addStatement(event, call("configure_hostnames"));
+		addStatement(event, call("retry_helpers"));
+		addStatement(
+		  event,
+		  call(getInstallFunction(getConfiguration(event.getClusterSpec()), "java",
+		    "install_openjdk")));
+		addStatement(event, call("install_cdh_hadoop"));
   }
 
 }
