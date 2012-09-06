@@ -16,14 +16,11 @@
 #
 
 set -x
-function install_cm_agent() {
-  local OPTIND
-  local OPTARG
 
+function install_cm_agent() {
   if which dpkg &> /dev/null; then
     retry_apt_get -y install cloudera-manager-agent
   elif which rpm &> /dev/null; then
     retry_yum install -y cloudera-manager-agent
   fi
-  
 }

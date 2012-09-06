@@ -43,9 +43,8 @@ public class CmAgentHandler extends BaseHandler {
   	addStatement(event, call("install_cm_agent"));
   }
 
-  @Override
-  protected void beforeConfigure(ClusterActionEvent event) throws IOException,
-      InterruptedException {
+	@Override
+	protected void beforeConfigure(ClusterActionEvent event) throws IOException {
 		try {
 			addStatement(
 			  event,
@@ -56,14 +55,14 @@ public class CmAgentHandler extends BaseHandler {
 			addStatement(event,
 			  call("configure_cm_agent", "-h", "localhost", "-p", CM_SERVER_PORT));
 		}
-    List<?> ports = getConfiguration(event.getClusterSpec()).getList(PORTS);
-    if (ports != null) {
-      for (Object port : ports) {
-        event.getFirewallManager().addRule(
-            Rule.create().destination(role(ROLE)).port(Integer.parseInt(port.toString()))
-        );
-      }
-    }
-  }
+		List<?> ports = getConfiguration(event.getClusterSpec()).getList(PORTS);
+		if (ports != null) {
+			for (Object port : ports) {
+				event.getFirewallManager().addRule(
+				  Rule.create().destination(role(ROLE))
+				    .port(Integer.parseInt(port.toString())));
+			}
+		}
+	}
 
 }

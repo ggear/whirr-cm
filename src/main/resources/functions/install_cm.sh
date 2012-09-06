@@ -18,12 +18,10 @@
 set -x
 
 function install_cm() {
-
   REPO=${REPOCM:-cm4}
   REPO_HOST=${REPO_HOST:-archive.cloudera.com}
   CM_MAJOR_VERSION=$(echo $REPO | sed -e 's/cm\([0-9]\).*/\1/')
   CM_VERSION=$(echo $REPO | sed -e 's/cm\([0-9][0-9]*\)/\1/')
-  
   if [ $CM_MAJOR_VERSION -ge "4" ]; then
 	  if which dpkg &> /dev/null; then
       cat > /etc/apt/sources.list.d/cloudera-$REPO.list <<EOF
@@ -43,8 +41,7 @@ gpgkey = http://archive.cloudera.com/$REPO/redhat/6/x86_64/cm/RPM-GPG-KEY-cloude
 gpgcheck = 1
 EOF
 	    retry_yum update -y retry_yum
-	    retry_yum install -y bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper
+	    retry_yum install -y bigtop-utils bigtop-jsvc bigtop-tomcat hue-plugins
 	  fi
   fi
-
 }

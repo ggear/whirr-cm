@@ -18,6 +18,7 @@
 package com.cloudera.whirr.cm;
 
 import static org.apache.whirr.RolePredicates.role;
+import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
@@ -28,11 +29,18 @@ import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.FirewallManager.Rule;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Resources;
 
 public class CmServerHandler extends BaseHandler {
 
   public static final String ROLE = "cmserver";
+  
+  private static final String LICENSE_FILE = "cm-license.txt";
+  
   private static final int CLIENT_PORT = 7180;
   
   @Override public String getRole() { return ROLE; }
@@ -47,6 +55,18 @@ public class CmServerHandler extends BaseHandler {
   @Override
   protected void beforeConfigure(ClusterActionEvent event) throws IOException,
       InterruptedException {
+		try {
+			addStatement(
+			  event,
+			  createOrOverwriteFile(
+			    "/tmp/" + LICENSE_FILE,
+			    Splitter.on('\n').split(
+			      CharStreams.toString(Resources.newReaderSupplier(
+			        Resources.getResource(LICENSE_FILE), Charsets.UTF_8)))));
+		} catch (IllegalArgumentException e) {
+
+		}
+  	addStatement(event, call("configure_cm_server"));
     event.getFirewallManager().addRule(
         Rule.create().destination(role(ROLE)).port(CLIENT_PORT)
     );

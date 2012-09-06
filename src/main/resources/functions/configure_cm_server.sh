@@ -17,13 +17,24 @@
 
 set -x
 
-function install_cm_server() {
-  if which dpkg &> /dev/null; then
-    retry_apt_get -y install cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
-  elif which rpm &> /dev/null; then
-    retry_yum install -y cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
+function wait_cm_server() {
+  for ID in {60..1}; do
+    if [ $(curl -sI -u admin:admin "http://localhost:7180" | grep "HTTP/1.1 200 OK" | wc -l) -gt 0 ]; then
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
+function configure_cm_server() {
+  if [ -f /tmp/cm-license.txt ]; then
+    service cloudera-scm-server start
+	  if [ wait_cm_server ]; then
+	    curl -u admin:admin -F license=@/tmp/cm-license.txt http://localhost:7180/api/v1/cm/license
+	    #rm -rf /tmp/cm-license.txt
+	    service cloudera-scm-server restart
+	    wait_cm_server
+    fi
   fi
-  service cloudera-scm-server-db initdb
-  service cloudera-scm-server-db start
-  service cloudera-scm-server start
 }
