@@ -27,18 +27,21 @@ import org.apache.whirr.service.ClusterActionEvent;
 
 public class CdhClientHandler extends BaseHandler {
 
-  public static final String ROLE = "cdhclient";
-  
-  @Override public String getRole() { return ROLE; }
-  
-  @Override
-  protected void afterConfigure(ClusterActionEvent event) throws IOException,
-      InterruptedException {
-    Cluster cluster = event.getCluster();
-    Instance client = cluster.getInstanceMatching(role(ROLE));
-    String clientAddress = client.getPublicAddress().getHostName();
-    System.out.printf("CDH client machine available at %s over SSH.\n",
-        clientAddress);
-  }
+	public static final String ROLE = "cdhclient";
+
+	@Override
+	public String getRole() {
+		return ROLE;
+	}
+
+	@Override
+	protected void afterConfigure(ClusterActionEvent event) throws IOException,
+	  InterruptedException {
+		Cluster cluster = event.getCluster();
+		Instance client = cluster.getInstanceMatching(role(ROLE));
+		String clientAddress = client.getPublicAddress().getHostName();
+		System.out.printf("CDH client machine available at %s over SSH.\n",
+		  clientAddress);
+	}
 
 }

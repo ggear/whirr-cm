@@ -18,6 +18,7 @@
 package com.cloudera.whirr.cm;
 
 import static org.jclouds.scriptbuilder.domain.Statements.call;
+import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 
 import java.io.IOException;
 
@@ -26,14 +27,22 @@ import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandlerSupport;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Splitter;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Resources;
+
 public abstract class BaseHandler extends ClusterActionHandlerSupport {
+
+	protected final static String CM_CONFIG_IMPORT_FILE = "collect_existing_service_data.py";
+	protected final static String CM_CONFIG_IMPORT_PATH = "functions/cmf/";
 
 	protected Configuration getConfiguration(ClusterSpec spec) throws IOException {
 		return getConfiguration(spec, "whirr-cm-default.properties");
 	}
 
-  @Override
-  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+	@Override
+	protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
 		addStatement(event, call("configure_hostnames"));
 		addStatement(event, call("retry_helpers"));
 		addStatement(
@@ -41,6 +50,20 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport {
 		  call(getInstallFunction(getConfiguration(event.getClusterSpec()), "java",
 		    "install_openjdk")));
 		addStatement(event, call("install_cdh_hadoop"));
-  }
+		addStatement(event, call("install_cm_config_import"));
+	}
+
+	@Override
+	protected void beforeConfigure(ClusterActionEvent event) throws IOException,
+	  InterruptedException {
+		addStatement(
+		  event,
+		  createOrOverwriteFile(
+		    "/tmp/" + CM_CONFIG_IMPORT_FILE,
+		    Splitter.on('\n').split(
+		      CharStreams.toString(Resources.newReaderSupplier(Resources
+		        .getResource(CM_CONFIG_IMPORT_PATH + CM_CONFIG_IMPORT_FILE),
+		        Charsets.UTF_8)))));
+	}
 
 }

@@ -30,21 +30,26 @@ import org.apache.whirr.service.FirewallManager.Rule;
 public class CmAgentHandler extends BaseHandler {
 
 	private static final String CM_SERVER_PORT = "7182";
-	
-  public static final String ROLE = "cmagent";
-  private static final String PORTS = "cmagent.ports";
-  
-  @Override public String getRole() { return ROLE; }
-  
-  @Override
-  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
-  	super.beforeBootstrap(event);
-  	addStatement(event, call("install_cm"));
-  	addStatement(event, call("install_cm_agent"));
-  }
+
+	public static final String ROLE = "cmagent";
+	private static final String PORTS = "cmagent.ports";
 
 	@Override
-	protected void beforeConfigure(ClusterActionEvent event) throws IOException {
+	public String getRole() {
+		return ROLE;
+	}
+
+	@Override
+	protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+		super.beforeBootstrap(event);
+		addStatement(event, call("install_cm"));
+		addStatement(event, call("install_cm_agent"));
+	}
+
+	@Override
+	protected void beforeConfigure(ClusterActionEvent event) throws IOException,
+	  InterruptedException {
+		super.beforeConfigure(event);
 		try {
 			addStatement(
 			  event,
