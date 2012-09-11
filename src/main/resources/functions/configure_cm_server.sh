@@ -30,7 +30,7 @@ function wait_cm_server() {
 function configure_cm_server() {
   if [ -f /tmp/cm-license.txt ]; then
     service cloudera-scm-server start
-	  if [ wait_cm_server ]; then
+	  if wait_cm_server; then
 	    curl -u admin:admin -F license=@/tmp/cm-license.txt http://localhost:7180/api/v1/cm/license
 	    rm -rf /tmp/cm-license.txt
 	    service cloudera-scm-server restart
