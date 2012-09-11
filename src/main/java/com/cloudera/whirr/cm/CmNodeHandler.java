@@ -28,28 +28,32 @@ import org.apache.whirr.service.FirewallManager.Rule;
 
 public class CmNodeHandler extends BaseHandler {
 
-  public static final String ROLE = "cmnode";
-  private static final String PORTS = "cmnode.ports";
-  
-  @Override public String getRole() { return ROLE; }
-  
-  @Override
-  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
-  	super.beforeBootstrap(event);
-  	addStatement(event, call("install_cm"));
-  }
+	public static final String ROLE = "cmnode";
+	private static final String PORTS = "cmnode.ports";
 
-  @Override
-  protected void beforeConfigure(ClusterActionEvent event) throws IOException,
-      InterruptedException {
-    List<?> ports = getConfiguration(event.getClusterSpec()).getList(PORTS);
-    if (ports != null) {
-      for (Object port : ports) {
-        event.getFirewallManager().addRule(
-            Rule.create().destination(role(ROLE)).port(Integer.parseInt(port.toString()))
-        );
-      }
-    }
-  }
+	@Override
+	public String getRole() {
+		return ROLE;
+	}
+
+	@Override
+	protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+		super.beforeBootstrap(event);
+		addStatement(event, call("install_cm"));
+	}
+
+	@Override
+	protected void beforeConfigure(ClusterActionEvent event) throws IOException,
+	  InterruptedException {
+		super.beforeConfigure(event);
+		List<?> ports = getConfiguration(event.getClusterSpec()).getList(PORTS);
+		if (ports != null) {
+			for (Object port : ports) {
+				event.getFirewallManager().addRule(
+				  Rule.create().destination(role(ROLE))
+				    .port(Integer.parseInt(port.toString())));
+			}
+		}
+	}
 
 }
