@@ -33,7 +33,7 @@ function configure_cm_server() {
 			if [ -f /tmp/cm-config.json ]; then
 			  curl -u admin:admin -X PUT -H 'Content-Type:application/json' -d "$(cat /tmp/cm-config.json)" http://localhost:7180/api/v1/cm/config
 			fi      
-      if [ -z "${CONFIGURE_KERBEROS_DONE+xxx}" ]; then
+      if [ ! -z "${CONFIGURE_KERBEROS_DONE+xxx}" ]; then
         cat >> run_cloudera_scm_kerberos <<END
 #!/usr/bin/expect -f
 set timeout 5000
