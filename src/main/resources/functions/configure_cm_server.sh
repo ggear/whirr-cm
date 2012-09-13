@@ -28,13 +28,38 @@ function wait_cm_server() {
 }
 
 function configure_cm_server() {
-  if [ -f /tmp/cm-license.txt ]; then
     service cloudera-scm-server start
 	  if wait_cm_server; then
-	    curl -u admin:admin -F license=@/tmp/cm-license.txt http://localhost:7180/api/v1/cm/license
-	    rm -rf /tmp/cm-license.txt
+			if [ -f /tmp/cm-config.json ]; then
+			  curl -u admin:admin -X PUT -H 'Content-Type:application/json' -d "$(cat /tmp/cm-config.json)" http://localhost:7180/api/v1/cm/config
+			fi      
+      if [ -z "${CONFIGURE_KERBEROS_DONE+xxx}" ]; then
+        cat >> run_cloudera_scm_kerberos <<END
+#!/usr/bin/expect -f
+set timeout 5000
+spawn sudo kadmin -p whirr/admin@CDHCLUSTER.COM
+expect {Password for whirr/admin@CDHCLUSTER.COM: } { send "whirr\r" }
+expect {kadmin:  } { send "addprinc -randkey cloudera-scm/admin@CDHCLUSTER.COM\r" }
+expect {kadmin:  } { send "xst -k cmf.keytab cloudera-scm/admin@CDHCLUSTER.COM\r" }
+expect {kadmin:  } { send "quit\r" }
+expect EOF
+END
+        chmod +x ./run_cloudera_scm_kerberos
+        ./run_cloudera_scm_kerberos
+        rm -rf run_cloudera_scm_kerberos
+        mv cmf.keytab /etc/cloudera-scm-server
+        chown cloudera-scm:cloudera-scm /etc/cloudera-scm-server/cmf.keytab
+        chmod 600 /etc/cloudera-scm-server/cmf.keytab
+        echo "cloudera-scm/admin@CDHCLUSTER.COM" > /etc/cloudera-scm-server/cmf.principal
+        chown cloudera-scm:cloudera-scm /etc/cloudera-scm-server/cmf.principal
+        chmod 600 /etc/cloudera-scm-server/cmf.principal
+        curl -u admin:admin -X PUT -H 'Content-Type:application/json' -d '{ "items" : [ { "name" : "SECURITY_REALM", "value" : "CDHCLUSTER.COM" } ] }' http://localhost:7180/api/v1/cm/config
+	    fi
+      if [ -f /tmp/cm-license.txt ]; then
+	      curl -u admin:admin -F license=@/tmp/cm-license.txt http://localhost:7180/api/v1/cm/license
+	      rm -rf /tmp/cm-license.txt
+	    fi	    
 	    service cloudera-scm-server restart
 	    wait_cm_server
-    fi
   fi
 }

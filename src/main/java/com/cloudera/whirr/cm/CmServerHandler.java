@@ -18,8 +18,8 @@
 package com.cloudera.whirr.cm;
 
 import static org.apache.whirr.RolePredicates.role;
-import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
+import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 
 import java.io.IOException;
 import java.util.Set;
@@ -40,6 +40,7 @@ public class CmServerHandler extends BaseHandler {
 	public static final String ROLE = "cmserver";
 
 	private static final String LICENSE_FILE = "cm-license.txt";
+	private static final String CONFIG_FILE = "cm-config.json";
 
 	private static final int CLIENT_PORT = 7180;
 
@@ -67,6 +68,17 @@ public class CmServerHandler extends BaseHandler {
 			    Splitter.on('\n').split(
 			      CharStreams.toString(Resources.newReaderSupplier(
 			        Resources.getResource(LICENSE_FILE), Charsets.UTF_8)))));
+		} catch (IllegalArgumentException e) {
+
+		}
+		try {
+			addStatement(
+			  event,
+			  createOrOverwriteFile(
+			    "/tmp/" + CONFIG_FILE,
+			    Splitter.on('\n').split(
+			      CharStreams.toString(Resources.newReaderSupplier(
+			        Resources.getResource(CONFIG_FILE), Charsets.UTF_8)))));
 		} catch (IllegalArgumentException e) {
 
 		}
