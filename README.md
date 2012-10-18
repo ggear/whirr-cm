@@ -52,14 +52,14 @@ $(cd whirr-0.7.1/lib && curl -LO https://github.com/downloads/tomwhite/whirr-cm/
 
 ```bash
 curl -O https://raw.github.com/tomwhite/whirr-cm/master/cm-ec2.properties
+```
 
-If you would like to upload a CM License as part of the instalation, place the license in a file called
-"cm-license.txt" on the whirr classpath (eg in $WHIRR_HOME/conf). Cloudera can provide this license file.
+If you would like to upload a CM License as part of the instalation, place the license in a file
+"cm-license.txt" on the whirr classpath (eg in whirr-0.7.1/conf). Cloudera can provide this license file. Eg:
 
 If you would like to upload a CM Configuration as part of the instalation, place the config in a file called
-"cm-config.json" on the whirr classpath (eg in $WHIRR_HOME/conf). The format of this file should match the JSON
+"cm-config.json" on the whirr classpath (eg in whirr-0.7.1/conf). The format of this file should match the JSON
 as downloaded from the CM UI.
-```
 
 ## Launch a Cloudera Manager Cluster
 
