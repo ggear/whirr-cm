@@ -39,8 +39,8 @@ public class CmServerHandler extends BaseHandler {
 
 	public static final String ROLE = "cmserver";
 
-	private static final String LICENSE_FILE = "cm-license.txt";
-	private static final String CONFIG_FILE = "cm-config.json";
+	public static final String LICENSE_FILE = "cm-license.txt";
+	public static final String CONFIG_FILE = "cm-config.json";
 
 	private static final int CLIENT_PORT = 7180;
 
@@ -110,10 +110,13 @@ public class CmServerHandler extends BaseHandler {
 		  .println("Authentication Method (choose \"All hosts accept same public key\"):");
 		System.out.printf("User name (choose \"another user\"): %s\n",
 		  System.getProperty("user.name"));
-		String privateKey = event.getClusterSpec().getPrivateKeyFile()
-		  .getCanonicalPath();
-		System.out.printf("Public key file: %s\n", privateKey + ".pub");
-		System.out.printf("Private key file: %s (empty passphrase)\n", privateKey);
+		if (event.getClusterSpec().getPrivateKeyFile() != null) {
+			String privateKey = event.getClusterSpec().getPrivateKeyFile()
+			  .getCanonicalPath();
+			System.out.printf("Public key file: %s\n", privateKey + ".pub");
+			System.out
+			  .printf("Private key file: %s (empty passphrase)\n", privateKey);
+		}
 		System.out.println();
 
 		if (nodes.size() > 0) {
