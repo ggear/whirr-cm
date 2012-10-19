@@ -59,7 +59,11 @@ If you would like to upload a CM License as part of the instalation, place the l
 
 If you would like to upload a CM Configuration as part of the instalation, place the config in a file called
 "cm-config.json" on the whirr classpath (eg in whirr-0.7.1/conf). The format of this file should match the JSON
-as downloaded from the CM UI.
+as downloaded from the CM UI, eg
+
+```bash
+curl -O https://raw.github.com/tomwhite/whirr-cm/master/cm-config.json
+```
 
 ## Launch a Cloudera Manager Cluster
 
