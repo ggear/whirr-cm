@@ -60,12 +60,18 @@ cp -rvf target/whirr-cm-*.jar $WHIRR_HOME/lib
 
 ## Get your whirr-cm configuration
 
+A sample Whirr EC2 CM config is available here: 
+
 ```bash
 curl -O https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties
 ```
 
-If you would like to upload a CM License as part of the instalation, place the license in a file
-"cm-license.txt" on the whirr classpath (eg in $WHIRR_HOME/conf). Cloudera can provide this license file.
+If you would like to upload a CM License as part of the instalation (Cloudera can provide this if you do not
+have one), place the license in a file "cm-license.txt" on the whirr classpath (eg in $WHIRR_HOME/conf), eg
+
+```bash
+mv -v eval_acme_20120925_cloudera_enterprise_license.txt $WHIRR_HOME/conf/cm-license.txt
+```
 
 If you would like to upload a CM Configuration as part of the instalation, place the config in a file called
 "cm-config.json" on the whirr classpath (eg in $WHIRR_HOME/conf). The format of this file should match the JSON
@@ -73,6 +79,7 @@ as downloaded from the CM UI, eg
 
 ```bash
 curl -O https://raw.github.com/cloudera/whirr-cm/master/cm-config.json
+mv -v cm-config.json $WHIRR_HOME/conf/cm-config.json
 ```
 
 ## Launch a Cloudera Manager Cluster
