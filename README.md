@@ -45,13 +45,13 @@ ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa_cm
 Download the Whirr CM plugin into the lib directory of your Whirr installation.
 
 ```bash
-$(cd whirr-0.7.1/lib && curl -LO https://github.com/downloads/tomwhite/whirr-cm/whirr-cm-1.1.jar)
+$(cd whirr-0.7.1/lib && curl -LO https://github.com/downloads/cloudera/whirr-cm/whirr-cm-1.1.jar)
 ```
 
 ## Get your whirr-cm configuration
 
 ```bash
-curl -O https://raw.github.com/tomwhite/whirr-cm/master/cm-ec2.properties
+curl -O https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties
 ```
 
 If you would like to upload a CM License as part of the instalation, place the license in a file
@@ -62,7 +62,7 @@ If you would like to upload a CM Configuration as part of the instalation, place
 as downloaded from the CM UI, eg
 
 ```bash
-curl -O https://raw.github.com/tomwhite/whirr-cm/master/cm-config.json
+curl -O https://raw.github.com/cloudera/whirr-cm/master/cm-config.json
 ```
 
 ## Launch a Cloudera Manager Cluster
