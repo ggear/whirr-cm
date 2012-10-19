@@ -27,11 +27,14 @@ export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
 ```
 
-### Download and install Whirr:
+### Install Whirr:
+
+For RHEL/CentOS and bash:
+
 ```bash
-curl -O http://www.apache.org/dist/whirr/whirr-0.7.1/whirr-0.7.1.tar.gz
-tar zxf whirr-0.7.1.tar.gz
-export PATH=$PATH:$(pwd)/whirr-0.7.1/bin
+yum install whirr
+export WHIRR_HOME=/usr/lib/whirr
+export PATH=$WHIRR_HOME/bin:$PATH
 ```
 
 ### Create a password-less SSH keypair for Whirr to use:
@@ -42,10 +45,13 @@ ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa_cm
 
 ## Install the Whirr Cloudera Manager Service Plugin
 
-Download the Whirr CM plugin into the lib directory of your Whirr installation.
+Download the Whirr CM plugun source, build and install into the lib directory of your Whirr installation.
 
 ```bash
-$(cd whirr-0.7.1/lib && curl -LO https://github.com/downloads/cloudera/whirr-cm/whirr-cm-1.1.jar)
+git clone https://github.com/cloudera/whirr-cm.git
+cd whirr-cm
+mvn clean install
+cp -rvf target/whirr-cm-*.jar $WHIRR_HOME/lib
 ```
 
 ## Get your whirr-cm configuration
@@ -55,10 +61,10 @@ curl -O https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties
 ```
 
 If you would like to upload a CM License as part of the instalation, place the license in a file
-"cm-license.txt" on the whirr classpath (eg in whirr-0.7.1/conf). Cloudera can provide this license file.
+"cm-license.txt" on the whirr classpath (eg in $WHIRR_HOME/conf). Cloudera can provide this license file.
 
 If you would like to upload a CM Configuration as part of the instalation, place the config in a file called
-"cm-config.json" on the whirr classpath (eg in whirr-0.7.1/conf). The format of this file should match the JSON
+"cm-config.json" on the whirr classpath (eg in $WHIRR_HOME/conf). The format of this file should match the JSON
 as downloaded from the CM UI, eg
 
 ```bash
