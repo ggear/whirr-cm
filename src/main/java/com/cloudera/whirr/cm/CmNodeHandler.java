@@ -21,7 +21,6 @@ import static org.apache.whirr.RolePredicates.role;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.FirewallManager.Rule;
@@ -29,7 +28,8 @@ import org.apache.whirr.service.FirewallManager.Rule;
 public class CmNodeHandler extends BaseHandler {
 
 	public static final String ROLE = "cmnode";
-	private static final String PORTS = "cmnode.ports";
+
+	private static final String PROPERTY_PORTS = "cmnode.ports";
 
 	@Override
 	public String getRole() {
@@ -46,13 +46,12 @@ public class CmNodeHandler extends BaseHandler {
 	protected void beforeConfigure(ClusterActionEvent event) throws IOException,
 	  InterruptedException {
 		super.beforeConfigure(event);
-		List<?> ports = getConfiguration(event.getClusterSpec()).getList(PORTS);
-		if (ports != null) {
-			for (Object port : ports) {
+		for (Object port : getConfiguration(event.getClusterSpec()).getList(
+		  PROPERTY_PORTS)) {
+			if (port != null && !"".equals(port))
 				event.getFirewallManager().addRule(
 				  Rule.create().destination(role(ROLE))
 				    .port(Integer.parseInt(port.toString())));
-			}
 		}
 	}
 

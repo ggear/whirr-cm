@@ -21,18 +21,12 @@ import static org.apache.whirr.RolePredicates.role;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.apache.whirr.service.ClusterActionEvent;
-import org.apache.whirr.service.FirewallManager.Rule;
 
-public class CmAgentHandler extends BaseHandler {
-
-	private static final String CM_SERVER_PORT = "7182";
+public class CmAgentHandler extends CmNodeHandler {
 
 	public static final String ROLE = "cmagent";
-	private static final String PORTS = "cmagent.ports";
 
 	@Override
 	public String getRole() {
@@ -42,7 +36,6 @@ public class CmAgentHandler extends BaseHandler {
 	@Override
 	protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
 		super.beforeBootstrap(event);
-		addStatement(event, call("install_cm"));
 		addStatement(event, call("install_cm_agent"));
 	}
 
@@ -50,24 +43,12 @@ public class CmAgentHandler extends BaseHandler {
 	protected void beforeConfigure(ClusterActionEvent event) throws IOException,
 	  InterruptedException {
 		super.beforeConfigure(event);
-		try {
-			addStatement(
-			  event,
-			  call("configure_cm_agent", "-h", event.getCluster()
-			    .getInstanceMatching(role(CmServerHandler.ROLE)).getPublicHostName(),
-			    "-p", CM_SERVER_PORT));
-		} catch (NoSuchElementException e) {
-			addStatement(event,
-			  call("configure_cm_agent", "-h", "localhost", "-p", CM_SERVER_PORT));
-		}
-		List<?> ports = getConfiguration(event.getClusterSpec()).getList(PORTS);
-		if (ports != null) {
-			for (Object port : ports) {
-				event.getFirewallManager().addRule(
-				  Rule.create().destination(role(ROLE))
-				    .port(Integer.parseInt(port.toString())));
-			}
-		}
+		addStatement(
+		  event,
+		  call("configure_cm_agent", "-h",
+		    event.getCluster().getInstanceMatching(role(CmServerHandler.ROLE))
+		      .getPublicHostName(), "-p", getConfiguration(event.getClusterSpec())
+		      .getString(CmServerHandler.PROPERTY_PORT_COMMS)));
 	}
 
 }

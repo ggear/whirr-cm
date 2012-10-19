@@ -34,11 +34,13 @@ import com.google.common.io.Resources;
 
 public abstract class BaseHandler extends ClusterActionHandlerSupport {
 
-	protected final static String CM_CONFIG_IMPORT_FILE = "collect_existing_service_data.py";
-	protected final static String CM_CONFIG_IMPORT_PATH = "functions/cmf/";
+	protected final static String CONFIG_IMPORT_FILE = "collect_existing_service_data.py";
+	protected final static String CONFIG_IMPORT_PATH = "functions/cmf/";
+
+	private final static String PROPERTIES_FILE = "whirr-cm-default.properties";
 
 	protected Configuration getConfiguration(ClusterSpec spec) throws IOException {
-		return getConfiguration(spec, "whirr-cm-default.properties");
+		return getConfiguration(spec, PROPERTIES_FILE);
 	}
 
 	@Override
@@ -59,10 +61,10 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport {
 		addStatement(
 		  event,
 		  createOrOverwriteFile(
-		    "/tmp/" + CM_CONFIG_IMPORT_FILE,
+		    "/tmp/" + CONFIG_IMPORT_FILE,
 		    Splitter.on('\n').split(
-		      CharStreams.toString(Resources.newReaderSupplier(Resources
-		        .getResource(CM_CONFIG_IMPORT_PATH + CM_CONFIG_IMPORT_FILE),
+		      CharStreams.toString(Resources.newReaderSupplier(
+		        Resources.getResource(CONFIG_IMPORT_PATH + CONFIG_IMPORT_FILE),
 		        Charsets.UTF_8)))));
 	}
 

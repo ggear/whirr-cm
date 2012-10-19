@@ -39,8 +39,14 @@ public class CmServerTest extends BaseServiceDryRunTest {
 
 	@Override
 	protected Predicate<CharSequence> bootstrapPredicate() {
-		return and(containsPattern("install_cm"),
-		  containsPattern("install_cm_server"));
+		return and(
+		  containsPattern("configure_hostnames"),
+		  and(
+		    containsPattern("install_cdh_hadoop"),
+		    and(
+		      containsPattern("install_cm_config_import"),
+		      and(containsPattern("install_cm"),
+		        containsPattern("install_cm_server")))));
 	}
 
 	@Override
@@ -49,11 +55,11 @@ public class CmServerTest extends BaseServiceDryRunTest {
 	}
 
 	@Test
-	public void testChefWithDefaultRecipe() throws Exception {
+	public void testDefaultConfiguration() throws Exception {
 		DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap
 		  .of("whirr.instance-templates", "1 cmserver")));
-		assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
-		assertScriptPredicateOnPhase(dryRun, "configure", configurePredicate());
+		assertScriptPredicateOnPhase(dryRun, "configure",
+		  containsPattern(CmServerHandler.CONFIG_IMPORT_FILE));
 	}
 
 }

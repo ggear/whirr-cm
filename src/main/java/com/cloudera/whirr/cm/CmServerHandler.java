@@ -22,6 +22,8 @@ import static org.jclouds.scriptbuilder.domain.Statements.call;
 import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.whirr.Cluster;
@@ -42,7 +44,9 @@ public class CmServerHandler extends BaseHandler {
 	public static final String LICENSE_FILE = "cm-license.txt";
 	public static final String CONFIG_FILE = "cm-config.json";
 
-	private static final int CLIENT_PORT = 7180;
+	public static final String PROPERTY_PORTS = "cmserver.ports";
+	public static final String PROPERTY_PORT_WEB = "cmserver.port.web";
+	public static final String PROPERTY_PORT_COMMS = "cmserver.port.comms";
 
 	@Override
 	public String getRole() {
@@ -60,42 +64,54 @@ public class CmServerHandler extends BaseHandler {
 	protected void beforeConfigure(ClusterActionEvent event) throws IOException,
 	  InterruptedException {
 		super.beforeConfigure(event);
-		try {
+		URL licenceConfigUri = null;
+		if ((licenceConfigUri = CmServerHandler.class.getClassLoader().getResource(
+		  LICENSE_FILE)) != null) {
 			addStatement(
 			  event,
 			  createOrOverwriteFile(
 			    "/tmp/" + LICENSE_FILE,
 			    Splitter.on('\n').split(
-			      CharStreams.toString(Resources.newReaderSupplier(
-			        Resources.getResource(LICENSE_FILE), Charsets.UTF_8)))));
-		} catch (IllegalArgumentException e) {
-
+			      CharStreams.toString(Resources.newReaderSupplier(licenceConfigUri,
+			        Charsets.UTF_8)))));
 		}
-		try {
+		URL configFileUri = null;
+		if ((configFileUri = CmServerHandler.class.getClassLoader().getResource(
+		  CONFIG_FILE)) != null) {
 			addStatement(
 			  event,
 			  createOrOverwriteFile(
 			    "/tmp/" + CONFIG_FILE,
 			    Splitter.on('\n').split(
-			      CharStreams.toString(Resources.newReaderSupplier(
-			        Resources.getResource(CONFIG_FILE), Charsets.UTF_8)))));
-		} catch (IllegalArgumentException e) {
-
+			      CharStreams.toString(Resources.newReaderSupplier(configFileUri,
+			        Charsets.UTF_8)))));
 		}
 		addStatement(event, call("configure_cm_server"));
-		event.getFirewallManager().addRule(
-		  Rule.create().destination(role(ROLE)).port(CLIENT_PORT));
+		@SuppressWarnings("unchecked")
+		List<String> ports = getConfiguration(event.getClusterSpec()).getList(
+		  PROPERTY_PORTS);
+		ports.add(getConfiguration(event.getClusterSpec()).getString(
+		  PROPERTY_PORT_WEB));
+		ports.add(getConfiguration(event.getClusterSpec()).getString(
+		  PROPERTY_PORT_COMMS));
+		for (String port : ports) {
+			if (port != null && !"".equals(port))
+				event.getFirewallManager().addRule(
+				  Rule.create().destination(role(ROLE)).port(Integer.parseInt(port)));
+		}
 	}
 
 	@Override
 	protected void afterConfigure(ClusterActionEvent event) throws IOException,
 	  InterruptedException {
+		super.afterConfigure(event);
 		Cluster cluster = event.getCluster();
 		Instance master = cluster.getInstanceMatching(role(ROLE));
 		String masterAddress = master.getPublicAddress().getHostName();
 		System.out.printf(
 		  "Cloudera Manager Admin Console available at http://%s:%s\n",
-		  masterAddress, CLIENT_PORT);
+		  masterAddress,
+		  getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
 
 		System.out
 		  .println("Nodes in cluster (copy into text area when setting up the cluster):");

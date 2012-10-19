@@ -54,7 +54,7 @@ Download the Whirr CM plugun source, build and install into the lib directory of
 ```bash
 git clone https://github.com/cloudera/whirr-cm.git
 cd whirr-cm
-mvn clean install
+mvn clean install -Dmaven.test.skip=true
 cp -rvf target/whirr-cm-*.jar $WHIRR_HOME/lib
 ```
 
