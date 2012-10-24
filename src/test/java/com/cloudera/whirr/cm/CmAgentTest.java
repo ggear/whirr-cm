@@ -56,5 +56,5 @@ public class CmAgentTest extends BaseCmTest {
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
     assertScriptPredicateOnPhase(dryRun, "configure", containsPattern(CmServerHandler.CONFIG_IMPORT_FILE));
   }
-  
+
 }
