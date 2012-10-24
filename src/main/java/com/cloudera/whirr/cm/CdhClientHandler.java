@@ -19,11 +19,11 @@ package com.cloudera.whirr.cm;
 
 public class CdhClientHandler extends BaseHandler {
 
-	public static final String ROLE = "cdhclient";
+  public static final String ROLE = "cdhclient";
 
-	@Override
-	public String getRole() {
-		return ROLE;
-	}
+  @Override
+  public String getRole() {
+    return ROLE;
+  }
 
 }

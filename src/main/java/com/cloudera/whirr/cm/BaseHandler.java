@@ -34,38 +34,33 @@ import com.google.common.io.Resources;
 
 public abstract class BaseHandler extends ClusterActionHandlerSupport {
 
-	protected final static String CONFIG_IMPORT_FILE = "collect_existing_service_data.py";
-	protected final static String CONFIG_IMPORT_PATH = "functions/cmf/";
+  protected final static String CONFIG_IMPORT_FILE = "collect_existing_service_data.py";
+  protected final static String CONFIG_IMPORT_PATH = "functions/cmf/";
 
-	private final static String PROPERTIES_FILE = "whirr-cm-default.properties";
+  private final static String PROPERTIES_FILE = "whirr-cm-default.properties";
 
-	protected Configuration getConfiguration(ClusterSpec spec) throws IOException {
-		return getConfiguration(spec, PROPERTIES_FILE);
-	}
+  protected Configuration getConfiguration(ClusterSpec spec) throws IOException {
+    return getConfiguration(spec, PROPERTIES_FILE);
+  }
 
-	@Override
-	protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
-		addStatement(event, call("configure_hostnames"));
-		addStatement(event, call("retry_helpers"));
-		addStatement(
-		  event,
-		  call(getInstallFunction(getConfiguration(event.getClusterSpec()), "java",
-		    "install_openjdk")));
-		addStatement(event, call("install_cdh_hadoop"));
-		addStatement(event, call("install_cm_config_import"));
-	}
+  @Override
+  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+    addStatement(event, call("configure_hostnames"));
+    addStatement(event, call("retry_helpers"));
+    addStatement(event, call(getInstallFunction(getConfiguration(event.getClusterSpec()), "java", "install_openjdk")));
+    addStatement(event, call("install_cdh_hadoop"));
+    addStatement(event, call("install_cm_config_import"));
+  }
 
-	@Override
-	protected void beforeConfigure(ClusterActionEvent event) throws IOException,
-	  InterruptedException {
-		addStatement(
-		  event,
-		  createOrOverwriteFile(
-		    "/tmp/" + CONFIG_IMPORT_FILE,
-		    Splitter.on('\n').split(
-		      CharStreams.toString(Resources.newReaderSupplier(
-		        Resources.getResource(CONFIG_IMPORT_PATH + CONFIG_IMPORT_FILE),
-		        Charsets.UTF_8)))));
-	}
+  @Override
+  protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
+    addStatement(
+      event,
+      createOrOverwriteFile(
+        "/tmp/" + CONFIG_IMPORT_FILE,
+        Splitter.on('\n').split(
+          CharStreams.toString(Resources.newReaderSupplier(
+            Resources.getResource(CONFIG_IMPORT_PATH + CONFIG_IMPORT_FILE), Charsets.UTF_8)))));
+  }
 
 }

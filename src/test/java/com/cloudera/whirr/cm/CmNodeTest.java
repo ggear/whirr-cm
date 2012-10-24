@@ -22,52 +22,39 @@ import static com.google.common.base.Predicates.containsPattern;
 
 import java.util.Set;
 
-import junit.framework.Assert;
-
+import org.apache.whirr.service.DryRunModule.DryRun;
 import org.junit.Test;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-public class CmServerTest extends BaseCmTest {
+public class CmNodeTest extends BaseCmTest {
 
   @Override
   protected Set<String> getInstanceRoles() {
-    return ImmutableSet.of("cmserver");
+    return ImmutableSet.of("cmnode");
   }
 
   @Override
   protected Predicate<CharSequence> bootstrapPredicate() {
     return and(
       containsPattern("configure_hostnames"),
-      and(
-        containsPattern("install_cdh_hadoop"),
-        and(containsPattern("install_cm_config_import"),
-          and(containsPattern("install_cm"), containsPattern("install_cm_server")))));
+      and(containsPattern("install_cdh_hadoop"),
+        and(containsPattern("install_cm_config_import"), containsPattern("install_cm"))));
   }
 
   @Override
   protected Predicate<CharSequence> configurePredicate() {
-    return and(containsPattern("configure_cm_server"), containsPattern(CmServerHandler.CONFIG_IMPORT_FILE));
+    return containsPattern(CmServerHandler.CONFIG_IMPORT_FILE);
   }
 
   @Test
-  public void testNodes() throws Exception {
-    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-      "1 cmserver,2 cmnode"))));
-  }
-
-  @Test
-  public void testAgents() throws Exception {
-    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-      "1 cmserver,2 cmagent"))));
-  }
-
-  @Test
-  public void testNodesAndAgents() throws Exception {
-    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-      "1 cmserver,2 cmnode,2 cmagent"))));
+  public void testWithCmServer() throws Exception {
+    DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+      "1 cmserver,1 cmagent")));
+    assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
+    assertScriptPredicateOnPhase(dryRun, "configure", configurePredicate());
   }
 
 }
