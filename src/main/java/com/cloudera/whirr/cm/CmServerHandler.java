@@ -101,25 +101,25 @@ public class CmServerHandler extends BaseHandler {
     System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicHostName() + ":"
       + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
     System.out.println();
+    System.out.println("Web Console User/Password:");
+    System.out.println("admin/admin");
+    System.out.println();
+    System.out.println("Nodes:");
+    Set<Instance> nodesToInstall = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
+    if (nodesToInstall.isEmpty()) {
+      System.out.println("<none>");
+    } else {
+      for (Instance instance : nodesToInstall) {
+        System.out.println(instance.getPublicHostName());
+      }
+    }
+    System.out.println();
     System.out.println("User:");
     System.out.println(event.getClusterSpec().getClusterUser());
-    System.out.println();
-    System.out.println("Public Key Path:");
-    System.out.println(event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>" : (event.getClusterSpec()
-      .getPrivateKeyFile().getCanonicalPath() + ".pub"));
     System.out.println();
     System.out.println("Private Key Path:");
     System.out.println(event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>" : event.getClusterSpec()
       .getPrivateKeyFile().getCanonicalPath());
-    System.out.println();
-    System.out.println("Nodes:");
-    Set<Instance> nodesToInstall = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
-    if (nodesToInstall.isEmpty())
-      System.out.println("<none>");
-    else
-      for (Instance instance : nodesToInstall) {
-        System.out.println(instance.getPrivateIp());
-      }
     System.out.println();
     System.out.println("Console:");
     System.out.println("ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser() + "@"
