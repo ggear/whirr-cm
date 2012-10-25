@@ -35,9 +35,10 @@ EOF
 [cloudera-manager]
 # Packages for Cloudera Manager, Version $CM_VERSION, on RedHat or CentOS 6 x86_64
 name=Cloudera Manager
-baseurl=http://$REPO_HOST/$REPO/redhat/6/x86_64/cm/$CM_MAJOR_VERSION/
-gpgkey = http://archive.cloudera.com/$REPO/redhat/6/x86_64/cm/RPM-GPG-KEY-cloudera    
-gpgcheck = 1
+baseurl=http://$REPO_HOST/$REPO/redhat/\$releasever/\$basearch/cm/$CM_MAJOR_VERSION/
+gpgkey=http://archive.cloudera.com/$REPO/redhat/\$releasever/\$basearch/cm/RPM-GPG-KEY-cloudera
+gpgcheck=0
+enabled=1
 EOF
 	    retry_yum install -y bigtop-utils bigtop-jsvc bigtop-tomcat hue-plugins
 	  fi
