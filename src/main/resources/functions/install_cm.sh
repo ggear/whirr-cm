@@ -29,8 +29,7 @@ deb http://$REPO_HOST/$REPO/ubuntu/lucid/amd64/cm lucid-$REPO contrib
 deb-src http://$REPO_HOST/$REPO/ubuntu/lucid/amd64/cm lucid-$REPO contrib
 EOF
       curl -s http://$REPO_HOST/$REPO/ubuntu/lucid/amd64/cm/archive.key | apt-key add -
-	    retry_apt_get -y update bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper
-	    retry_apt_get -y install 
+	    retry_apt_get -y install bigtop-utils bigtop-jsvc bigtop-tomcat hue-plugins
 	  elif which rpm &> /dev/null; then
       cat > /etc/yum.repos.d/cloudera-$REPO.repo <<EOF
 [cloudera-manager]
@@ -40,7 +39,6 @@ baseurl=http://$REPO_HOST/$REPO/redhat/6/x86_64/cm/$CM_MAJOR_VERSION/
 gpgkey = http://archive.cloudera.com/$REPO/redhat/6/x86_64/cm/RPM-GPG-KEY-cloudera    
 gpgcheck = 1
 EOF
-	    retry_yum update -y retry_yum
 	    retry_yum install -y bigtop-utils bigtop-jsvc bigtop-tomcat hue-plugins
 	  fi
   fi
