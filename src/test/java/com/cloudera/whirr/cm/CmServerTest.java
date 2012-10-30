@@ -34,40 +34,38 @@ public class CmServerTest extends BaseCmTest {
 
   @Override
   protected Set<String> getInstanceRoles() {
-    return ImmutableSet.of("cmserver");
+    return ImmutableSet.of(CmServerHandler.ROLE);
   }
 
   @Override
   protected Predicate<CharSequence> bootstrapPredicate() {
     return and(
       containsPattern("configure_hostnames"),
-      and(
-        containsPattern("install_cdh_hadoop"),
-        and(containsPattern("install_cm_config_import"),
-          and(containsPattern("install_cm"), containsPattern("install_cm_server")))));
+      and(containsPattern("install_cdh_hadoop"),
+        and(containsPattern("install_cm"), containsPattern("install_cm_server"))));
   }
 
   @Override
   protected Predicate<CharSequence> configurePredicate() {
-    return and(containsPattern("configure_cm_server"), containsPattern(CmServerHandler.CONFIG_IMPORT_FILE));
+    return containsPattern("configure_cm_server");
   }
 
   @Test
   public void testNodes() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-      "1 cmserver,2 cmnode"))));
+      "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE))));
   }
 
   @Test
   public void testAgents() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-      "1 cmserver,2 cmagent"))));
+      "1 " + CmServerHandler.ROLE + ",2 " + CmAgentHandler.ROLE))));
   }
 
   @Test
   public void testNodesAndAgents() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-      "1 cmserver,2 cmnode,2 cmagent"))));
+      "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE + ",2 " + CmAgentHandler.ROLE))));
   }
 
 }

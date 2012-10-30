@@ -33,28 +33,25 @@ public class CmAgentTest extends BaseCmTest {
 
   @Override
   protected Set<String> getInstanceRoles() {
-    return ImmutableSet.of("cmserver", "cmagent");
+    return ImmutableSet.of(CmServerHandler.ROLE, CmAgentHandler.ROLE);
   }
 
   @Override
   protected Predicate<CharSequence> bootstrapPredicate() {
-    return and(
-      containsPattern("configure_hostnames"),
-      and(containsPattern("install_cdh_hadoop"),
-        and(containsPattern("install_cm_config_import"), containsPattern("install_cm_agent"))));
+    return and(containsPattern("configure_hostnames"),
+      and(containsPattern("install_cdh_hadoop"), containsPattern("install_cm_agent")));
   }
 
   @Override
   protected Predicate<CharSequence> configurePredicate() {
-    return and(containsPattern(CmServerHandler.CONFIG_IMPORT_FILE), containsPattern("configure_cm_agent"));
+    return containsPattern("configure_cm_agent");
   }
 
   @Test
   public void testNoCmServer() throws Exception {
-    DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-      "1 cmagent")));
+    DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
+      + CmAgentHandler.ROLE)));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
-    assertScriptPredicateOnPhase(dryRun, "configure", containsPattern(CmServerHandler.CONFIG_IMPORT_FILE));
   }
 
 }

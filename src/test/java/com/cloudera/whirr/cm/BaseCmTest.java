@@ -34,6 +34,7 @@ public abstract class BaseCmTest extends BaseServiceDryRunTest {
   private static File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
   private static File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key.pub");
 
+  @Override
   public ClusterSpec newClusterSpecForProperties(Map<String, String> properties) throws IOException,
     ConfigurationException, JSchException {
     ClusterSpec clusterSpec = super.newClusterSpecForProperties(ImmutableMap.<String, String> builder()
