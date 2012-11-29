@@ -48,7 +48,7 @@ public class CmNodeHandler extends BaseHandler {
     for (Object port : getConfiguration(event.getClusterSpec()).getList(PROPERTY_PORTS)) {
       if (port != null && !"".equals(port))
         event.getFirewallManager().addRule(
-          Rule.create().destination(role(ROLE)).port(Integer.parseInt(port.toString())));
+          Rule.create().destination(role(getRole())).port(Integer.parseInt(port.toString())));
     }
   }
 
