@@ -19,7 +19,7 @@ set -x
 
 function install_cm_agent() {
   if which dpkg &> /dev/null; then
-    retry_apy_get -y install cloudera-manager-agent cloudera-manager-daemons bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper hue
+    retry_apt_get -y install cloudera-manager-agent cloudera-manager-daemons bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper hue
     if ls /etc/init.d/hadoop-* &> /dev/null; then
       for SERVICE_SCRIPT in /etc/init.d/hadoop-*; do
         service $(basename $SERVICE_SCRIPT) stop
