@@ -68,4 +68,10 @@ public class CmServerTest extends BaseCmTest {
       "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE + ",2 " + CmAgentHandler.ROLE))));
   }
 
+  @Test
+  public void testNodesAndAgentsAuto() throws Exception {
+    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+      "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE + ",2 " + CmAgentHandler.ROLE, "whirr.env.cmauto", "true"))));
+  }
+  
 }
