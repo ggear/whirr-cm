@@ -140,7 +140,7 @@ public class CmServerHandler extends BaseHandler {
       }
     }
 
-    if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, false)) {
+    if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
       System.out.println();
       System.out.println("Starting services...");
       try {
