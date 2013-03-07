@@ -117,7 +117,7 @@ public class CmServerHandler extends BaseHandler {
     System.out.println(CONSOLE_SPACER);
     System.out.println();
     System.out.println("Web Console:");
-    System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicHostName() + ":"
+    System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
       + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
     System.out.println();
     System.out.println("Web Console User/Password:");
@@ -129,7 +129,7 @@ public class CmServerHandler extends BaseHandler {
       System.out.println("<none>");
     } else {
       for (Instance instance : nodesToInstall) {
-        System.out.println(instance.getPublicHostName());
+        System.out.println(instance.getPublicIp());
       }
     }
 
@@ -137,7 +137,7 @@ public class CmServerHandler extends BaseHandler {
       System.out.println();
       System.out.println("Starting services...");
       try {
-        startServices(event.getCluster().getInstanceMatching(role(ROLE)).getPublicHostName());
+        startServices(event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
       } catch (Exception ex) {
         System.out.println("Failed to start services using CM API");
         ex.printStackTrace(System.out);
@@ -154,7 +154,7 @@ public class CmServerHandler extends BaseHandler {
     System.out.println();
     System.out.println("Console:");
     System.out.println("ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser() + "@"
-      + event.getCluster().getInstanceMatching(role(ROLE)).getPublicHostName());
+      + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
 
     Set<Instance> nodes = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
     if (!nodes.isEmpty()) {
@@ -166,7 +166,7 @@ public class CmServerHandler extends BaseHandler {
       System.out.println("Consoles:");
       for (Instance instance : nodes) {
         System.out.println("ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser() + "@"
-          + instance.getPublicHostName());
+          + instance.getPublicIp());
       }
     }
 
@@ -180,7 +180,7 @@ public class CmServerHandler extends BaseHandler {
       System.out.println("Consoles:");
       for (Instance instance : agents) {
         System.out.println("ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser() + "@"
-          + instance.getPublicHostName());
+          + instance.getPublicIp());
       }
     }
 

@@ -56,6 +56,7 @@ END
         chmod 600 /etc/cloudera-scm-server/cmf.principal
         curl -u admin:admin -X PUT -H 'Content-Type:application/json' -d '{ "items" : [ { "name" : "SECURITY_REALM", "value" : "'"$KERBEROS_REALM"'" } ] }' http://localhost:7180/api/v1/cm/config
 	    fi
+        curl -u admin:admin -X PUT -H 'Content-Type:application/json' -d '{ "items" : [ { "name" : "PUBLIC_CLOUD_STATUS", "value" : "NOT_ON_PUBLIC_CLOUD" } ] }' http://localhost:7180/api/v1/cm/config
       if [ -f /tmp/cm-license.txt ]; then
 	      curl -u admin:admin -F license=@/tmp/cm-license.txt http://localhost:7180/api/v1/cm/license
 	      rm -rf /tmp/cm-license.txt
