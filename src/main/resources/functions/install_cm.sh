@@ -27,7 +27,7 @@ function install_cm() {
   if [ $CM_MAJOR_VERSION -ge 4 ]; then
 	  if which dpkg &> /dev/null; then
         cat > /etc/apt/sources.list.d/cloudera-$REPO.list <<EOF
-deb http://$REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$REPO contrib
+deb [arch=amd64] http://$REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$REPO contrib
 deb-src http://$REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-$REPO contrib
 EOF
         curl -s http://$REPO_HOST/cm$CM_MAJOR_VERSION/$OS_DISTID/$OS_CODENAME/amd64/cm/archive.key | apt-key add -

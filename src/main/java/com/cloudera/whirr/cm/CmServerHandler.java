@@ -104,6 +104,7 @@ public class CmServerHandler extends BaseHandler {
       if (port != null && !"".equals(port))
         event.getFirewallManager().addRule(Rule.create().destination(role(ROLE)).port(Integer.parseInt(port)));
     }
+    handleFirewallRules(event);
   }
 
   @Override
@@ -226,6 +227,7 @@ public class CmServerHandler extends BaseHandler {
     ApiService mrService = buildMapReduceService(jtHost, mrHosts);
     ApiService zkService = buildZookeeperService(zkHost);
     ApiService hbaseService = buildHbaseService(masterHost, hbaseHosts);
+    
     serviceList.add(hdfsService);
     serviceList.add(mrService);
     serviceList.add(zkService);

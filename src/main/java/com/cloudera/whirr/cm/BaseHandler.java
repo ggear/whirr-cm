@@ -42,6 +42,7 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport {
     addStatement(event, call("retry_helpers"));
     addStatement(event, call(getInstallFunction(getConfiguration(event.getClusterSpec()), "java", "install_openjdk")));
     addStatement(event, call("install_cdh_hadoop"));
+    addStatement(event, call("install_cdh_hbase"));
   }
 
 }

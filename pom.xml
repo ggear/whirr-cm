@@ -33,9 +33,10 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-	</repositories>
+
+        </repositories>
 	<properties>
-		<whirr.version>0.8.0-cdh4.1.1</whirr.version>
+		<whirr.version>0.8.0-cdh4.2.0</whirr.version>
 		<junit.version>4.8.1</junit.version>
 		<log4j.version>1.2.16</log4j.version>
 		<slf4j.version>1.6.4</slf4j.version>
@@ -49,6 +50,11 @@
 			<artifactId>whirr-core</artifactId>
 			<version>${whirr.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.cloudera.api</groupId>
+			<artifactId>cloudera-manager-api</artifactId>
+			<version>4.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.whirr</groupId>

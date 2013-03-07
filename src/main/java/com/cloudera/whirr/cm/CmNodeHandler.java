@@ -26,7 +26,6 @@ import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.FirewallManager.Rule;
 
 public class CmNodeHandler extends BaseHandler {
-
   public static final String ROLE = "cmnode";
 
   private static final String PROPERTY_PORTS = "cmnode.ports";
@@ -45,11 +44,13 @@ public class CmNodeHandler extends BaseHandler {
   @Override
   protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeConfigure(event);
+        
     for (Object port : getConfiguration(event.getClusterSpec()).getList(PROPERTY_PORTS)) {
       if (port != null && !"".equals(port))
         event.getFirewallManager().addRule(
           Rule.create().destination(role(getRole())).port(Integer.parseInt(port.toString())));
     }
+    handleFirewallRules(event);
   }
 
 }
