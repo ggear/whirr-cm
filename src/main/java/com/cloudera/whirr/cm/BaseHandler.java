@@ -40,9 +40,9 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport {
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
     addStatement(event, call("configure_hostnames"));
     addStatement(event, call("retry_helpers"));
-    addStatement(event, call(getInstallFunction(getConfiguration(event.getClusterSpec()), "java", "install_openjdk")));
-    addStatement(event, call("install_cdh_hadoop"));
-    addStatement(event, call("install_cdh_hbase"));
+    //    addStatement(event, call(getInstallFunction(getConfiguration(event.getClusterSpec()), "java", "install_openjdk")));
+    //    addStatement(event, call("install_cdh_hadoop"));
+    //addStatement(event, call("install_cdh_hbase"));
   }
 
 }

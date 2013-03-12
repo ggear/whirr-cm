@@ -20,7 +20,7 @@ set -x
 function install_cm_agent() {
   if which dpkg &> /dev/null; then
     retry_apt_get update
-    retry_apt_get -y install oracle-j2sdk1.6 libmysql-java cloudera-manager-agent cloudera-manager-daemons
+    retry_apt_get -y install oracle-j2sdk1.6 cloudera-manager-agent cloudera-manager-daemons
   elif which rpm &> /dev/null; then
     retry_yum install -y jdk-6u31-linux-amd64 cloudera-manager-agent cloudera-manager-daemons
   fi
