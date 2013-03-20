@@ -23,7 +23,7 @@ function install_cm_server() {
     retry_apt_get update
     retry_apt_get -q -y install mysql-server-5.5 oracle-j2sdk1.6 cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
   elif which rpm &> /dev/null; then
-    retry_yum install -y mysql-server jdk-6u31-linux-amd64 cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
+    retry_yum install -y mysql-server jdk cloudera-manager-server-db cloudera-manager-server cloudera-manager-daemons
   fi
   service cloudera-scm-server-db initdb
   service cloudera-scm-server-db start
