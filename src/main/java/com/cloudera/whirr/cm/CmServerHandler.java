@@ -49,15 +49,14 @@ import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiRoleConfigGroup;
 import com.cloudera.api.model.ApiRoleConfigGroupRef;
 import com.cloudera.api.model.ApiRoleNameList;
-import com.cloudera.api.model.ApiRoleTypeConfig;
 import com.cloudera.api.model.ApiService;
 import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v1.CommandsResource;
 import com.cloudera.api.v1.RoleCommandsResource;
-import com.cloudera.api.v3.ClustersResourceV3;
-import com.cloudera.api.v3.ClouderaManagerResourceV3;
 import com.cloudera.api.v2.HostsResourceV2;
+import com.cloudera.api.v3.ClouderaManagerResourceV3;
+import com.cloudera.api.v3.ClustersResourceV3;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.ParcelsResource;
 import com.cloudera.api.v3.RootResourceV3;
@@ -260,7 +259,7 @@ public class CmServerHandler extends BaseHandler {
     System.out.println(CONSOLE_SPACER);
     System.out.println();
 
-    ApiCommand downloadParcel = parcelResource.startDownloadCommand();
+    parcelResource.startDownloadCommand();
     while (!parcelResource.readParcel().getStage().equals("DOWNLOADED")) {
         Thread.sleep(5000);
     }
@@ -271,7 +270,7 @@ public class CmServerHandler extends BaseHandler {
     System.out.println(CONSOLE_SPACER);
     System.out.println();
 
-    ApiCommand distributeParcel = parcelResource.startDistributionCommand();
+    parcelResource.startDistributionCommand();
     while (!parcelResource.readParcel().getStage().equals("DISTRIBUTED")) {
         Thread.sleep(5000);
     }
@@ -282,7 +281,7 @@ public class CmServerHandler extends BaseHandler {
     System.out.println(CONSOLE_SPACER);
     System.out.println();
 
-    ApiCommand activateParcel = parcelResource.activateCommand();
+    parcelResource.activateCommand();
     while (!parcelResource.readParcel().getStage().equals("ACTIVATED")) {
         Thread.sleep(5000);
     }
