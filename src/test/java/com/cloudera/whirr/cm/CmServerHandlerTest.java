@@ -22,36 +22,51 @@ import static com.google.common.base.Predicates.containsPattern;
 
 import java.util.Set;
 
-import org.apache.whirr.service.DryRunModule.DryRun;
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-public class CmAgentTest extends BaseCmTest {
+public class CmServerHandlerTest extends BaseHandlerTest {
 
   @Override
   protected Set<String> getInstanceRoles() {
-    return ImmutableSet.of(CmServerHandler.ROLE, CmAgentHandler.ROLE);
+    return ImmutableSet.of(CmServerHandler.ROLE);
   }
 
   @Override
   protected Predicate<CharSequence> bootstrapPredicate() {
     return and(containsPattern("configure_hostnames"),
-      and(containsPattern("install_cdh_hadoop"), containsPattern("install_cm_agent")));
+        and(containsPattern("install_cm"), containsPattern("install_cm_server")));
   }
 
   @Override
   protected Predicate<CharSequence> configurePredicate() {
-    return containsPattern("configure_cm_agent");
+    return containsPattern("configure_cm_server");
   }
 
   @Test
-  public void testNoCmServer() throws Exception {
-    DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
-      + CmAgentHandler.ROLE)));
-    assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
+  public void testNodes() throws Exception {
+    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+        "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE, CmServerHandler.AUTO_VARIABLE,
+        Boolean.FALSE.toString()))));
+  }
+
+  @Test
+  public void testAgents() throws Exception {
+    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+        "1 " + CmServerHandler.ROLE + ",2 " + CmAgentHandler.ROLE, CmServerHandler.AUTO_VARIABLE,
+        Boolean.FALSE.toString()))));
+  }
+
+  @Test
+  public void testNodesAndAgents() throws Exception {
+    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+        "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE + ",2 " + CmAgentHandler.ROLE,
+        CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString()))));
   }
 
 }

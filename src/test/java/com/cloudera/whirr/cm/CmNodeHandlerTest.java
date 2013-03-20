@@ -30,7 +30,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-public class CmNodeTest extends BaseCmTest {
+public class CmNodeHandlerTest extends BaseHandlerTest {
 
   @Override
   protected Set<String> getInstanceRoles() {
@@ -39,8 +39,7 @@ public class CmNodeTest extends BaseCmTest {
 
   @Override
   protected Predicate<CharSequence> bootstrapPredicate() {
-    return and(containsPattern("configure_hostnames"),
-      and(containsPattern("install_cdh_hadoop"), containsPattern("install_cm")));
+    return and(containsPattern("configure_hostnames"), containsPattern("install_cm"));
   }
 
   @Override
@@ -52,14 +51,14 @@ public class CmNodeTest extends BaseCmTest {
   @Test
   public void testBootstrapAndConfigure() throws Exception {
     DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
-      + CmNodeHandler.ROLE)));
+        + CmNodeHandler.ROLE, CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString())));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
 
   @Test
   public void testWithCmServer() throws Exception {
     DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
-      + CmServerHandler.ROLE + ",1 " + CmNodeHandler.ROLE)));
+        + CmServerHandler.ROLE + ",1 " + CmNodeHandler.ROLE, CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString())));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
 

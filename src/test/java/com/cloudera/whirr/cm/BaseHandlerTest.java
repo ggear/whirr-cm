@@ -24,11 +24,14 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.BaseServiceDryRunTest;
+import org.apache.whirr.service.DryRunModule.DryRun;
+import org.junit.Test;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.jcraft.jsch.JSchException;
 
-public abstract class BaseCmTest extends BaseServiceDryRunTest {
+public abstract class BaseHandlerTest extends BaseServiceDryRunTest {
 
   private static String CLUSTER_USER = "whirr";
   private static File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
@@ -36,12 +39,22 @@ public abstract class BaseCmTest extends BaseServiceDryRunTest {
 
   @Override
   public ClusterSpec newClusterSpecForProperties(Map<String, String> properties) throws IOException,
-    ConfigurationException, JSchException {
+      ConfigurationException, JSchException {
     ClusterSpec clusterSpec = super.newClusterSpecForProperties(ImmutableMap.<String, String> builder()
-      .putAll(properties).put("whirr.cluster-user", CLUSTER_USER).build());
+        .putAll(properties).put("whirr.cluster-user", CLUSTER_USER).build());
     clusterSpec.setPrivateKey(FILE_KEY_PRIVATE);
     clusterSpec.setPublicKey(FILE_KEY_PUBLIC);
     return clusterSpec;
+  }
+
+  @Override
+  @Test
+  public void testBootstrapAndConfigure() throws Exception {
+    ClusterSpec cookbookWithDefaultRecipe = newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+        "1 " + Joiner.on("+").join(getInstanceRoles()), CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString()));
+    DryRun dryRun = launchWithClusterSpec(cookbookWithDefaultRecipe);
+    assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
+    assertScriptPredicateOnPhase(dryRun, "configure", configurePredicate());
   }
 
 }
