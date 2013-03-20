@@ -96,8 +96,7 @@
 				</exclusion>
 				<exclusion>
 					<groupId>org.springframework</groupId>
-					<artifactId>
-							spring-expression</artifactId>
+					<artifactId>spring-expression</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.springframework</groupId>
