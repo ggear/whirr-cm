@@ -15,24 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.whirr.cm;
+package com.cloudera.whirr.cm.cdh;
 
-import java.io.IOException;
+import com.cloudera.whirr.cm.api.CmServerServiceType;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.whirr.ClusterSpec;
-import org.apache.whirr.service.ClusterActionHandlerSupport;
+public class CmCdhDataNodeHandler extends BaseHandlerCmCdh {
 
-public abstract class BaseHandler extends ClusterActionHandlerSupport {
+  public static final String ROLE = "cmcdh-datanode";
+  public static final CmServerServiceType TYPE = CmServerServiceType.DATANODE;
 
-  protected final static String CM_CLUSTER_NAME = "whirr";
-  
-  protected final static String CONFIG_IMPORT_PATH = "functions/cmf/";
+  @Override
+  public String getRole() {
+    return ROLE;
+  }
 
-  private final static String PROPERTIES_FILE = "whirr-cm-default.properties";
-
-  protected Configuration getConfiguration(ClusterSpec spec) throws IOException {
-    return getConfiguration(spec, PROPERTIES_FILE);
+  @Override
+  public CmServerServiceType getType() {
+    return TYPE;
   }
 
 }

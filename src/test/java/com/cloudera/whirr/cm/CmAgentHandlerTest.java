@@ -29,7 +29,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-public class CmAgentHandlerTest extends BaseHandlerTest {
+
+public class CmAgentHandlerTest extends BaseTestHandler {
 
   @Override
   protected Set<String> getInstanceRoles() {

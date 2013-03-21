@@ -17,7 +17,6 @@
  */
 package com.cloudera.whirr.cm;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -31,11 +30,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.jcraft.jsch.JSchException;
 
-public abstract class BaseHandlerTest extends BaseServiceDryRunTest {
 
-  private static String CLUSTER_USER = "whirr";
-  private static File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
-  private static File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key.pub");
+public abstract class BaseTestHandler extends BaseServiceDryRunTest implements BaseTest {
 
   @Override
   public ClusterSpec newClusterSpecForProperties(Map<String, String> properties) throws IOException,

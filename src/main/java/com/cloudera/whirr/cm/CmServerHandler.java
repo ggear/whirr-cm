@@ -61,13 +61,16 @@ import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.ParcelsResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.api.v3.ServicesResourceV3;
+import com.cloudera.whirr.cm.api.CmServerService;
+import com.cloudera.whirr.cm.api.CmServerServiceType;
+import com.cloudera.whirr.cm.cdh.BaseHandlerCmCdh;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 
-public class CmServerHandler extends BaseHandler {
+public class CmServerHandler extends BaseHandlerCm {
 
   public static final String ROLE = "cmserver";
 
@@ -79,6 +82,9 @@ public class CmServerHandler extends BaseHandler {
   public static final String PROPERTY_PORTS = "cmserver.ports";
   public static final String PROPERTY_PORT_WEB = "cmserver.port.web";
   public static final String PROPERTY_PORT_COMMS = "cmserver.port.comms";
+
+  public static final String CM_USER = "admin";
+  public static final String CM_PASSWORD = "admin";
 
   private static final String CONSOLE_SPACER = "-------------------------------------------------------------------------------";
 
@@ -100,9 +106,11 @@ public class CmServerHandler extends BaseHandler {
     URL licenceConfigUri = null;
     if ((licenceConfigUri = CmServerHandler.class.getClassLoader().getResource(LICENSE_FILE)) != null) {
       addStatement(
-        event,
-        createOrOverwriteFile("/tmp/" + LICENSE_FILE,
-          Splitter.on('\n').split(CharStreams.toString(Resources.newReaderSupplier(licenceConfigUri, Charsets.UTF_8)))));
+          event,
+          createOrOverwriteFile(
+              "/tmp/" + LICENSE_FILE,
+              Splitter.on('\n').split(
+                  CharStreams.toString(Resources.newReaderSupplier(licenceConfigUri, Charsets.UTF_8)))));
     }
     addStatement(event, call("configure_cm_server"));
     @SuppressWarnings("unchecked")
@@ -127,10 +135,10 @@ public class CmServerHandler extends BaseHandler {
     System.out.println();
     System.out.println("Web Console:");
     System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
-      + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
+        + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
     System.out.println();
-    System.out.println("Web Console User/Password:");
-    System.out.println("admin/admin");
+    System.out.println("Web Console User/Password (Change these!):");
+    System.out.println(CM_USER + "/" + CM_PASSWORD);
     System.out.println();
     System.out.println("Nodes:");
     Set<Instance> nodesToInstall = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
@@ -142,29 +150,17 @@ public class CmServerHandler extends BaseHandler {
       }
     }
 
-    if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
-      System.out.println();
-      System.out.println("Starting services...");
-      try {
-          Thread.sleep(5000);
-          startServices(event);
-      } catch (Exception ex) {
-        System.out.println("Failed to start services using CM API");
-        ex.printStackTrace(System.out);
-      }
-    }
-
     System.out.println();
     System.out.println("User:");
     System.out.println(event.getClusterSpec().getClusterUser());
     System.out.println();
     System.out.println("Private Key Path:");
     System.out.println(event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>" : event.getClusterSpec()
-      .getPrivateKeyFile().getCanonicalPath());
+        .getPrivateKeyFile().getCanonicalPath());
     System.out.println();
     System.out.println("Console:");
     System.out.println("ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser() + "@"
-      + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
+        + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
 
     Set<Instance> nodes = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
     if (!nodes.isEmpty()) {
@@ -176,7 +172,7 @@ public class CmServerHandler extends BaseHandler {
       System.out.println("Consoles:");
       for (Instance instance : nodes) {
         System.out.println("ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser() + "@"
-          + instance.getPublicIp());
+            + instance.getPublicIp());
       }
     }
 
@@ -190,7 +186,48 @@ public class CmServerHandler extends BaseHandler {
       System.out.println("Consoles:");
       for (Instance instance : agents) {
         System.out.println("ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser() + "@"
-          + instance.getPublicIp());
+            + instance.getPublicIp());
+      }
+    }
+
+    Set<CmServerServiceType> serviceTypes = BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes();
+    if (serviceTypes.size() > 0) {
+      System.out.println();
+      System.out.println(CONSOLE_SPACER);
+      System.out.println("Cloudera Manager Cluster Topology");
+      System.out.println(CONSOLE_SPACER);
+      System.out.println();
+      System.out.println("Roles:");
+      for (CmServerServiceType type : serviceTypes) {
+        int instanceIndex = 1;
+        for (Instance instance : event.getCluster().getInstancesMatching(role(BaseHandlerCmCdh.getRole(type)))) {
+          CmServerService service = new CmServerService(type, CM_CLUSTER_NAME, "" + instanceIndex++,
+              instance.getPublicHostName());
+          BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
+          System.out.println(service.getName() + "@" + service.getHost());
+        }
+      }
+      System.out.println();
+      System.out.println("Provision:");
+      System.out.println("Complete");
+      System.out.println();
+      System.out.println("Initialise:");
+      System.out.println("Complete");
+      System.out.println();
+      System.out.println("Start:");
+      System.out.println("Complete");
+    }
+
+    // TODO: Refactor
+    if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
+      System.out.println();
+      System.out.println("Starting services...");
+      try {
+        Thread.sleep(5000);
+        startServices(event);
+      } catch (Exception ex) {
+        System.out.println("Failed to start services using CM API");
+        ex.printStackTrace(System.out);
       }
     }
 
@@ -199,19 +236,18 @@ public class CmServerHandler extends BaseHandler {
     System.out.println();
 
   }
-  
+
   private void startServices(ClusterActionEvent event) throws IOException, InterruptedException {
     ApiRootResource apiRoot = new ClouderaManagerClientBuilder()
         .withHost(event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp())
-        .withUsernamePassword("admin", "admin")
-        .build();
+        .withUsernamePassword("admin", "admin").build();
     RootResourceV3 root = apiRoot.getRootV3();
     ClouderaManagerResourceV3 cmResource = root.getClouderaManagerResource();
     CommandsResource commandsResource = root.getCommandsResource();
 
     ApiCommand inspectHosts = cmResource.inspectHostsCommand();
     waitForCommand(commandsResource, inspectHosts, 500);
-        
+
     // make cluster
     ClustersResourceV3 clustersResource = root.getClustersResource();
     ApiClusterList clusterList = new ApiClusterList();
@@ -220,26 +256,26 @@ public class CmServerHandler extends BaseHandler {
     apiCluster.setVersion(ApiClusterVersion.CDH4);
     clusterList.add(apiCluster);
     clustersResource.createClusters(clusterList);
-    
-    List<ApiHost> hosts = readHosts(root); 
+
+    List<ApiHost> hosts = readHosts(root);
     List<ApiHostRef> hostRefs = Lists.newArrayList();
 
-    for (ApiHost h: hosts) {
-        hostRefs.add(new ApiHostRef(h.getHostId()));
+    for (ApiHost h : hosts) {
+      hostRefs.add(new ApiHostRef(h.getHostId()));
     }
     ApiHostRefList hostRefList = new ApiHostRefList(hostRefs);
 
     clustersResource.addHosts("cluster-1", hostRefList);
-    
+
     List<ApiHost> hdfsHosts = new ArrayList<ApiHost>(hosts);
     ApiHost nnHost = hdfsHosts.remove(0);
     ApiHost snnHost = hdfsHosts.remove(0);
-    
+
     List<ApiHost> mrHosts = new ArrayList<ApiHost>(hosts);
     ApiHost jtHost = mrHosts.remove(0);
-    
+
     ApiHost zkHost = hosts.get(0);
-    
+
     List<ApiHost> hbaseHosts = new ArrayList<ApiHost>(hosts);
     ApiHost masterHost = hbaseHosts.remove(0);
 
@@ -247,7 +283,7 @@ public class CmServerHandler extends BaseHandler {
 
     String parcelProduct = getConfiguration(event.getClusterSpec()).getString(PROPERTY_PARCEL_PRODUCT);
     String parcelVersion = getConfiguration(event.getClusterSpec()).getString(PROPERTY_PARCEL_VERSION);
-    
+
     // Install parcels
     ParcelsResource parcelsResource = clustersResource.getParcelsResource("cluster-1");
 
@@ -261,9 +297,9 @@ public class CmServerHandler extends BaseHandler {
 
     parcelResource.startDownloadCommand();
     while (!parcelResource.readParcel().getStage().equals("DOWNLOADED")) {
-        Thread.sleep(5000);
+      Thread.sleep(5000);
     }
-    
+
     System.out.println();
     System.out.println(CONSOLE_SPACER);
     System.out.println("Distributing parcel for product " + parcelProduct + ", version " + parcelVersion);
@@ -272,9 +308,9 @@ public class CmServerHandler extends BaseHandler {
 
     parcelResource.startDistributionCommand();
     while (!parcelResource.readParcel().getStage().equals("DISTRIBUTED")) {
-        Thread.sleep(5000);
+      Thread.sleep(5000);
     }
-    
+
     System.out.println();
     System.out.println(CONSOLE_SPACER);
     System.out.println("Activating parcel for product " + parcelProduct + ", version " + parcelVersion);
@@ -283,10 +319,9 @@ public class CmServerHandler extends BaseHandler {
 
     parcelResource.activateCommand();
     while (!parcelResource.readParcel().getStage().equals("ACTIVATED")) {
-        Thread.sleep(5000);
+      Thread.sleep(5000);
     }
-  
-        
+
     // make services
     ServicesResourceV3 servicesResource = clustersResource.getServicesResource("cluster-1");
     ApiServiceList serviceList = new ApiServiceList();
@@ -295,7 +330,7 @@ public class CmServerHandler extends BaseHandler {
     ApiService zkService = buildZookeeperService(zkHost);
     ApiService hbaseService = buildHbaseService(masterHost, hbaseHosts);
     ApiService hiveService = buildHiveService(hiveHost, event);
-    
+
     serviceList.add(hdfsService);
     serviceList.add(mrService);
     serviceList.add(zkService);
@@ -315,7 +350,7 @@ public class CmServerHandler extends BaseHandler {
     initHiveMetastore(servicesResource, commandsResource);
     startService(servicesResource, commandsResource, "HIVE", "hive-1");
   }
-  
+
   private ApiService buildHdfsService(ApiHost nnHost, ApiHost snnHost, List<ApiHost> dnHosts) {
     ApiService hdfsService = new ApiService();
     hdfsService.setType("HDFS");
@@ -331,7 +366,7 @@ public class CmServerHandler extends BaseHandler {
     nnGrp.setConfig(nnConfig);
     nnGrp.setName("whirr-nn-group");
     nnGrp.setBase(false);
-    
+
     ApiRoleConfigGroup snnGrp = new ApiRoleConfigGroup();
     groupList.add(snnGrp);
     ApiConfigList snnConfig = new ApiConfigList();
@@ -340,7 +375,7 @@ public class CmServerHandler extends BaseHandler {
     snnGrp.setConfig(snnConfig);
     snnGrp.setName("whirr-snn-group");
     snnGrp.setBase(false);
-    
+
     ApiRoleConfigGroup dnGrp = new ApiRoleConfigGroup();
     groupList.add(dnGrp);
     ApiConfigList dnConfig = new ApiConfigList();
@@ -351,7 +386,7 @@ public class CmServerHandler extends BaseHandler {
     dnGrp.setBase(false);
 
     hdfsService.setRoleConfigGroups(groupList);
-    
+
     List<ApiRole> roles = new ArrayList<ApiRole>();
 
     ApiRole nnRole = new ApiRole();
@@ -360,14 +395,14 @@ public class CmServerHandler extends BaseHandler {
     nnRole.setHostRef(new ApiHostRef(nnHost.getHostId()));
     nnRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-nn-group"));
     roles.add(nnRole);
-    
+
     ApiRole snnRole = new ApiRole();
-    snnRole.setName("snn"); 
+    snnRole.setName("snn");
     snnRole.setType("SECONDARYNAMENODE");
     snnRole.setHostRef(new ApiHostRef(snnHost.getHostId()));
     snnRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-snn-group"));
     roles.add(snnRole);
-    
+
     for (int i = 0; i < dnHosts.size(); i++) {
       ApiHost dnHost = dnHosts.get(i);
       ApiRole dnRole = new ApiRole();
@@ -377,11 +412,11 @@ public class CmServerHandler extends BaseHandler {
       dnRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-dn-group"));
       roles.add(dnRole);
     }
-    
+
     hdfsService.setRoles(roles);
     return hdfsService;
   }
-  
+
   private ApiService buildMapReduceService(ApiHost jtHost, List<ApiHost> ttHosts) {
     ApiService mrService = new ApiService();
     mrService.setType("MAPREDUCE");
@@ -390,7 +425,7 @@ public class CmServerHandler extends BaseHandler {
     serviceConf.add(new ApiConfig("hdfs_service", "hdfs-1"));
 
     List<ApiRoleConfigGroup> groupList = Lists.newArrayList();
-    
+
     ApiRoleConfigGroup jtGrp = new ApiRoleConfigGroup();
     groupList.add(jtGrp);
     ApiConfigList jtConfig = new ApiConfigList();
@@ -411,7 +446,7 @@ public class CmServerHandler extends BaseHandler {
 
     mrService.setRoleConfigGroups(groupList);
     mrService.setConfig(serviceConf);
-    
+
     List<ApiRole> roles = new ArrayList<ApiRole>();
     ApiRole jtRole = new ApiRole();
     jtRole.setName("jt");
@@ -419,7 +454,7 @@ public class CmServerHandler extends BaseHandler {
     jtRole.setHostRef(new ApiHostRef(jtHost.getHostId()));
     jtRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-jt-group"));
     roles.add(jtRole);
-    
+
     for (int i = 0; i < ttHosts.size(); i++) {
       ApiHost ttHost = ttHosts.get(i);
       ApiRole ttRole = new ApiRole();
@@ -429,19 +464,19 @@ public class CmServerHandler extends BaseHandler {
       ttRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-tt-group"));
       roles.add(ttRole);
     }
-    
+
     mrService.setRoles(roles);
     return mrService;
   }
-  
+
   private ApiService buildHiveService(ApiHost hiveHost, ClusterActionEvent event) {
     String masterAddress;
 
     if (event.getCluster().getInstanceMatching(role(ROLE)).getPrivateIp() != null
         && !event.getCluster().getInstanceMatching(role(ROLE)).getPrivateIp().equals("")) {
-        masterAddress = event.getCluster().getInstanceMatching(role(ROLE)).getPrivateIp();
+      masterAddress = event.getCluster().getInstanceMatching(role(ROLE)).getPrivateIp();
     } else {
-        masterAddress = event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp();
+      masterAddress = event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp();
     }
 
     ApiService hiveService = new ApiService();
@@ -464,7 +499,7 @@ public class CmServerHandler extends BaseHandler {
     serverRole.setName("hivemetastore");
     serverRole.setHostRef(new ApiHostRef(hiveHost.getHostId()));
     roles.add(serverRole);
-    
+
     ApiRole gatewayRole = new ApiRole();
     gatewayRole.setType("GATEWAY");
     gatewayRole.setName("hivegateway");
@@ -501,15 +536,15 @@ public class CmServerHandler extends BaseHandler {
     serviceConf.add(new ApiConfig("hdfs_service", "hdfs-1"));
     serviceConf.add(new ApiConfig("zookeeper_service", "zookeeper-1"));
     hbaseService.setConfig(serviceConf);
-    
+
     List<ApiRole> roles = new ArrayList<ApiRole>();
-    
+
     ApiRole masterRole = new ApiRole();
     masterRole.setType("MASTER");
     masterRole.setName("master");
     masterRole.setHostRef(new ApiHostRef(masterHost.getHostId()));
     roles.add(masterRole);
-    
+
     for (int i = 0; i < rsHosts.size(); i++) {
       ApiHost rsHost = rsHosts.get(i);
       ApiRole rsRole = new ApiRole();
@@ -518,16 +553,14 @@ public class CmServerHandler extends BaseHandler {
       rsRole.setHostRef(new ApiHostRef(rsHost.getHostId()));
       roles.add(rsRole);
     }
-    
+
     hbaseService.setRoles(roles);
     return hbaseService;
   }
-  
-  private void formatHdfs(ServicesResourceV3 servicesResource, 
-      CommandsResource commandsResource) {
-    RoleCommandsResource roleCommands = servicesResource
-        .getRoleCommandsResource("hdfs-1");
-    
+
+  private void formatHdfs(ServicesResourceV3 servicesResource, CommandsResource commandsResource) {
+    RoleCommandsResource roleCommands = servicesResource.getRoleCommandsResource("hdfs-1");
+
     System.out.println("Formatting HDFS...");
     ApiRoleNameList formatList = new ApiRoleNameList();
     formatList.add("nn");
@@ -537,55 +570,50 @@ public class CmServerHandler extends BaseHandler {
     }
     System.out.println("Finished formatting HDFS");
   }
-  
-  private void createHdfsTmpDir(ServicesResourceV3 servicesResource, 
-      CommandsResource commandsResource) {
+
+  private void createHdfsTmpDir(ServicesResourceV3 servicesResource, CommandsResource commandsResource) {
     System.out.println("Creating HDFS tmp dir...");
     ApiCommand createTmpCommand = servicesResource.hdfsCreateTmpDir("hdfs-1");
     waitForCommand(commandsResource, createTmpCommand, 500);
     System.out.println("Finished creating HDFS tmp dir...");
   }
-  
-  private void initZookeeper(ServicesResourceV3 servicesResource,
-      CommandsResource commandsResource) {
+
+  private void initZookeeper(ServicesResourceV3 servicesResource, CommandsResource commandsResource) {
     System.out.println("Initializing ZOOKEEPER...");
     ApiCommand initCommand = servicesResource.zooKeeperInitCommand("zookeeper-1");
     waitForCommand(commandsResource, initCommand, 500);
     System.out.println("Finished initializing ZOOKEEPER");
   }
 
-  private void initHiveMetastore(ServicesResourceV3 servicesResource,
-      CommandsResource commandsResource) {
+  private void initHiveMetastore(ServicesResourceV3 servicesResource, CommandsResource commandsResource) {
     System.out.println("Initializing HIVE Metastore...");
     ApiCommand initCommand = servicesResource.hiveCreateMetastoreDatabaseTablesCommand("hive-1");
     waitForCommand(commandsResource, initCommand, 500);
     System.out.println("Finished initializing HIVE Metastore");
   }
-  
-  private void createHbaseRoot(ServicesResourceV3 servicesResource,
-      CommandsResource commandsResource) {
+
+  private void createHbaseRoot(ServicesResourceV3 servicesResource, CommandsResource commandsResource) {
     System.out.println("Configuring HBASE...");
     ApiCommand createRootCommand = servicesResource.createHBaseRootCommand("hbase-1");
     waitForCommand(commandsResource, createRootCommand, 500);
     System.out.println("Finished configuring HBASE");
   }
-  
-  private void startService(ServicesResourceV3 servicesResource,
-      CommandsResource commandsResource, String serviceType, String serviceName) {
+
+  private void startService(ServicesResourceV3 servicesResource, CommandsResource commandsResource, String serviceType,
+      String serviceName) {
     System.out.println("Starting " + serviceType + "...");
     ApiCommand startCommand = servicesResource.startCommand(serviceName);
     waitForCommand(commandsResource, startCommand, 500);
     System.out.println("Finished starting " + serviceType);
   }
-  
-    private List<ApiHost> readHosts(RootResourceV3 v2) {
+
+  private List<ApiHost> readHosts(RootResourceV3 v2) {
     HostsResourceV2 hostsResource = v2.getHostsResource();
     ApiHostList apiHostList = hostsResource.readHosts(DataView.SUMMARY);
     return apiHostList.getHosts();
   }
-  
-  private void waitForCommand(CommandsResource commandsResource, ApiCommand 
-      command, long sleepMs) {
+
+  private void waitForCommand(CommandsResource commandsResource, ApiCommand command, long sleepMs) {
     long id = command.getId();
     while (true) {
       command = commandsResource.readCommand(id);
@@ -594,7 +622,8 @@ public class CmServerHandler extends BaseHandler {
       }
       try {
         Thread.sleep(sleepMs);
-      } catch (InterruptedException ex) {}
+      } catch (InterruptedException ex) {
+      }
     }
   }
 }

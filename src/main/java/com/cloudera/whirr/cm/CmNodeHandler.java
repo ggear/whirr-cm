@@ -25,7 +25,7 @@ import java.io.IOException;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.FirewallManager.Rule;
 
-public class CmNodeHandler extends BaseHandler {
+public class CmNodeHandler extends BaseHandlerCm {
   public static final String ROLE = "cmnode";
 
   private static final String PROPERTY_PORTS = "cmnode.ports";

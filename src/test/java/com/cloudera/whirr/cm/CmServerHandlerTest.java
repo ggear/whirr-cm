@@ -26,11 +26,14 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.cloudera.whirr.cm.cdh.CmCdhDataNodeHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhNameNodeHandler;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-public class CmServerHandlerTest extends BaseHandlerTest {
+
+public class CmServerHandlerTest extends BaseTestHandler {
 
   @Override
   protected Set<String> getInstanceRoles() {
@@ -67,6 +70,14 @@ public class CmServerHandlerTest extends BaseHandlerTest {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
         "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE + ",2 " + CmAgentHandler.ROLE,
         CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString()))));
+  }
+
+  @Test
+  public void testNodesAndAgentsAndCluster() throws Exception {
+    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+        "1 " + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+" + CmCdhNameNodeHandler.ROLE + ",3 "
+            + CmAgentHandler.ROLE + "+" + CmCdhDataNodeHandler.ROLE, CmServerHandler.AUTO_VARIABLE,
+        Boolean.FALSE.toString()))));
   }
 
 }

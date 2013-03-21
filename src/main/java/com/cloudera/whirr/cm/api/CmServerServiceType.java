@@ -15,15 +15,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.whirr.cm;
+package com.cloudera.whirr.cm.api;
 
-public class CdhClientHandler extends BaseHandler {
+public enum CmServerServiceType {
 
-  public static final String ROLE = "cdhclient";
+  // Cluster
+  CLUSTER(null),
 
-  @Override
-  public String getRole() {
-    return ROLE;
+  // HDFS
+  HDFS(CLUSTER), NAMENODE(HDFS), SECONDARYNAMENODE(HDFS), DATANODE(HDFS),
+
+  // MapReduce
+  MAPREDUCE(CLUSTER),
+
+  // Zookeeper
+  ZOOKEEPER(CLUSTER),
+
+  // HBase
+  HBASE(CLUSTER), REGIONSERVER(HBASE),
+
+  // Hive
+  HIVE(CLUSTER),
+
+  // Impala
+  IMPALA(CLUSTER), IMPALADEAMON(IMPALA),
+
+  // Client
+  CLIENT(CLUSTER);
+
+  private CmServerServiceType parent;
+
+  private CmServerServiceType(CmServerServiceType parent) {
+    this.parent = parent;
+  }
+
+  public CmServerServiceType getParent() {
+    return parent;
   }
 
 }

@@ -35,15 +35,56 @@
 		</repository>
 	</repositories>
 	<properties>
-		<whirr.version>0.8.0-cdh4.2.0</whirr.version>
+		<whirr.version>0.9.0-SNAPSHOT</whirr.version>
 		<cm.version>4.5.0</cm.version>
 		<junit.version>4.8.1</junit.version>
 		<log4j.version>1.2.16</log4j.version>
 		<slf4j.version>1.6.4</slf4j.version>
+		<maven-artifact.version>3.0.3</maven-artifact.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
+		<maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
+		<maven-failsafe-plugin.version>2.12</maven-failsafe-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
+	<profiles>
+		<profile>
+			<id>integration</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>${maven-failsafe-plugin.version}</version>
+						<configuration>
+							<forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
+							<includes>
+								<include>**/integration/*Test.java</include>
+							</includes>
+							<systemPropertyVariables>
+								<log4j.configuration>file:${project.build.testOutputDirectory}/log4j.properties</log4j.configuration>
+							</systemPropertyVariables>
+							<skip>${maven.integration-test.skip}</skip>
+						</configuration>
+						<executions>
+							<execution>
+								<id>integration-test</id>
+								<goals>
+									<goal>integration-test</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>verify</id>
+								<goals>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<dependencies>
 		<dependency>
 			<groupId>com.cloudera.api</groupId>
@@ -105,6 +146,11 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>${maven-artifact.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.whirr</groupId>
 			<artifactId>whirr-core</artifactId>
 			<version>${whirr.version}</version>
@@ -114,6 +160,24 @@
 			<groupId>org.apache.whirr</groupId>
 			<artifactId>whirr-cdh</artifactId>
 			<version>${whirr.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -127,24 +191,6 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -173,6 +219,20 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<skipAssembly>${maven.assembly.skip}</skipAssembly>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<excludes>
+						<exclude>**/integration/*Test.java</exclude>
+					</excludes>
+					<systemPropertyVariables>
+						<log4j.configuration>file:${project.build.testOutputDirectory}/log4j.properties</log4j.configuration>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 		</plugins>

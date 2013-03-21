@@ -17,22 +17,13 @@
  */
 package com.cloudera.whirr.cm;
 
-import java.io.IOException;
+import java.io.File;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.whirr.ClusterSpec;
-import org.apache.whirr.service.ClusterActionHandlerSupport;
+public interface BaseTest {
 
-public abstract class BaseHandler extends ClusterActionHandlerSupport {
+  public static String CLUSTER_USER = "whirr";
 
-  protected final static String CM_CLUSTER_NAME = "whirr";
-  
-  protected final static String CONFIG_IMPORT_PATH = "functions/cmf/";
-
-  private final static String PROPERTIES_FILE = "whirr-cm-default.properties";
-
-  protected Configuration getConfiguration(ClusterSpec spec) throws IOException {
-    return getConfiguration(spec, PROPERTIES_FILE);
-  }
+  public static File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
+  public static File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key.pub");
 
 }
