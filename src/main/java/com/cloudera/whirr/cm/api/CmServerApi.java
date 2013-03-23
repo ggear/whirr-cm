@@ -63,7 +63,7 @@ public class CmServerApi {
   private static final String CM_PARCEL_STAGE_DISTRIBUTED = "DISTRIBUTED";
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
 
-  private static int API_POLL_PERIOD_MS = 2000;
+  private static int API_POLL_PERIOD_MS = 750;
 
   private CmServerApiLog logger;
   final private RootResourceV3 apiResourceRoot;
@@ -379,10 +379,18 @@ public class CmServerApi {
 
     logger.logOperation("CreateClusterServices", new CmServerApiLogSyncCommand() {
       @Override
-      public void execute() throws IOException {
+      public void execute() throws IOException, InterruptedException {
         apiResourceRoot.getClustersResource().getServicesResource(getName(cluster)).createServices(serviceList);
       }
     });
+
+    // Necessary, since createServices a habit of kicking off async commands (eg ZkAutoInit )
+    for (CmServerServiceType type : cluster.getServiceTypes()) {
+      for (ApiCommand command : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+          .listActiveCommands(cluster.getServiceName(type), DataView.SUMMARY)) {
+        CmServerApi.this.execute(command, false);
+      }
+    }
 
   }
 

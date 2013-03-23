@@ -23,7 +23,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.cloudera.whirr.cm.BaseTest;
@@ -51,8 +51,8 @@ public class CmServerApiTest implements BaseTest {
 
   private static String[] hostNames;
 
-  @Before
-  public void provisionCluster() throws InterruptedException, IOException {
+  @BeforeClass
+  public static void provisionCluster() throws InterruptedException, IOException {
     Assert.assertNotNull(api = new CmServerApi(CM_IP, CM_PORT, CmServerHandler.CM_USER, CmServerHandler.CM_PASSWORD,
         new CmServerApiLog.CmServerApiLogSysOut()));
     Assert.assertTrue(api.initialise(CM_CONFIG).size() > 0);
