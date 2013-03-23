@@ -19,10 +19,10 @@ package com.cloudera.whirr.cm.cdh;
 
 import com.cloudera.whirr.cm.api.CmServerServiceType;
 
-public class CmCdhJobTrackerHandler extends BaseHandlerCmCdh {
+public class CmCdhHiveMetaStoreHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cmcdh-jobtracker";
-  public static final CmServerServiceType TYPE = CmServerServiceType.MAPREDUCE_JOB_TRACKER;
+  public static final String ROLE = "cmcdh-hivemetastore";
+  public static final CmServerServiceType TYPE = CmServerServiceType.HIVE_METASTORE;
 
   @Override
   public String getRole() {

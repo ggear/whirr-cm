@@ -22,7 +22,7 @@ import com.cloudera.whirr.cm.api.CmServerServiceType;
 public class CmCdhHBaseMasterHandler extends BaseHandlerCmCdh {
 
   public static final String ROLE = "cmcdh-hbase-master";
-  public static final CmServerServiceType TYPE = CmServerServiceType.CLUSTER;
+  public static final CmServerServiceType TYPE = CmServerServiceType.HBASE_MASTER;
 
   @Override
   public String getRole() {

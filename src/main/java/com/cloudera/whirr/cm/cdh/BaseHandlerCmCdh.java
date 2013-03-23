@@ -25,23 +25,24 @@ import org.apache.whirr.service.ClusterActionEvent;
 
 import com.cloudera.whirr.cm.BaseHandler;
 import com.cloudera.whirr.cm.api.CmServerCluster;
+import com.cloudera.whirr.cm.api.CmServerService;
 import com.cloudera.whirr.cm.api.CmServerServiceType;
 
 public abstract class BaseHandlerCmCdh extends BaseHandler {
 
   public abstract CmServerServiceType getType();
 
-  private static ConcurrentMap<CmServerServiceType, String> typeToRole = new ConcurrentHashMap<CmServerServiceType, String>();
+  private static ConcurrentMap<String, CmServerServiceType> roleToType = new ConcurrentHashMap<String, CmServerServiceType>();
 
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
-    CmServerClusterSingleton.getInstance().add(getType());
-    typeToRole.putIfAbsent(getType(), getRole());
+    CmServerClusterSingleton.getInstance().add(new CmServerService(getType()));
+    roleToType.putIfAbsent(getRole(), getType());
   }
 
-  public static String getRole(CmServerServiceType type) {
-    return typeToRole.get(type);
+  public static CmServerServiceType getType(String role) {
+    return roleToType.get(role);
   }
 
   public static class CmServerClusterSingleton {

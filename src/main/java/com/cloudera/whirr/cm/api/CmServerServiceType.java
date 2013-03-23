@@ -20,37 +20,46 @@ package com.cloudera.whirr.cm.api;
 public enum CmServerServiceType {
 
   // Cluster
-  CLUSTER(null),
+  CLUSTER(null, "CLUSTER"),
 
   // HDFS
-  HDFS(CLUSTER), NAMENODE(HDFS), SECONDARYNAMENODE(HDFS), DATANODE(HDFS),
+  HDFS(CLUSTER, "HDFS"), HDFS_NAMENODE(HDFS, "NAMENODE"), HDFS_SECONDARY_NAMENODE(HDFS, "SECONDARYNAMENODE"), HDFS_DATANODE(
+      HDFS, "DATANODE"),
 
   // MapReduce
-  MAPREDUCE(CLUSTER),
+  MAPREDUCE(CLUSTER, "MAPREDUCE"), MAPREDUCE_JOB_TRACKER(MAPREDUCE, "JOBTRACKER"), MAPREDUCE_TASK_TRACKER(MAPREDUCE,
+      "TASKTRACKER"),
 
   // Zookeeper
-  ZOOKEEPER(CLUSTER),
+  ZOOKEEPER(CLUSTER, "ZOOKEEPER"), ZOOKEEPER_SERVER(ZOOKEEPER, "SERVER"),
 
   // HBase
-  HBASE(CLUSTER), REGIONSERVER(HBASE),
+  HBASE(CLUSTER, "HBASE"), HBASE_MASTER(HBASE, "MASTER"), HBASE_REGIONSERVER(HBASE, "REGIONSERVER"),
 
   // Hive
-  HIVE(CLUSTER),
+  HIVE(CLUSTER, "HIVE"), HIVE_METASTORE(HIVE, "HIVEMETASTORE"),
 
   // Impala
-  IMPALA(CLUSTER), IMPALADEAMON(IMPALA),
+  IMPALA(CLUSTER, "IMPALA"), IMPALA_STATE_STORE(IMPALA, "IMPALASTATESTORE"), IMPALA_DAEMON(IMPALA, "IMPALADAEMON"),
 
   // Client
-  CLIENT(CLUSTER);
+  CLIENT(CLUSTER, "GATEWAY");
 
   private CmServerServiceType parent;
+  private String label;
 
-  private CmServerServiceType(CmServerServiceType parent) {
+  private CmServerServiceType(CmServerServiceType parent, String label) {
     this.parent = parent;
+    this.label = label;
   }
 
   public CmServerServiceType getParent() {
     return parent;
+  }
+
+  @Override
+  public String toString() {
+    return label;
   }
 
 }

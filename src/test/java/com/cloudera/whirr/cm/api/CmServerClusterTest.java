@@ -27,21 +27,88 @@ import com.cloudera.whirr.cm.BaseTest;
 
 public class CmServerClusterTest implements BaseTest {
 
-  private static final String CLUSTER_TAG = "whirr-test";
+  private static final String CLUSTER_TAG = "whirr_test";
 
   private CmServerCluster cluster;
 
   @Before
   public void setupCluster() throws IOException {
     cluster = new CmServerCluster();
-    cluster.add(new CmServerService(CmServerServiceType.DATANODE, CLUSTER_TAG, "2", "host-2"));
-    cluster.add(new CmServerService(CmServerServiceType.NAMENODE, CLUSTER_TAG, "1", "host_1"));
-    cluster.add(new CmServerService(CmServerServiceType.DATANODE, CLUSTER_TAG, "1", "host_1"));
-    cluster.add(new CmServerService(CmServerServiceType.SECONDARYNAMENODE, CLUSTER_TAG, "1", "host_1"));
-    cluster.add(new CmServerService(CmServerServiceType.DATANODE, CLUSTER_TAG, "3", "host-3"));
-    cluster.add(new CmServerService(CmServerServiceType.DATANODE, CLUSTER_TAG, "4", "host-4"));
-    cluster.add(new CmServerService(CmServerServiceType.REGIONSERVER, CLUSTER_TAG, "1", "host-4"));
-    cluster.add(new CmServerService(CmServerServiceType.IMPALADEAMON, CLUSTER_TAG, "1", "host-4"));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "2", "host-2"));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", "host-1"));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "1", "host-1"));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", "host-1"));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "3", "host-3"));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "4", "host-4"));
+    cluster.add(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "1", "host-4"));
+    cluster.add(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "1", "host-4"));
+  }
+
+  @Test
+  public void testIsEmpty() throws IOException {
+    Assert.assertFalse(cluster.isEmpty());
+    Assert.assertFalse(cluster.isEmptyServices());
+    cluster.clear();
+    Assert.assertTrue(cluster.isEmpty());
+    Assert.assertTrue(cluster.isEmptyServices());
+    cluster.add(CmServerServiceType.HDFS_NAMENODE);
+    Assert.assertFalse(cluster.isEmpty());
+    Assert.assertTrue(cluster.isEmptyServices());
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", "host-1"));
+    Assert.assertFalse(cluster.isEmpty());
+    Assert.assertFalse(cluster.isEmptyServices());
+    cluster.clearServices();
+    Assert.assertFalse(cluster.isEmpty());
+    Assert.assertTrue(cluster.isEmptyServices());
+    cluster.clear();
+    Assert.assertTrue(cluster.isEmpty());
+    Assert.assertTrue(cluster.isEmptyServices());
+  }
+
+  @Test
+  public void testAdd() throws InterruptedException, IOException {
+    boolean caught = false;
+    try {
+      cluster.add(CmServerServiceType.CLUSTER);
+    } catch (IOException e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+    caught = false;
+    try {
+      cluster.add(CmServerServiceType.HDFS);
+    } catch (IOException e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+    caught = false;
+    try {
+      cluster.add(new CmServerService(CmServerServiceType.CLUSTER, CLUSTER_TAG));
+    } catch (IOException e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+    caught = false;
+    try {
+      cluster.add(new CmServerService(CmServerServiceType.HDFS, CLUSTER_TAG));
+    } catch (IOException e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+    caught = false;
+    try {
+      cluster.add(CmServerServiceType.HDFS_NAMENODE);
+    } catch (IOException e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+    caught = false;
+    try {
+      cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG));
+    } catch (IOException e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
   }
 
   @Test
@@ -51,11 +118,20 @@ public class CmServerClusterTest implements BaseTest {
   }
 
   @Test
+  public void testGetServiceTypes() throws InterruptedException, IOException {
+    Assert.assertEquals(5, cluster.getServiceTypes(CmServerServiceType.CLUSTER).size());
+    Assert.assertEquals(3, cluster.getServiceTypes(CmServerServiceType.HDFS).size());
+    Assert.assertEquals(1, cluster.getServiceTypes(CmServerServiceType.HDFS_NAMENODE).size());
+    Assert.assertEquals(1, cluster.getServiceTypes(CmServerServiceType.HDFS_DATANODE).size());
+    Assert.assertEquals(0, cluster.getServiceTypes(CmServerServiceType.CLIENT).size());
+  }
+
+  @Test
   public void testGetServices() throws InterruptedException, IOException {
     Assert.assertEquals(8, cluster.getServices(CmServerServiceType.CLUSTER).size());
     Assert.assertEquals(6, cluster.getServices(CmServerServiceType.HDFS).size());
-    Assert.assertEquals(1, cluster.getServices(CmServerServiceType.NAMENODE).size());
-    Assert.assertEquals(4, cluster.getServices(CmServerServiceType.DATANODE).size());
+    Assert.assertEquals(1, cluster.getServices(CmServerServiceType.HDFS_NAMENODE).size());
+    Assert.assertEquals(4, cluster.getServices(CmServerServiceType.HDFS_DATANODE).size());
     Assert.assertEquals(0, cluster.getServices(CmServerServiceType.CLIENT).size());
   }
 
@@ -63,32 +139,32 @@ public class CmServerClusterTest implements BaseTest {
   public void testGetService() throws InterruptedException, IOException {
     Assert.assertNotNull(cluster.getService(CmServerServiceType.CLUSTER));
     Assert.assertNotNull(cluster.getService(CmServerServiceType.HDFS));
-    Assert.assertNotNull(cluster.getService(CmServerServiceType.NAMENODE));
-    Assert.assertNotNull(cluster.getService(CmServerServiceType.DATANODE));
-    boolean caught = false;
-    try {
-      Assert.assertNotNull(cluster.getService(CmServerServiceType.CLIENT));
-    } catch (IOException e) {
-      caught = true;
-    }
-    Assert.assertTrue(caught);
+    Assert.assertNotNull(cluster.getService(CmServerServiceType.HDFS_NAMENODE));
+    Assert.assertNotNull(cluster.getService(CmServerServiceType.HDFS_DATANODE));
+    Assert.assertNull(cluster.getService(CmServerServiceType.CLIENT));
   }
 
   @Test
   public void testGetNames() throws InterruptedException, IOException {
-    Assert.assertEquals(CLUSTER_TAG + "_" + CmServerServiceType.CLUSTER.toString().toLowerCase() + "_1",
+    Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
+        + CmServerServiceType.CLUSTER.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
         cluster.getServiceName(CmServerServiceType.CLUSTER));
-    Assert.assertEquals(CLUSTER_TAG + "_" + CmServerServiceType.HDFS.toString().toLowerCase() + "_1",
+    Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
+        + CmServerServiceType.HDFS.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
         cluster.getServiceName(CmServerServiceType.HDFS));
-    Assert.assertEquals(CLUSTER_TAG + "_" + CmServerServiceType.NAMENODE.toString().toLowerCase() + "_1",
-        cluster.getServiceName(CmServerServiceType.NAMENODE));
-    Assert.assertEquals(CLUSTER_TAG + "_" + CmServerServiceType.DATANODE.toString().toLowerCase() + "_1",
-        cluster.getServiceName(CmServerServiceType.DATANODE));
-    Assert.assertEquals(CLUSTER_TAG + "_" + CmServerServiceType.CLIENT.toString().toLowerCase() + "_1",
+    Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
+        + CmServerServiceType.HDFS_NAMENODE.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
+        cluster.getServiceName(CmServerServiceType.HDFS_NAMENODE));
+    Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
+        + CmServerServiceType.HDFS_DATANODE.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
+        cluster.getServiceName(CmServerServiceType.HDFS_DATANODE));
+    Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
+        + CmServerServiceType.CLIENT.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
         cluster.getServiceName(CmServerServiceType.CLIENT));
     boolean caught = false;
     try {
-      Assert.assertEquals(CLUSTER_TAG + "_" + CmServerServiceType.CLUSTER.toString().toLowerCase() + "_1",
+      Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
+          + CmServerServiceType.CLUSTER.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
           new CmServerCluster().getServiceName(CmServerServiceType.CLUSTER));
     } catch (IOException e) {
       caught = true;
@@ -100,8 +176,8 @@ public class CmServerClusterTest implements BaseTest {
   public void testGetHosts() throws InterruptedException, IOException {
     Assert.assertEquals(4, cluster.getServiceHosts(CmServerServiceType.CLUSTER).size());
     Assert.assertEquals(4, cluster.getServiceHosts(CmServerServiceType.HDFS).size());
-    Assert.assertEquals(1, cluster.getServiceHosts(CmServerServiceType.NAMENODE).size());
-    Assert.assertEquals(4, cluster.getServiceHosts(CmServerServiceType.DATANODE).size());
+    Assert.assertEquals(1, cluster.getServiceHosts(CmServerServiceType.HDFS_NAMENODE).size());
+    Assert.assertEquals(4, cluster.getServiceHosts(CmServerServiceType.HDFS_DATANODE).size());
     Assert.assertEquals(0, cluster.getServiceHosts(CmServerServiceType.CLIENT).size());
   }
 

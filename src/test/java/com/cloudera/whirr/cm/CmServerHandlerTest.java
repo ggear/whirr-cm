@@ -22,16 +22,24 @@ import static com.google.common.base.Predicates.containsPattern;
 
 import java.util.Set;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.cloudera.whirr.cm.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.cdh.CmCdhDataNodeHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhHBaseMasterHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhHBaseRegionServerHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhHiveMetaStoreHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhImpalaDaemonHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhImpalaStateStoreHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhJobTrackerHandler;
 import com.cloudera.whirr.cm.cdh.CmCdhNameNodeHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhSecondaryNameNodeHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhTaskTrackerHandler;
+import com.cloudera.whirr.cm.cdh.CmCdhZookeeperServerHandler;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 
 public class CmServerHandlerTest extends BaseTestHandler {
 
@@ -74,10 +82,20 @@ public class CmServerHandlerTest extends BaseTestHandler {
 
   @Test
   public void testNodesAndAgentsAndCluster() throws Exception {
-    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        "1 " + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+" + CmCdhNameNodeHandler.ROLE + ",3 "
-            + CmAgentHandler.ROLE + "+" + CmCdhDataNodeHandler.ROLE, CmServerHandler.AUTO_VARIABLE,
-        Boolean.FALSE.toString()))));
+    Assert
+        .assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
+            "whirr.instance-templates",
+            "1 " + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+" + CmCdhNameNodeHandler.ROLE + "+"
+                + CmCdhSecondaryNameNodeHandler.ROLE + "+" + CmCdhJobTrackerHandler.ROLE + "+"
+                + CmCdhHBaseMasterHandler.ROLE + "+" + CmCdhHiveMetaStoreHandler.ROLE + "+"
+                + CmCdhImpalaStateStoreHandler.ROLE + ",3 " + CmAgentHandler.ROLE + "+" + CmCdhDataNodeHandler.ROLE
+                + "+" + CmCdhTaskTrackerHandler.ROLE + "+" + CmCdhZookeeperServerHandler.ROLE + "+"
+                + CmCdhHBaseRegionServerHandler.ROLE + "+" + CmCdhImpalaDaemonHandler.ROLE,
+            CmServerHandler.AUTO_VARIABLE,
+            Boolean.FALSE.toString(),
+            CmServerHandler.CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
+            "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/\\,http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"))));
+    Assert.assertEquals(6, BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes().size());
   }
 
 }

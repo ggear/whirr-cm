@@ -24,12 +24,13 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.BaseServiceDryRunTest;
 import org.apache.whirr.service.DryRunModule.DryRun;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.cloudera.whirr.cm.cdh.BaseHandlerCmCdh;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.jcraft.jsch.JSchException;
-
 
 public abstract class BaseTestHandler extends BaseServiceDryRunTest implements BaseTest {
 
@@ -41,6 +42,11 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
     clusterSpec.setPrivateKey(FILE_KEY_PRIVATE);
     clusterSpec.setPublicKey(FILE_KEY_PUBLIC);
     return clusterSpec;
+  }
+
+  @Before
+  public void clearClusterSingleton() {
+    BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clear();
   }
 
   @Override

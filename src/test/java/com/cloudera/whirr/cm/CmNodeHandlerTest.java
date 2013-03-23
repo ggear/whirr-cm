@@ -25,13 +25,10 @@ import java.util.Set;
 import org.apache.whirr.service.DryRunModule.DryRun;
 import org.junit.Test;
 
-import com.cloudera.whirr.cm.CmNodeHandler;
-import com.cloudera.whirr.cm.CmServerHandler;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
 
 public class CmNodeHandlerTest extends BaseTestHandler {
 

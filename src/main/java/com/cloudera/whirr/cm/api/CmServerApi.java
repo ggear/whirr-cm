@@ -19,18 +19,19 @@ package com.cloudera.whirr.cm.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.cloudera.api.ClouderaManagerClientBuilder;
 import com.cloudera.api.DataView;
+import com.cloudera.api.model.ApiBulkCommandList;
 import com.cloudera.api.model.ApiCluster;
 import com.cloudera.api.model.ApiClusterList;
 import com.cloudera.api.model.ApiClusterVersion;
@@ -44,15 +45,16 @@ import com.cloudera.api.model.ApiParcel;
 import com.cloudera.api.model.ApiRole;
 import com.cloudera.api.model.ApiRoleConfigGroup;
 import com.cloudera.api.model.ApiRoleConfigGroupRef;
+import com.cloudera.api.model.ApiRoleNameList;
 import com.cloudera.api.model.ApiService;
+import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
+import com.cloudera.whirr.cm.api.CmServerApiLog.CmServerApiLogSyncCommand;
 import com.google.common.collect.Lists;
 
 public class CmServerApi {
-
-  private static Logger log = LoggerFactory.getLogger(CmServerApi.class);
 
   public static final String CM_API_PARCEL_CDH = "CDH";
   public static final String CM_API_PARCEL_IMPALA = "IMPALA";
@@ -61,12 +63,17 @@ public class CmServerApi {
   private static final String CM_PARCEL_STAGE_DISTRIBUTED = "DISTRIBUTED";
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
 
-  private static int API_POLL_PERIOD_MS = 500;
+  private static int API_POLL_PERIOD_MS = 2000;
 
+  private CmServerApiLog logger;
   final private RootResourceV3 apiResourceRoot;
 
   public CmServerApi(String ip, int port, String user, String password) {
-    super();
+    this(ip, port, user, password, new CmServerApiLog.CmServerApiLogSlf4j());
+  }
+
+  public CmServerApi(String ip, int port, String user, String password, CmServerApiLog logger) {
+    this.logger = logger;
     this.apiResourceRoot = new ClouderaManagerClientBuilder().withHost(ip).withPort(port)
         .withUsernamePassword(user, password).build().getRootV3();
   }
@@ -80,30 +87,14 @@ public class CmServerApi {
   }
 
   public Map<String, String> initialise(Map<String, String> config) throws InterruptedException, IOException {
-    Map<String, String> configPostUpdate = new HashMap<String, String>();
+    Map<String, String> configPostUpdate = null;
     try {
 
-      if (log.isDebugEnabled()) {
-        log.debug("Server API [INITIALISE] [PRE]");
-      }
+      logger.logOperationStartedSync("ClusterInitialise");
 
-      ApiConfigList apiConfigList = new ApiConfigList();
-      if (!config.isEmpty()) {
-        for (String key : config.keySet()) {
-          apiConfigList.add(new ApiConfig(key, config.get(key)));
-        }
-        apiResourceRoot.getClouderaManagerResource().updateConfig(apiConfigList);
-      }
-      apiConfigList = apiResourceRoot.getClouderaManagerResource().getConfig(DataView.SUMMARY);
-      for (ApiConfig apiConfig : apiConfigList) {
-        configPostUpdate.put(apiConfig.getName(), apiConfig.getValue());
-      }
-      execute(apiResourceRoot.getClouderaManagerResource().inspectHostsCommand());
+      configPostUpdate = provisionCmSettings(config);
 
-      if (log.isDebugEnabled()) {
-        log.debug("Server API [INITIALISE] [" + configPostUpdate + "]");
-        log.debug("Server API [INITIALISE] [POST]");
-      }
+      logger.logOperationFinishedSync("ClusterInitialise");
 
     } catch (Exception e) {
       throw new IOException("Failed to initialise cluster", e);
@@ -113,20 +104,17 @@ public class CmServerApi {
 
   public Set<String> hosts() throws InterruptedException, IOException {
 
-    Set<String> hosts = new HashSet<String>();
+    final Set<String> hosts = new HashSet<String>();
     try {
 
-      if (log.isDebugEnabled()) {
-        log.debug("Server API [HOSTS] [PRE]");
-      }
-
-      for (ApiHost host : apiResourceRoot.getHostsResource().readHosts(DataView.SUMMARY).getHosts()) {
-        hosts.add(host.getHostId());
-      }
-
-      if (log.isDebugEnabled()) {
-        log.debug("Server API [HOSTS] [POST]");
-      }
+      logger.logOperation("GetHosts", new CmServerApiLogSyncCommand() {
+        @Override
+        public void execute() {
+          for (ApiHost host : apiResourceRoot.getHostsResource().readHosts(DataView.SUMMARY).getHosts()) {
+            hosts.add(host.getHostId());
+          }
+        }
+      });
 
     } catch (Exception e) {
       throw new IOException("Failed to list cluster hosts", e);
@@ -139,20 +127,15 @@ public class CmServerApi {
 
     try {
 
-      if (log.isDebugEnabled()) {
-        log.debug("Server API [PROVISION] [PRE]");
-      }
+      logger.logOperationStartedSync("ClusterProvision");
 
       if (!cluster.getServiceTypes().isEmpty()
           && apiResourceRoot.getClustersResource().readClusters(DataView.SUMMARY).size() == 0) {
         provsionCluster(cluster);
         provisionParcels(cluster);
-        provisionServices(cluster);
       }
 
-      if (log.isDebugEnabled()) {
-        log.debug("Server API [PROVISION] [POST]");
-      }
+      logger.logOperationFinishedSync("ClusterProvision");
 
     } catch (Exception e) {
       throw new IOException("Failed to provision cluster", e);
@@ -160,24 +143,156 @@ public class CmServerApi {
 
   }
 
-  public void start(CmServerCluster cluster) throws InterruptedException {
+  public void configure(CmServerCluster cluster) throws InterruptedException, IOException {
+
+    try {
+
+      logger.logOperationStartedSync("ClusterConfigure");
+
+      configureServices(cluster);
+
+      logger.logOperationFinishedSync("ClusterConfigure");
+
+    } catch (Exception e) {
+      throw new IOException("Failed to configure cluster", e);
+    }
+
   }
 
-  public void stop(CmServerCluster cluster) throws InterruptedException {
+  public void startFirst(CmServerCluster cluster) throws InterruptedException, IOException {
+
+    try {
+
+      logger.logOperationStartedSync("ClusterFirstStart");
+
+      for (CmServerServiceType type : cluster.getServiceTypes()) {
+        initPreStartServices(cluster, type);
+        startService(cluster, type);
+        initPostStartServices(cluster, type);
+      }
+
+      logger.logOperationFinishedSync("ClusterFirstStart");
+
+    } catch (Exception e) {
+      throw new IOException("Failed to start cluster", e);
+    }
+
   }
 
-  public void unprovision(CmServerCluster cluster) throws InterruptedException, IOException {
-    apiResourceRoot.getClustersResource().deleteCluster(cluster.getServiceName(CmServerServiceType.CLUSTER));
+  public void start(final CmServerCluster cluster) throws InterruptedException, IOException {
+
+    try {
+
+      logger.logOperationStartedSync("ClusterStart");
+
+      logger.logOperation("StartCluster", new CmServerApiLogSyncCommand() {
+        @Override
+        public void execute() throws IOException {
+          apiResourceRoot.getClustersResource().startCommand(getName(cluster));
+        }
+      });
+
+      logger.logOperationFinishedSync("ClusterStart");
+
+    } catch (Exception e) {
+      throw new IOException("Failed to start cluster", e);
+    }
+
+  }
+
+  public void stop(final CmServerCluster cluster) throws InterruptedException, IOException {
+
+    try {
+
+      logger.logOperationStartedSync("ClusterStop");
+
+      logger.logOperation("StopCluster", new CmServerApiLogSyncCommand() {
+        @Override
+        public void execute() throws IOException {
+          apiResourceRoot.getClustersResource().startCommand(getName(cluster));
+        }
+      });
+
+      logger.logOperationFinishedSync("ClusterStop");
+
+    } catch (Exception e) {
+      throw new IOException("Failed to stop cluster", e);
+    }
+
+  }
+
+  public void unconfigure(final CmServerCluster cluster) throws InterruptedException, IOException {
+
+    try {
+
+      logger.logOperationStartedSync("ClusterUnConfigure");
+
+      unconfigureServices(cluster);
+
+      logger.logOperationFinishedSync("ClusterUnConfigure");
+
+    } catch (Exception e) {
+      throw new IOException("Failed to unconfigure cluster", e);
+    }
+
+  }
+
+  public void unprovision(final CmServerCluster cluster) throws InterruptedException, IOException {
+
+    try {
+
+      logger.logOperationStartedSync("ClusterUnProvision");
+
+      logger.logOperation("CreateCluster", new CmServerApiLogSyncCommand() {
+        @Override
+        public void execute() throws IOException {
+          apiResourceRoot.getClustersResource().deleteCluster(getName(cluster));
+        }
+      });
+
+      logger.logOperationFinishedSync("ClusterUnProvision");
+
+    } catch (Exception e) {
+      throw new IOException("Failed to unprovision cluster", e);
+    }
+
+  }
+
+  private Map<String, String> provisionCmSettings(Map<String, String> config) throws InterruptedException {
+
+    Map<String, String> configPostUpdate = new HashMap<String, String>();
+    ApiConfigList apiConfigList = new ApiConfigList();
+    if (!config.isEmpty()) {
+      for (String key : config.keySet()) {
+        apiConfigList.add(new ApiConfig(key, config.get(key)));
+      }
+      apiResourceRoot.getClouderaManagerResource().updateConfig(apiConfigList);
+    }
+    apiConfigList = apiResourceRoot.getClouderaManagerResource().getConfig(DataView.SUMMARY);
+    for (ApiConfig apiConfig : apiConfigList) {
+      configPostUpdate.put(apiConfig.getName(), apiConfig.getValue());
+    }
+    execute(apiResourceRoot.getClouderaManagerResource().inspectHostsCommand());
+
+    return configPostUpdate;
+
   }
 
   private void provsionCluster(final CmServerCluster cluster) throws IOException, InterruptedException {
 
-    ApiClusterList clusterList = new ApiClusterList();
+    final ApiClusterList clusterList = new ApiClusterList();
     ApiCluster apiCluster = new ApiCluster();
     apiCluster.setName(getName(cluster));
     apiCluster.setVersion(ApiClusterVersion.CDH4);
     clusterList.add(apiCluster);
-    apiResourceRoot.getClustersResource().createClusters(clusterList);
+
+    logger.logOperation("CreateCluster", new CmServerApiLogSyncCommand() {
+      @Override
+      public void execute() throws IOException {
+        apiResourceRoot.getClustersResource().createClusters(clusterList);
+      }
+    });
+
     List<ApiHostRef> apiHostRefs = Lists.newArrayList();
     for (String host : hosts()) {
       apiHostRefs.add(new ApiHostRef(host));
@@ -255,98 +370,198 @@ public class CmServerApi {
 
   }
 
-  private void provisionServices(final CmServerCluster cluster) throws IOException {
+  private void configureServices(final CmServerCluster cluster) throws IOException, InterruptedException {
 
-    ApiServiceList serviceList = new ApiServiceList();
+    final ApiServiceList serviceList = new ApiServiceList();
     for (CmServerServiceType type : cluster.getServiceTypes()) {
-      switch (type) {
-      case HDFS:
-        serviceList.add(buildServiceHdfs(cluster));
-        break;
-      default:
-        throw new IOException("Dont know how to provision type [" + type + "]");
-      }
+      serviceList.add(buildServices(cluster, type));
     }
-    apiResourceRoot.getClustersResource().getServicesResource(getName(cluster)).createServices(serviceList);
+
+    logger.logOperation("CreateClusterServices", new CmServerApiLogSyncCommand() {
+      @Override
+      public void execute() throws IOException {
+        apiResourceRoot.getClustersResource().getServicesResource(getName(cluster)).createServices(serviceList);
+      }
+    });
 
   }
 
-  private ApiService buildServiceHdfs(final CmServerCluster cluster) throws IOException {
+  private void unconfigureServices(final CmServerCluster cluster) throws IOException, InterruptedException {
 
-    // TODO Refactor
-
-    ApiService hdfsService = new ApiService();
-    hdfsService.setType(CmServerServiceType.HDFS.toString());
-    hdfsService.setName(cluster.getServiceName(CmServerServiceType.HDFS));
-
-    List<ApiRoleConfigGroup> groupList = Lists.newArrayList();
-
-    ApiRoleConfigGroup nnGrp = new ApiRoleConfigGroup();
-    groupList.add(nnGrp);
-    ApiConfigList nnConfig = new ApiConfigList();
-    nnConfig.add(new ApiConfig("dfs_name_dir_list", "/data/1/dfs/nn"));
-    nnGrp.setRoleType("NAMENODE");
-    nnGrp.setConfig(nnConfig);
-    nnGrp.setName("whirr-nn-group");
-    nnGrp.setBase(false);
-
-    ApiRoleConfigGroup snnGrp = new ApiRoleConfigGroup();
-    groupList.add(snnGrp);
-    ApiConfigList snnConfig = new ApiConfigList();
-    snnConfig.add(new ApiConfig("fs_checkpoint_dir_list", "/data/1/dfs/snn"));
-    snnGrp.setRoleType("SECONDARYNAMENODE");
-    snnGrp.setConfig(snnConfig);
-    snnGrp.setName("whirr-snn-group");
-    snnGrp.setBase(false);
-
-    ApiRoleConfigGroup dnGrp = new ApiRoleConfigGroup();
-    groupList.add(dnGrp);
-    ApiConfigList dnConfig = new ApiConfigList();
-    dnConfig.add(new ApiConfig("dfs_data_dir_list", "/mnt/data/1/dfs/dn"));
-    dnGrp.setRoleType("DATANODE");
-    dnGrp.setConfig(dnConfig);
-    dnGrp.setName("whirr-dn-group");
-    dnGrp.setBase(false);
-
-    hdfsService.setRoleConfigGroups(groupList);
-
-    List<ApiRole> roles = new ArrayList<ApiRole>();
-
-    ApiRole nnRole = new ApiRole();
-    nnRole.setName("nn");
-    nnRole.setType("NAMENODE");
-    nnRole.setHostRef(new ApiHostRef(cluster.getService(CmServerServiceType.NAMENODE).getHost()));
-    nnRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-nn-group"));
-    roles.add(nnRole);
-
-    ApiRole snnRole = new ApiRole();
-    snnRole.setName("snn");
-    snnRole.setType("SECONDARYNAMENODE");
-    snnRole.setHostRef(new ApiHostRef(cluster.getService(CmServerServiceType.SECONDARYNAMENODE).getHost()));
-    snnRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-snn-group"));
-    roles.add(snnRole);
-
-    for (CmServerService service : cluster.getServices(CmServerServiceType.DATANODE)) {
-      ApiRole dnRole = new ApiRole();
-      dnRole.setName(service.getName());
-      dnRole.setType(service.getType().toString());
-      dnRole.setHostRef(new ApiHostRef(service.getHost()));
-      dnRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef("whirr-dn-group"));
-      roles.add(dnRole);
+    Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>(Collections.reverseOrder());
+    types.addAll(cluster.getServiceTypes());
+    for (final CmServerServiceType type : types) {
+      logger.logOperation("DestroyClusterServices", new CmServerApiLogSyncCommand() {
+        @Override
+        public void execute() throws IOException {
+          apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+              .deleteService(cluster.getServiceName(type));
+        }
+      });
     }
 
-    hdfsService.setRoles(roles);
+  }
 
-    return hdfsService;
+  private ApiService buildServices(final CmServerCluster cluster, CmServerServiceType type) throws IOException {
+
+    ApiService apiService = new ApiService();
+    List<ApiRole> apiRoles = new ArrayList<ApiRole>();
+    List<ApiRoleConfigGroup> apiRoleConfigGroups = Lists.newArrayList();
+
+    apiService.setType(type.toString());
+    apiService.setName(cluster.getServiceName(type));
+
+    ApiServiceConfig apiServiceConfig = new ApiServiceConfig();
+    // TODO Refactor, dont hardcode, pass through from whirr config
+    switch (type) {
+    case MAPREDUCE:
+      apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
+      break;
+    case HIVE:
+      // TODO Hive is not supported yet
+      apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
+          .getServiceName(CmServerServiceType.MAPREDUCE)));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_type", "postgresql"));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_host", "31-222-189-24.static.cloud-ips.co.uk"));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", "hive"));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "5432"));
+      break;
+    case HBASE:
+      apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
+      apiServiceConfig.add(new ApiConfig("zookeeper_service", cluster.getServiceName(CmServerServiceType.ZOOKEEPER)));
+    default:
+      break;
+    }
+    apiService.setConfig(apiServiceConfig);
+
+    for (CmServerServiceType subType : cluster.getServiceTypes(type)) {
+      ApiConfigList apiConfigList = new ApiConfigList();
+      // TODO Refactor, dont hardcode, pass through from whirr config
+      switch (subType) {
+      case HDFS_NAMENODE:
+        apiConfigList.add(new ApiConfig("dfs_name_dir_list", "/data/1/dfs/nn"));
+        break;
+      case HDFS_SECONDARY_NAMENODE:
+        apiConfigList.add(new ApiConfig("fs_checkpoint_dir_list", "/data/1/dfs/snn"));
+        break;
+      case HDFS_DATANODE:
+        apiConfigList.add(new ApiConfig("dfs_data_dir_list", "/mnt/data/1/dfs/dn"));
+        break;
+      case MAPREDUCE_JOB_TRACKER:
+        apiConfigList.add(new ApiConfig("jobtracker_mapred_local_dir_list", "/data/1/mapred/jt"));
+        break;
+      case MAPREDUCE_TASK_TRACKER:
+        apiConfigList.add(new ApiConfig("tasktracker_mapred_local_dir_list", "/data/1/mapred/local"));
+        break;
+      default:
+        break;
+      }
+      ApiRoleConfigGroup apiRoleConfigGroup = new ApiRoleConfigGroup();
+      apiRoleConfigGroup.setRoleType(subType.toString());
+      apiRoleConfigGroup.setConfig(apiConfigList);
+      apiRoleConfigGroup.setName(cluster.getService(subType).getGroup());
+      apiRoleConfigGroup.setBase(false);
+      apiRoleConfigGroups.add(apiRoleConfigGroup);
+    }
+
+    for (CmServerService subService : cluster.getServices(type)) {
+      ApiRole apiRole = new ApiRole();
+      apiRole.setName(subService.getName());
+      apiRole.setType(subService.getType().toString());
+      apiRole.setHostRef(new ApiHostRef(subService.getHost()));
+      apiRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef(subService.getGroup()));
+      apiRoles.add(apiRole);
+    }
+
+    apiService.setRoleConfigGroups(apiRoleConfigGroups);
+    apiService.setRoles(apiRoles);
+
+    return apiService;
+  }
+
+  private void initPreStartServices(final CmServerCluster cluster, CmServerServiceType type) throws IOException,
+      InterruptedException {
+
+    switch (type) {
+    case HDFS:
+      CmServerService service = cluster.getService(CmServerServiceType.HDFS_NAMENODE);
+      if (service != null) {
+        ApiRoleNameList formatList = new ApiRoleNameList();
+        formatList.add(service.getName());
+        execute(
+            apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+                .getRoleCommandsResource(cluster.getServiceName(CmServerServiceType.HDFS)).formatCommand(formatList),
+            false);
+      }
+      break;
+    case HIVE:
+      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+          .hiveCreateMetastoreDatabaseTablesCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
+      break;
+    case HBASE:
+      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+          .createHBaseRootCommand(cluster.getServiceName(CmServerServiceType.HBASE)));
+      break;
+    default:
+      break;
+    }
+
+  }
+
+  private void initPostStartServices(final CmServerCluster cluster, CmServerServiceType type) throws IOException,
+      InterruptedException {
+
+    switch (type) {
+    case HDFS:
+      CmServerService service = cluster.getService(CmServerServiceType.HDFS_NAMENODE);
+      if (service != null) {
+        ApiRoleNameList formatList = new ApiRoleNameList();
+        formatList.add(service.getName());
+        execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+            .hdfsCreateTmpDir(cluster.getServiceName(CmServerServiceType.HDFS)));
+      }
+      break;
+    default:
+      break;
+    }
+
+  }
+
+  private void startService(CmServerCluster cluster, CmServerServiceType type) throws InterruptedException, IOException {
+    execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+        .startCommand(cluster.getServiceName(type)));
+  }
+
+  @SuppressWarnings("unused")
+  private void stopService(CmServerCluster cluster, CmServerServiceType type) throws InterruptedException, IOException {
+    execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+        .stopCommand(cluster.getServiceName(type)));
+  }
+
+  @SuppressWarnings("unused")
+  private ApiCommand execute(final ApiBulkCommandList bulkCommand) throws InterruptedException {
+    return execute(bulkCommand, true);
+  }
+
+  private ApiCommand execute(final ApiBulkCommandList bulkCommand, boolean checkReturn) throws InterruptedException {
+    ApiCommand lastCommand = null;
+    for (ApiCommand command : bulkCommand) {
+      lastCommand = execute(command, checkReturn);
+    }
+    return lastCommand;
   }
 
   private ApiCommand execute(final ApiCommand command) throws InterruptedException {
+    return execute(command, true);
+  }
+
+  private ApiCommand execute(final ApiCommand command, boolean checkReturn) throws InterruptedException {
     return execute(command.getName(), command, new Callback() {
       @Override
       public boolean poll() {
         return apiResourceRoot.getCommandsResource().readCommand(command.getId()).getEndTime() != null;
       }
-    }, true);
+    }, checkReturn);
   }
 
   private ApiCommand execute(ApiCommand command, Callback callback, boolean checkReturn) throws InterruptedException {
@@ -355,22 +570,22 @@ public class CmServerApi {
 
   private ApiCommand execute(String label, ApiCommand command, Callback callback, boolean checkReturn)
       throws InterruptedException {
-    if (log.isDebugEnabled()) {
-      log.debug("Server API Command Execute [" + label + "] [PRE]");
-    }
+
+    logger.logOperationStartedAsync(label);
+
     ApiCommand commandReturn = null;
     while (true) {
-      if (log.isDebugEnabled()) {
-        log.debug("Server API Command Execute [" + label + "] [POLL]");
-      }
+
+      logger.logOperationInProgressAsync(label);
+
       if (callback.poll()) {
         if (checkReturn && command != null
             && !(commandReturn = apiResourceRoot.getCommandsResource().readCommand(command.getId())).getSuccess()) {
           throw new RuntimeException("Command [" + command + "] failed [" + commandReturn + "]");
         }
-        if (log.isDebugEnabled()) {
-          log.debug("Server API Command Execute [" + label + "] [POST]");
-        }
+
+        logger.logOperationFinishedAsync(label);
+
         return commandReturn;
       }
       Thread.sleep(API_POLL_PERIOD_MS);
@@ -378,9 +593,7 @@ public class CmServerApi {
   }
 
   private static abstract class Callback {
-
     public abstract boolean poll();
-
   }
 
 }

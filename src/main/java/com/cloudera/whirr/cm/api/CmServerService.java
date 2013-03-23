@@ -19,14 +19,30 @@ package com.cloudera.whirr.cm.api;
 
 public class CmServerService {
 
+  public static final String NAME_TOKEN_DELIM = "_";
+
+  private static final String NAME_QUALIFIER_GROUP = "group";
+
   private String name;
+  private String group;
   private CmServerServiceType type;
   private String tag;
   private String qualifier;
   private String host;
-  
+
+  public CmServerService(CmServerServiceType type) {
+    this(type, "", "1", "");
+  }
+
+  public CmServerService(CmServerServiceType type, String tag) {
+    this(type, tag, "1", "");
+  }
+
   public CmServerService(CmServerServiceType type, String tag, String qualifier, String host) {
-    this.name = tag + "_" + type.toString().toLowerCase() + "_" + qualifier;
+    this.name = tag + (tag.equals("") ? "" : NAME_TOKEN_DELIM) + type.toString().toLowerCase() + NAME_TOKEN_DELIM
+        + qualifier;
+    this.group = tag + (tag.equals("") ? "" : NAME_TOKEN_DELIM) + type.toString().toLowerCase() + NAME_TOKEN_DELIM
+        + NAME_QUALIFIER_GROUP;
     this.type = type;
     this.tag = tag;
     this.host = host;
@@ -39,6 +55,9 @@ public class CmServerService {
     string.append("{");
     string.append("name=");
     string.append(name);
+    string.append(", ");
+    string.append("group=");
+    string.append(group);
     string.append(", ");
     string.append("type=");
     string.append(type);
@@ -55,8 +74,20 @@ public class CmServerService {
     return string.toString();
   }
 
+  public static String getNameTokenDelim() {
+    return NAME_TOKEN_DELIM;
+  }
+
+  public static String getNameQualifierGroup() {
+    return NAME_QUALIFIER_GROUP;
+  }
+
   public String getName() {
     return name;
+  }
+
+  public String getGroup() {
+    return group;
   }
 
   public CmServerServiceType getType() {

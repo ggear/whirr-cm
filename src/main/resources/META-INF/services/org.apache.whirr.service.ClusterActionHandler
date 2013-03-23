@@ -24,8 +24,16 @@ com.cloudera.whirr.cm.cdh.CmCdhClientHandler
 com.cloudera.whirr.cm.cdh.CmCdhNameNodeHandler
 com.cloudera.whirr.cm.cdh.CmCdhSecondaryNameNodeHandler
 com.cloudera.whirr.cm.cdh.CmCdhDataNodeHandler
+
 com.cloudera.whirr.cm.cdh.CmCdhJobTrackerHandler
 com.cloudera.whirr.cm.cdh.CmCdhTaskTrackerHandler
 
+com.cloudera.whirr.cm.cdh.CmCdhHiveMetaStoreHandler
+
+com.cloudera.whirr.cm.cdh.CmCdhZookeeperServerHandler
+
 com.cloudera.whirr.cm.cdh.CmCdhHBaseMasterHandler
 com.cloudera.whirr.cm.cdh.CmCdhHBaseRegionServerHandler
+
+com.cloudera.whirr.cm.cdh.CmCdhImpalaDaemonHandler
+com.cloudera.whirr.cm.cdh.CmCdhImpalaStateStoreHandler
