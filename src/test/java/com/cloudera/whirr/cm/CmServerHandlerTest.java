@@ -98,4 +98,31 @@ public class CmServerHandlerTest extends BaseTestHandler {
     Assert.assertEquals(6, BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes().size());
   }
 
+  @Test
+  public void testNoAgentsAndCluster() throws Exception {
+    boolean caught = false;
+    try {
+      Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
+          "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmCdhNameNodeHandler.ROLE,
+          CmServerHandler.AUTO_VARIABLE, Boolean.TRUE.toString()))));
+    } catch (Exception e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+  }
+
+  @Test
+  public void testAgentsAndMultipleNameNodes() throws Exception {
+    boolean caught = false;
+    try {
+      Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
+          "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
+              + CmCdhNameNodeHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+" + CmCdhNameNodeHandler.ROLE,
+          CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString()))));
+    } catch (Exception e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+  }
+
 }

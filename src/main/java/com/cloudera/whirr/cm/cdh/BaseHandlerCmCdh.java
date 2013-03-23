@@ -17,13 +17,20 @@
  */
 package com.cloudera.whirr.cm.cdh;
 
+import static org.apache.whirr.RolePredicates.role;
+
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.whirr.service.ClusterActionEvent;
 
 import com.cloudera.whirr.cm.BaseHandler;
+import com.cloudera.whirr.cm.CmAgentHandler;
+import com.cloudera.whirr.cm.CmServerHandler;
 import com.cloudera.whirr.cm.api.CmServerCluster;
 import com.cloudera.whirr.cm.api.CmServerService;
 import com.cloudera.whirr.cm.api.CmServerServiceType;
@@ -37,12 +44,30 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
+    if (!event.getInstanceTemplate().getRoles().contains(CmAgentHandler.ROLE)) {
+      throw new IOException("Role [" + getRole() + "] requires colocated role [" + CmAgentHandler.ROLE + "]");
+    }
     CmServerClusterSingleton.getInstance().add(new CmServerService(getType()));
     roleToType.putIfAbsent(getRole(), getType());
   }
 
+  @Override
+  protected void afterBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.afterBootstrap(event);
+    try {
+      event.getCluster().getInstanceMatching(role(CmServerHandler.ROLE));
+    } catch (NoSuchElementException e) {
+      throw new IOException("Role [" + getRole() + "] requires a node within cluster with role ["
+          + CmServerHandler.ROLE + "]");
+    }
+  }
+
   public static CmServerServiceType getType(String role) {
     return roleToType.get(role);
+  }
+
+  public static Set<String> getRoles() {
+    return new HashSet<String>(roleToType.keySet());
   }
 
   public static class CmServerClusterSingleton {

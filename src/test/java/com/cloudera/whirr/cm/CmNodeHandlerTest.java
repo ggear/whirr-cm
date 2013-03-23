@@ -62,4 +62,11 @@ public class CmNodeHandlerTest extends BaseTestHandler {
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
 
+  @Test
+  public void testNoCmServer() throws Exception {
+    DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
+        + CmNodeHandler.ROLE)));
+    assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
+  }
+  
 }

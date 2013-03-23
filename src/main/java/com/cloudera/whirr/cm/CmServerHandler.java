@@ -165,8 +165,14 @@ public class CmServerHandler extends BaseHandlerCm {
       }
     }
 
-    if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
-      if (!BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().isEmpty()) {
+    if (!BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().isEmpty()) {
+
+      if (!event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
+
+        System.out.println("Warning, Cloudera Manager managed CDH nodes detetcted " + BaseHandlerCmCdh.getRoles()
+            + " but [" + AUTO_VARIABLE + "] set to false so not provsioning");
+
+      } else if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
 
         System.out.println();
         System.out.println(CONSOLE_SPACER);

@@ -303,13 +303,21 @@ public class CmServerApi {
 
   private void provisionParcels(final CmServerCluster cluster) throws InterruptedException, IOException {
 
-    execute("Wait For Parcels Availability", null, new Callback() {
+    execute("Wait For Parcels Availability", new Callback() {
       @Override
       public boolean poll() {
-        return apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster)).readParcels(DataView.FULL)
-            .getParcels().size() >= 2;
+        if (apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster)).readParcels(DataView.FULL)
+            .getParcels().size() >= 2) {
+          apiResourceRoot.getClouderaManagerResource().updateConfig(
+              apiResourceRoot.getClouderaManagerResource().getConfig(DataView.SUMMARY));
+          
+          System.err.println(apiResourceRoot.getClouderaManagerResource().listActiveCommands(DataView.EXPORT));
+          
+          return false;
+        }
+        return true;
       }
-    }, false);
+    });
 
     DefaultArtifactVersion parcelVersionCdh = null;
     DefaultArtifactVersion parcelVersionImpala = null;
@@ -574,6 +582,10 @@ public class CmServerApi {
 
   private ApiCommand execute(ApiCommand command, Callback callback, boolean checkReturn) throws InterruptedException {
     return execute(command.getName(), command, callback, checkReturn);
+  }
+
+  private ApiCommand execute(String label, Callback callback) throws InterruptedException {
+    return execute(label, null, callback, false);
   }
 
   private ApiCommand execute(String label, ApiCommand command, Callback callback, boolean checkReturn)
