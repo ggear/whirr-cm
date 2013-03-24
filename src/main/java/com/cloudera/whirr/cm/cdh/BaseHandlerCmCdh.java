@@ -31,6 +31,7 @@ import org.apache.whirr.service.ClusterActionEvent;
 import com.cloudera.whirr.cm.BaseHandler;
 import com.cloudera.whirr.cm.CmAgentHandler;
 import com.cloudera.whirr.cm.CmServerHandler;
+import com.cloudera.whirr.cm.api.CmServerApiException;
 import com.cloudera.whirr.cm.api.CmServerCluster;
 import com.cloudera.whirr.cm.api.CmServerService;
 import com.cloudera.whirr.cm.api.CmServerServiceType;
@@ -47,7 +48,11 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
     if (!event.getInstanceTemplate().getRoles().contains(CmAgentHandler.ROLE)) {
       throw new IOException("Role [" + getRole() + "] requires colocated role [" + CmAgentHandler.ROLE + "]");
     }
-    CmServerClusterSingleton.getInstance().add(new CmServerService(getType()));
+    try {
+      CmServerClusterSingleton.getInstance().add(new CmServerService(getType()));
+    } catch (CmServerApiException e) {
+      throw new IOException(e);
+    }
     roleToType.putIfAbsent(getRole(), getType());
   }
 

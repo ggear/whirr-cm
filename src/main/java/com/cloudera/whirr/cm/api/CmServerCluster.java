@@ -56,7 +56,7 @@ public class CmServerCluster {
     }
   }
 
-  public synchronized boolean add(CmServerServiceType type) throws IOException {
+  public synchronized boolean add(CmServerServiceType type) throws CmServerApiException {
     assertConsistentTopology(type);
     if (!services.containsKey(type.getParent())) {
       services.put(type.getParent(), new ArrayList<CmServerService>());
@@ -65,7 +65,7 @@ public class CmServerCluster {
     return false;
   }
 
-  public synchronized boolean add(CmServerService service) throws IOException {
+  public synchronized boolean add(CmServerService service) throws CmServerApiException {
     add(service.getType());
     services.get(service.getType().getParent()).add(service);
     return true;
@@ -138,7 +138,7 @@ public class CmServerCluster {
     throw new IOException("Cannot determine service name, cluster is empty");
   }
 
-  public synchronized Set<String> getServiceHosts(CmServerServiceType type) throws IOException {
+  public synchronized Set<String> getServiceHosts(CmServerServiceType type) {
     Set<String> hosts = new HashSet<String>();
     if (type.equals(CmServerServiceType.CLUSTER)) {
       for (CmServerServiceType serviceType : services.keySet()) {
@@ -160,14 +160,14 @@ public class CmServerCluster {
     return hosts;
   }
 
-  private void assertConsistentTopology(CmServerServiceType type) throws IOException {
+  private void assertConsistentTopology(CmServerServiceType type) throws CmServerApiException {
     if (type.getParent() == null || type.getParent().getParent() == null) {
-      throw new IOException("Invalid cluster topology: Attempt to add non leaf type [" + type + "]");
+      throw new CmServerApiException("Invalid cluster topology: Attempt to add non leaf type [" + type + "]");
     }
     switch (type) {
     case HDFS_NAMENODE:
       if (getServices(CmServerServiceType.HDFS_NAMENODE).size() > 0) {
-        throw new IOException("Invalid cluster topology: Attempt to add multiple types [" + type + "]");
+        throw new CmServerApiException("Invalid cluster topology: Attempt to add multiple types [" + type + "]");
       }
       break;
     default:

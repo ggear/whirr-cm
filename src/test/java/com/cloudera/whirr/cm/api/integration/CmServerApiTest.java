@@ -17,7 +17,6 @@
  */
 package com.cloudera.whirr.cm.api.integration;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +28,7 @@ import org.junit.Test;
 import com.cloudera.whirr.cm.BaseTest;
 import com.cloudera.whirr.cm.CmServerHandler;
 import com.cloudera.whirr.cm.api.CmServerApi;
+import com.cloudera.whirr.cm.api.CmServerApiException;
 import com.cloudera.whirr.cm.api.CmServerApiLog;
 import com.cloudera.whirr.cm.api.CmServerCluster;
 import com.cloudera.whirr.cm.api.CmServerService;
@@ -37,9 +37,9 @@ import com.google.common.collect.ImmutableMap;
 
 public class CmServerApiTest implements BaseTest {
 
-  private static final String CLUSTER_TAG = "whirr";
+  private static final String CLUSTER_TAG = "whirr_test";
 
-  private static String CM_IP = getSystemProperty("whirr.test.cm.ip", "164.177.149.71");
+  private static String CM_IP = getSystemProperty("whirr.test.cm.ip", "31.222.137.133");
   private static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
   private static String CM_REPOS = getSystemProperty("whirr.test.cm.repos",
       "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/" + ","
@@ -52,7 +52,7 @@ public class CmServerApiTest implements BaseTest {
   private static String[] hostNames;
 
   @BeforeClass
-  public static void provisionCluster() throws InterruptedException, IOException {
+  public static void provisionCluster() throws CmServerApiException {
     Assert.assertNotNull(api = new CmServerApi(CM_IP, CM_PORT, CmServerHandler.CM_USER, CmServerHandler.CM_PASSWORD,
         new CmServerApiLog.CmServerApiLogSysOut()));
     Assert.assertTrue(api.initialise(CM_CONFIG).size() > 0);
@@ -65,7 +65,7 @@ public class CmServerApiTest implements BaseTest {
   }
 
   @Test
-  public void testConfigure() throws InterruptedException, IOException {
+  public void testConfigure() throws CmServerApiException {
 
     CmServerCluster cluster = getFullyLoadedCluster();
     api.configure(cluster);
@@ -74,7 +74,7 @@ public class CmServerApiTest implements BaseTest {
   }
 
   @Test
-  public void testConfigureAndStartFirst() throws InterruptedException, IOException {
+  public void testConfigureAndStartFirst() throws CmServerApiException {
 
     CmServerCluster cluster = getFullyLoadedCluster();
     api.configure(cluster);
@@ -85,7 +85,7 @@ public class CmServerApiTest implements BaseTest {
   }
 
   @Test
-  public void testConfigureAndStartFirstAndStart() throws InterruptedException, IOException {
+  public void testConfigureAndStartFirstAndStart() throws CmServerApiException {
 
     CmServerCluster cluster = getFullyLoadedCluster();
     api.configure(cluster);
@@ -97,7 +97,7 @@ public class CmServerApiTest implements BaseTest {
 
   }
 
-  private static CmServerCluster getBasicCluster() throws IOException {
+  private static CmServerCluster getBasicCluster() throws CmServerApiException {
 
     CmServerCluster cluster = new CmServerCluster();
     cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", hostNames[0]));
@@ -108,7 +108,7 @@ public class CmServerApiTest implements BaseTest {
     return cluster;
   }
 
-  private static CmServerCluster getFullyLoadedCluster() throws IOException {
+  private static CmServerCluster getFullyLoadedCluster() throws CmServerApiException {
 
     CmServerCluster cluster = new CmServerCluster();
     cluster.add(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", hostNames[1]));

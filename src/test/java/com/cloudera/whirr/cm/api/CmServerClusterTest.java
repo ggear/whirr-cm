@@ -32,7 +32,7 @@ public class CmServerClusterTest implements BaseTest {
   private CmServerCluster cluster;
 
   @Before
-  public void setupCluster() throws IOException {
+  public void setupCluster() throws CmServerApiException {
     cluster = new CmServerCluster();
     cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "2", "host-2"));
     cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", "host-1"));
@@ -45,7 +45,7 @@ public class CmServerClusterTest implements BaseTest {
   }
 
   @Test
-  public void testIsEmpty() throws IOException {
+  public void testIsEmpty() throws CmServerApiException {
     Assert.assertFalse(cluster.isEmpty());
     Assert.assertFalse(cluster.isEmptyServices());
     cluster.clear();
@@ -66,53 +66,53 @@ public class CmServerClusterTest implements BaseTest {
   }
 
   @Test
-  public void testAdd() throws InterruptedException, IOException {
+  public void testAdd() throws CmServerApiException {
     boolean caught = false;
     try {
       cluster.add(CmServerServiceType.CLUSTER);
-    } catch (IOException e) {
+    } catch (CmServerApiException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
       cluster.add(CmServerServiceType.HDFS);
-    } catch (IOException e) {
+    } catch (CmServerApiException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
       cluster.add(new CmServerService(CmServerServiceType.CLUSTER, CLUSTER_TAG));
-    } catch (IOException e) {
+    } catch (CmServerApiException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
       cluster.add(new CmServerService(CmServerServiceType.HDFS, CLUSTER_TAG));
-    } catch (IOException e) {
+    } catch (CmServerApiException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
       cluster.add(CmServerServiceType.HDFS_NAMENODE);
-    } catch (IOException e) {
+    } catch (CmServerApiException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
       cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG));
-    } catch (IOException e) {
+    } catch (CmServerApiException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
   }
 
   @Test
-  public void testGetTypes() throws InterruptedException, IOException {
+  public void testGetTypes() throws CmServerApiException {
     Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS, CmServerServiceType.HBASE,
         CmServerServiceType.IMPALA }, cluster.getServiceTypes().toArray());
   }
@@ -173,7 +173,7 @@ public class CmServerClusterTest implements BaseTest {
   }
 
   @Test
-  public void testGetHosts() throws InterruptedException, IOException {
+  public void testGetHosts()   {
     Assert.assertEquals(4, cluster.getServiceHosts(CmServerServiceType.CLUSTER).size());
     Assert.assertEquals(4, cluster.getServiceHosts(CmServerServiceType.HDFS).size());
     Assert.assertEquals(1, cluster.getServiceHosts(CmServerServiceType.HDFS_NAMENODE).size());

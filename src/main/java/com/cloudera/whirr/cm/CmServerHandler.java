@@ -174,57 +174,64 @@ public class CmServerHandler extends BaseHandlerCm {
 
       } else if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
 
-        System.out.println();
-        System.out.println(CONSOLE_SPACER);
-        System.out.println("Cloudera Manager Cluster Topology");
-        System.out.println(CONSOLE_SPACER);
-        System.out.println();
-        System.out.println("Roles:");
+        try {
 
-        BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clearServices();
-        for (Instance instance : event.getCluster().getInstances()) {
-          for (String role : instance.getRoles()) {
-            CmServerServiceType type = BaseHandlerCmCdh.getType(role);
-            if (type != null) {
-              CmServerService service = new CmServerService(type, CM_CLUSTER_NAME, ""
-                  + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
-                  instance.getPublicHostName());
-              BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
-              System.out.println(service.getName() + "@" + service.getHost());
+          System.out.println();
+          System.out.println(CONSOLE_SPACER);
+          System.out.println("Cloudera Manager Cluster Topology");
+          System.out.println(CONSOLE_SPACER);
+          System.out.println();
+          System.out.println("Roles:");
+
+          BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clearServices();
+          for (Instance instance : event.getCluster().getInstances()) {
+            for (String role : instance.getRoles()) {
+              CmServerServiceType type = BaseHandlerCmCdh.getType(role);
+              if (type != null) {
+                CmServerService service = new CmServerService(type, CM_CLUSTER_NAME, ""
+                    + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
+                    instance.getPublicHostName());
+                BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
+                System.out.println(service.getName() + "@" + service.getHost());
+              }
             }
           }
-        }
 
-        System.out.println();
-        System.out.println("Cluster Provision:");
+          System.out.println();
+          System.out.println("Cluster Provision:");
 
-        Map<String, String> config = new HashMap<String, String>();
-        @SuppressWarnings("unchecked")
-        Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
-        while (keys.hasNext()) {
-          String key = keys.next();
-          if (key.startsWith(CONFIG_WHIRR_CM_PREFIX)) {
-            config.put(key.replaceFirst(CONFIG_WHIRR_CM_PREFIX, ""), event.getClusterSpec().getConfiguration()
-                .getString(key));
+          Map<String, String> config = new HashMap<String, String>();
+          @SuppressWarnings("unchecked")
+          Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
+          while (keys.hasNext()) {
+            String key = keys.next();
+            if (key.startsWith(CONFIG_WHIRR_CM_PREFIX)) {
+              config.put(key.replaceFirst(CONFIG_WHIRR_CM_PREFIX, ""), event.getClusterSpec().getConfiguration()
+                  .getString(key));
+            }
           }
-        }
 
-        try {
           CmServerApi cmServerApi = new CmServerApi(event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(),
               7180, CM_USER, CM_PASSWORD, new CmServerApiLog.CmServerApiLogSysOut());
           cmServerApi.initialise(config);
           cmServerApi.provision(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
           cmServerApi.configure(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
           cmServerApi.startFirst(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
+
+          System.out.println();
+
         } catch (Exception e) {
+
+          System.out.println();
           e.printStackTrace();
+          System.out.println();
+          System.out.println();
           System.out
-              .println("Failed to execute CM Server API Cluster Provision, please log into the web console to resolve:");
+              .println("Failed to execute CM Server API Cluster Provision, please review the proceeding exception and log into the web console to resolve:");
           System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
               + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
-        }
 
-        System.out.println();
+        }
 
       }
     }

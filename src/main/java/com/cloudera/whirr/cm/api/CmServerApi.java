@@ -87,7 +87,7 @@ public class CmServerApi {
     }
   }
 
-  public Map<String, String> initialise(Map<String, String> config) throws InterruptedException, IOException {
+  public Map<String, String> initialise(Map<String, String> config) throws CmServerApiException {
     Map<String, String> configPostUpdate = null;
     try {
 
@@ -98,12 +98,12 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterInitialise");
 
     } catch (Exception e) {
-      throw new IOException("Failed to initialise cluster", e);
+      throw new CmServerApiException("Failed to initialise cluster", e);
     }
     return configPostUpdate;
   }
 
-  public Set<String> hosts() throws InterruptedException, IOException {
+  public Set<String> hosts() throws CmServerApiException {
 
     final Set<String> hosts = new HashSet<String>();
     try {
@@ -118,13 +118,13 @@ public class CmServerApi {
       });
 
     } catch (Exception e) {
-      throw new IOException("Failed to list cluster hosts", e);
+      throw new CmServerApiException("Failed to list cluster hosts", e);
     }
 
     return hosts;
   }
 
-  public void provision(CmServerCluster cluster) throws InterruptedException, IOException {
+  public void provision(CmServerCluster cluster) throws CmServerApiException {
 
     try {
 
@@ -139,12 +139,12 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterProvision");
 
     } catch (Exception e) {
-      throw new IOException("Failed to provision cluster", e);
+      throw new CmServerApiException("Failed to provision cluster", e);
     }
 
   }
 
-  public void configure(CmServerCluster cluster) throws InterruptedException, IOException {
+  public void configure(CmServerCluster cluster) throws CmServerApiException {
 
     try {
 
@@ -155,12 +155,12 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterConfigure");
 
     } catch (Exception e) {
-      throw new IOException("Failed to configure cluster", e);
+      throw new CmServerApiException("Failed to configure cluster", e);
     }
 
   }
 
-  public void startFirst(CmServerCluster cluster) throws InterruptedException, IOException {
+  public void startFirst(CmServerCluster cluster) throws CmServerApiException {
 
     try {
 
@@ -175,12 +175,12 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterFirstStart");
 
     } catch (Exception e) {
-      throw new IOException("Failed to first start cluster", e);
+      throw new CmServerApiException("Failed to first start cluster", e);
     }
 
   }
 
-  public void start(final CmServerCluster cluster) throws InterruptedException, IOException {
+  public void start(final CmServerCluster cluster) throws CmServerApiException {
 
     try {
 
@@ -196,12 +196,12 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterStart");
 
     } catch (Exception e) {
-      throw new IOException("Failed to start cluster", e);
+      throw new CmServerApiException("Failed to start cluster", e);
     }
 
   }
 
-  public void stop(final CmServerCluster cluster) throws InterruptedException, IOException {
+  public void stop(final CmServerCluster cluster) throws CmServerApiException {
 
     try {
 
@@ -217,12 +217,12 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterStop");
 
     } catch (Exception e) {
-      throw new IOException("Failed to stop cluster", e);
+      throw new CmServerApiException("Failed to stop cluster", e);
     }
 
   }
 
-  public void unconfigure(final CmServerCluster cluster) throws InterruptedException, IOException {
+  public void unconfigure(final CmServerCluster cluster) throws CmServerApiException {
 
     try {
 
@@ -233,12 +233,12 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterUnConfigure");
 
     } catch (Exception e) {
-      throw new IOException("Failed to unconfigure cluster", e);
+      throw new CmServerApiException("Failed to unconfigure cluster", e);
     }
 
   }
 
-  public void unprovision(final CmServerCluster cluster) throws InterruptedException, IOException {
+  public void unprovision(final CmServerCluster cluster) throws CmServerApiException {
 
     try {
 
@@ -254,7 +254,7 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterUnProvision");
 
     } catch (Exception e) {
-      throw new IOException("Failed to unprovision cluster", e);
+      throw new CmServerApiException("Failed to unprovision cluster", e);
     }
 
   }
@@ -279,7 +279,8 @@ public class CmServerApi {
 
   }
 
-  private void provsionCluster(final CmServerCluster cluster) throws IOException, InterruptedException {
+  private void provsionCluster(final CmServerCluster cluster) throws IOException, InterruptedException,
+      CmServerApiException {
 
     final ApiClusterList clusterList = new ApiClusterList();
     ApiCluster apiCluster = new ApiCluster();
