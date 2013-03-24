@@ -39,7 +39,7 @@ public class CmServerApiTest implements BaseTest {
 
   private static final String CLUSTER_TAG = "whirr_test";
 
-  private static String CM_IP = getSystemProperty("whirr.test.cm.ip", "31.222.137.133");
+  private static String CM_IP = getSystemProperty("whirr.test.cm.ip", "31-222-165-164.static.cloud-ips.co.uk");
   private static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
   private static String CM_REPOS = getSystemProperty("whirr.test.cm.repos",
       "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/" + ","

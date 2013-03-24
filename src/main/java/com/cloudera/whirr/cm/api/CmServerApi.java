@@ -87,6 +87,29 @@ public class CmServerApi {
     }
   }
 
+  public boolean isProvisioned(CmServerCluster cluster) throws CmServerApiException {
+
+    boolean isProvisioned = false;
+    try {
+
+      logger.logOperationStartedSync("ClusterIsProvisioned");
+
+      for (ApiCluster apiCluster : apiResourceRoot.getClustersResource().readClusters(DataView.SUMMARY)) {
+        if (apiCluster.getName().equals(getName(cluster))) {
+          isProvisioned = true;
+          break;
+        }
+      }
+
+      logger.logOperationFinishedSync("ClusterIsProvisioned");
+
+    } catch (Exception e) {
+      throw new CmServerApiException("Failed to detrermine if cluster is provisioned", e);
+    }
+    return isProvisioned;
+
+  }
+
   public Map<String, String> initialise(Map<String, String> config) throws CmServerApiException {
     Map<String, String> configPostUpdate = null;
     try {
@@ -130,8 +153,7 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterProvision");
 
-      if (!cluster.getServiceTypes().isEmpty()
-          && apiResourceRoot.getClustersResource().readClusters(DataView.SUMMARY).size() == 0) {
+      if (!isProvisioned(cluster)) {
         provsionCluster(cluster);
         provisionParcels(cluster);
       }
@@ -150,7 +172,9 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterConfigure");
 
-      configureServices(cluster);
+      if (isProvisioned(cluster)) {
+        configureServices(cluster);
+      }
 
       logger.logOperationFinishedSync("ClusterConfigure");
 
@@ -273,7 +297,6 @@ public class CmServerApi {
     for (ApiConfig apiConfig : apiConfigList) {
       configPostUpdate.put(apiConfig.getName(), apiConfig.getValue());
     }
-    execute(apiResourceRoot.getClouderaManagerResource().inspectHostsCommand());
 
     return configPostUpdate;
 
@@ -282,6 +305,8 @@ public class CmServerApi {
   private void provsionCluster(final CmServerCluster cluster) throws IOException, InterruptedException,
       CmServerApiException {
 
+    execute(apiResourceRoot.getClouderaManagerResource().inspectHostsCommand());
+    
     final ApiClusterList clusterList = new ApiClusterList();
     ApiCluster apiCluster = new ApiCluster();
     apiCluster.setName(getName(cluster));
