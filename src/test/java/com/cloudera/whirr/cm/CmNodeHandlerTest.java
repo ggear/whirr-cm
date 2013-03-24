@@ -51,14 +51,14 @@ public class CmNodeHandlerTest extends BaseTestHandler {
   @Test
   public void testBootstrapAndConfigure() throws Exception {
     DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
-        + CmNodeHandler.ROLE, CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString())));
+        + CmNodeHandler.ROLE, CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString())));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
 
   @Test
   public void testWithCmServer() throws Exception {
     DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
-        + CmServerHandler.ROLE + ",1 " + CmNodeHandler.ROLE, CmServerHandler.AUTO_VARIABLE, Boolean.FALSE.toString())));
+        + CmServerHandler.ROLE + ",1 " + CmNodeHandler.ROLE, CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString())));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
 

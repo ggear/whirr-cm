@@ -17,6 +17,12 @@
  */
 package com.cloudera.whirr.cm.cdh;
 
+import static org.jclouds.scriptbuilder.domain.Statements.call;
+
+import java.io.IOException;
+
+import org.apache.whirr.service.ClusterActionEvent;
+
 import com.cloudera.whirr.cm.api.CmServerServiceType;
 
 public class CmCdhHiveMetaStoreHandler extends BaseHandlerCmCdh {
@@ -32,6 +38,24 @@ public class CmCdhHiveMetaStoreHandler extends BaseHandlerCmCdh {
   @Override
   public CmServerServiceType getType() {
     return TYPE;
+  }
+
+  @Override
+  protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.beforeBootstrap(event);
+    addStatement(event, call("install_cmcdh_hivemetastore"));
+  }
+
+  @Override
+  protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.beforeConfigure(event);
+    addStatement(event, call("configure_cmcdh_hivemetastore"));
+  }
+
+  @Override
+  protected void beforeStart(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.beforeStart(event);
+    addStatement(event, call("start_cmcdh_hivemetastore"));
   }
 
 }

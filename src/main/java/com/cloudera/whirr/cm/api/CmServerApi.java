@@ -57,9 +57,6 @@ import com.google.common.collect.Lists;
 
 public class CmServerApi {
 
-  public static final String CM_API_PARCEL_CDH = "CDH";
-  public static final String CM_API_PARCEL_IMPALA = "IMPALA";
-
   private static final String CM_PARCEL_STAGE_DOWNLOADED = "DOWNLOADED";
   private static final String CM_PARCEL_STAGE_DISTRIBUTED = "DISTRIBUTED";
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
@@ -107,6 +104,14 @@ public class CmServerApi {
       throw new CmServerApiException("Failed to detrermine if cluster is provisioned", e);
     }
     return isProvisioned;
+
+  }
+
+  public void isProvisionedAssert(CmServerCluster cluster, String task) throws CmServerApiException {
+
+    if (!isProvisioned(cluster)) {
+      throw new CmServerApiException("Cluster is not provisioned, cannot " + task);
+    }
 
   }
 
@@ -172,9 +177,8 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterConfigure");
 
-      if (isProvisioned(cluster)) {
-        configureServices(cluster);
-      }
+      isProvisionedAssert(cluster, "configure");
+      configureServices(cluster);
 
       logger.logOperationFinishedSync("ClusterConfigure");
 
@@ -190,6 +194,7 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterFirstStart");
 
+      isProvisionedAssert(cluster, "first start");
       for (CmServerServiceType type : cluster.getServiceTypes()) {
         initPreStartServices(cluster, type);
         startService(cluster, type);
@@ -210,6 +215,7 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterStart");
 
+      isProvisionedAssert(cluster, "start");
       logger.logOperation("StartCluster", new CmServerApiLogSyncCommand() {
         @Override
         public void execute() throws IOException {
@@ -231,6 +237,7 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterStop");
 
+      isProvisionedAssert(cluster, "stop");
       logger.logOperation("StopCluster", new CmServerApiLogSyncCommand() {
         @Override
         public void execute() throws IOException {
@@ -252,7 +259,9 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterUnConfigure");
 
-      unconfigureServices(cluster);
+      if (isProvisioned(cluster)) {
+        unconfigureServices(cluster);
+      }
 
       logger.logOperationFinishedSync("ClusterUnConfigure");
 
@@ -268,12 +277,14 @@ public class CmServerApi {
 
       logger.logOperationStartedSync("ClusterUnProvision");
 
-      logger.logOperation("CreateCluster", new CmServerApiLogSyncCommand() {
-        @Override
-        public void execute() throws IOException {
-          apiResourceRoot.getClustersResource().deleteCluster(getName(cluster));
-        }
-      });
+      if (isProvisioned(cluster)) {
+        logger.logOperation("UnProvisionCluster", new CmServerApiLogSyncCommand() {
+          @Override
+          public void execute() throws IOException {
+            apiResourceRoot.getClustersResource().deleteCluster(getName(cluster));
+          }
+        });
+      }
 
       logger.logOperationFinishedSync("ClusterUnProvision");
 
@@ -306,7 +317,7 @@ public class CmServerApi {
       CmServerApiException {
 
     execute(apiResourceRoot.getClouderaManagerResource().inspectHostsCommand());
-    
+
     final ApiClusterList clusterList = new ApiClusterList();
     ApiCluster apiCluster = new ApiCluster();
     apiCluster.setName(getName(cluster));
@@ -332,74 +343,59 @@ public class CmServerApi {
 
     apiResourceRoot.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "1") })));
-
+    final Set<CmServerServiceTypeRepository> repositoriesRequired = new HashSet<CmServerServiceTypeRepository>();
+    for (CmServerServiceType type : cluster.getServiceTypes()) {
+      repositoriesRequired.add(type.getRepository());
+    }
     execute("Wait For Parcels Availability", new Callback() {
       @Override
       public boolean poll() {
-        return apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster)).readParcels(DataView.FULL)
-            .getParcels().size() >= 2;
+        Set<CmServerServiceTypeRepository> repositoriesNotLoaded = new HashSet<CmServerServiceTypeRepository>(
+            repositoriesRequired);
+        for (ApiParcel parcel : apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
+            .readParcels(DataView.FULL).getParcels()) {
+          try {
+            repositoriesNotLoaded.remove(CmServerServiceTypeRepository.valueOf(parcel.getProduct()));
+          } catch (IllegalArgumentException e) {
+            // ignore
+          }
+        }
+        return repositoriesNotLoaded.isEmpty();
       }
     });
-
     apiResourceRoot.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "60") })));
 
-    DefaultArtifactVersion parcelVersionCdh = null;
-    DefaultArtifactVersion parcelVersionImpala = null;
-    for (ApiParcel apiParcel : apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
-        .readParcels(DataView.FULL).getParcels()) {
-      if (apiParcel.getProduct().equals(CM_API_PARCEL_CDH)
-          && (parcelVersionCdh == null || parcelVersionCdh
-              .compareTo(new DefaultArtifactVersion(apiParcel.getVersion())) < 0)) {
-        parcelVersionCdh = new DefaultArtifactVersion(apiParcel.getVersion());
-      } else if (apiParcel.getProduct().equals(CM_API_PARCEL_IMPALA)
-          && (parcelVersionImpala == null || parcelVersionImpala.compareTo(new DefaultArtifactVersion(apiParcel
-              .getVersion())) < 0)) {
-        parcelVersionImpala = new DefaultArtifactVersion(apiParcel.getVersion());
+    for (CmServerServiceTypeRepository repository : repositoriesRequired) {
+      DefaultArtifactVersion parcelVersion = null;
+      for (ApiParcel apiParcel : apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
+          .readParcels(DataView.FULL).getParcels()) {
+        if (apiParcel.getProduct().equals(repository.toString())
+            && (parcelVersion == null || parcelVersion.compareTo(new DefaultArtifactVersion(apiParcel.getVersion())) < 0)) {
+          parcelVersion = new DefaultArtifactVersion(apiParcel.getVersion());
+        }
       }
+      final ParcelResource apiParcelResource = apiResourceRoot.getClustersResource()
+          .getParcelsResource(getName(cluster)).getParcelResource(repository.toString(), parcelVersion.toString());
+      execute(apiParcelResource.startDownloadCommand(), new Callback() {
+        @Override
+        public boolean poll() {
+          return apiParcelResource.readParcel().getStage().equals(CM_PARCEL_STAGE_DOWNLOADED);
+        }
+      }, false);
+      execute(apiParcelResource.startDistributionCommand(), new Callback() {
+        @Override
+        public boolean poll() {
+          return apiParcelResource.readParcel().getStage().equals(CM_PARCEL_STAGE_DISTRIBUTED);
+        }
+      }, false);
+      execute(apiParcelResource.activateCommand(), new Callback() {
+        @Override
+        public boolean poll() {
+          return apiParcelResource.readParcel().getStage().equals(CM_PARCEL_STAGE_ACTIVATED);
+        }
+      }, false);
     }
-    final ParcelResource apiParcelCdh = apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
-        .getParcelResource(CM_API_PARCEL_CDH, parcelVersionCdh.toString());
-    execute(apiParcelCdh.startDownloadCommand(), new Callback() {
-      @Override
-      public boolean poll() {
-        return apiParcelCdh.readParcel().getStage().equals(CM_PARCEL_STAGE_DOWNLOADED);
-      }
-    }, false);
-
-    execute(apiParcelCdh.startDistributionCommand(), new Callback() {
-      @Override
-      public boolean poll() {
-        return apiParcelCdh.readParcel().getStage().equals(CM_PARCEL_STAGE_DISTRIBUTED);
-      }
-    }, false);
-    execute(apiParcelCdh.activateCommand(), new Callback() {
-      @Override
-      public boolean poll() {
-        return apiParcelCdh.readParcel().getStage().equals(CM_PARCEL_STAGE_ACTIVATED);
-      }
-    }, false);
-
-    final ParcelResource apiParcelImpala = apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
-        .getParcelResource(CM_API_PARCEL_IMPALA, parcelVersionImpala.toString());
-    execute(apiParcelImpala.startDownloadCommand(), new Callback() {
-      @Override
-      public boolean poll() {
-        return apiParcelImpala.readParcel().getStage().equals(CM_PARCEL_STAGE_DOWNLOADED);
-      }
-    }, false);
-    execute(apiParcelImpala.startDistributionCommand(), new Callback() {
-      @Override
-      public boolean poll() {
-        return apiParcelImpala.readParcel().getStage().equals(CM_PARCEL_STAGE_DISTRIBUTED);
-      }
-    }, false);
-    execute(apiParcelImpala.activateCommand(), new Callback() {
-      @Override
-      public boolean poll() {
-        return apiParcelImpala.readParcel().getStage().equals(CM_PARCEL_STAGE_ACTIVATED);
-      }
-    }, false);
 
   }
 
@@ -432,7 +428,7 @@ public class CmServerApi {
     Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>(Collections.reverseOrder());
     types.addAll(cluster.getServiceTypes());
     for (final CmServerServiceType type : types) {
-      logger.logOperation("DestroyClusterServices", new CmServerApiLogSyncCommand() {
+      logger.logOperation("DestroyClusterService", new CmServerApiLogSyncCommand() {
         @Override
         public void execute() throws IOException {
           apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
@@ -455,21 +451,29 @@ public class CmServerApi {
     ApiServiceConfig apiServiceConfig = new ApiServiceConfig();
     // TODO Refactor, dont hardcode, pass through from whirr config
     switch (type) {
+    case HDFS:
+      apiServiceConfig.add(new ApiConfig("dfs_block_local_path_access_user", "impala"));
+      break;
     case MAPREDUCE:
       apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
-      break;
-    case HIVE:
-      // TODO Hive is not supported yet
-      apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
-          .getServiceName(CmServerServiceType.MAPREDUCE)));
-      apiServiceConfig.add(new ApiConfig("hive_metastore_database_type", "postgresql"));
-      apiServiceConfig.add(new ApiConfig("hive_metastore_database_host", "31-222-189-24.static.cloud-ips.co.uk"));
-      apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", "hive"));
-      apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "5432"));
       break;
     case HBASE:
       apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
       apiServiceConfig.add(new ApiConfig("zookeeper_service", cluster.getServiceName(CmServerServiceType.ZOOKEEPER)));
+      break;
+    case HIVE:
+      apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
+          .getServiceName(CmServerServiceType.MAPREDUCE)));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_type", "mysql"));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_host", "localhost"));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", "hive"));
+      apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "3306"));
+      break;
+    case IMPALA:
+      apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
+      apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+      apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
+      break;
     default:
       break;
     }

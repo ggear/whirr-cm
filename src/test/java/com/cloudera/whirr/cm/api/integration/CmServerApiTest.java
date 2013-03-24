@@ -39,7 +39,9 @@ public class CmServerApiTest implements BaseTest {
 
   private static final String CLUSTER_TAG = "whirr_test";
 
-  private static String CM_IP = getSystemProperty("whirr.test.cm.ip", "31-222-165-164.static.cloud-ips.co.uk");
+  private static String CDH_MASTER_HOST = getSystemProperty("whirr.test.cdh.master.host",
+      "164-177-149-105.static.cloud-ips.co.uk");
+  private static String CM_HOST = getSystemProperty("whirr.test.cm.host", "164-177-149-94.static.cloud-ips.co.uk");
   private static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
   private static String CM_REPOS = getSystemProperty("whirr.test.cm.repos",
       "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/" + ","
@@ -48,26 +50,11 @@ public class CmServerApiTest implements BaseTest {
   private static Map<String, String> CM_CONFIG = ImmutableMap.of("REMOTE_PARCEL_REPO_URLS", CM_REPOS);
 
   private static CmServerApi api;
-
-  private static String[] hostNames;
-
-  @BeforeClass
-  public static void provisionCluster() throws CmServerApiException {
-    Assert.assertNotNull(api = new CmServerApi(CM_IP, CM_PORT, CmServerHandler.CM_USER, CmServerHandler.CM_PASSWORD,
-        new CmServerApiLog.CmServerApiLogSysOut()));
-    Assert.assertTrue(api.initialise(CM_CONFIG).size() > 0);
-    Set<String> hosts = api.hosts();
-    Assert.assertNotNull(hosts);
-    hosts.remove(CM_IP);
-    Assert.assertTrue("Integration test cluster requires at least 4 (+ CM Server) nodes", hosts.size() > 3);
-    hostNames = hosts.toArray(new String[] {});
-    api.provision(getBasicCluster());
-  }
+  private static CmServerCluster cluster;
 
   @Test
   public void testConfigure() throws CmServerApiException {
 
-    CmServerCluster cluster = getFullyLoadedCluster();
     api.configure(cluster);
     api.unconfigure(cluster);
 
@@ -76,7 +63,6 @@ public class CmServerApiTest implements BaseTest {
   @Test
   public void testConfigureAndStartFirst() throws CmServerApiException {
 
-    CmServerCluster cluster = getFullyLoadedCluster();
     api.configure(cluster);
     api.startFirst(cluster);
     api.stop(cluster);
@@ -87,7 +73,6 @@ public class CmServerApiTest implements BaseTest {
   @Test
   public void testConfigureAndStartFirstAndStart() throws CmServerApiException {
 
-    CmServerCluster cluster = getFullyLoadedCluster();
     api.configure(cluster);
     api.startFirst(cluster);
     api.stop(cluster);
@@ -97,32 +82,37 @@ public class CmServerApiTest implements BaseTest {
 
   }
 
-  private static CmServerCluster getBasicCluster() throws CmServerApiException {
+  @BeforeClass
+  public static void provisionCluster() throws CmServerApiException {
 
-    CmServerCluster cluster = new CmServerCluster();
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", hostNames[0]));
-    for (int i = 1; i < hostNames.length; i++) {
-      cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "" + i, hostNames[i]));
+    Assert.assertNotNull(api = new CmServerApi(CM_HOST, CM_PORT, CmServerHandler.CM_USER, CmServerHandler.CM_PASSWORD,
+        new CmServerApiLog.CmServerApiLogSysOut()));
+    Assert.assertTrue(api.initialise(CM_CONFIG).size() > 0);
+
+    Set<String> hosts = api.hosts();
+    Assert.assertNotNull(hosts);
+    Assert.assertTrue("Integration test cluster requires at least 4 (+ CM Server) nodes", hosts.size() >= 5);
+    hosts.remove(CM_HOST);
+    hosts.remove(CDH_MASTER_HOST);
+    String[] hostSlaves = hosts.toArray(new String[] {});
+
+    cluster = new CmServerCluster();
+//    cluster.add(new CmServerService(CmServerServiceType.HIVE_METASTORE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
+    // cluster.add(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CDH_MASTER_IP));
+    for (int i = 0; i < hostSlaves.length; i++) {
+      cluster.add(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "" + i + 1, hostSlaves[i]));
+      cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_TASK_TRACKER, CLUSTER_TAG, "" + i + 1,
+          hostSlaves[i]));
+      cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "" + i + 1, hostSlaves[i]));
+      cluster.add(new CmServerService(CmServerServiceType.ZOOKEEPER_SERVER, CLUSTER_TAG, "" + i + 1, hostSlaves[i]));
+      // cluster.add(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "" + i+1, hostSlaves[1]));
     }
 
-    return cluster;
-  }
-
-  private static CmServerCluster getFullyLoadedCluster() throws CmServerApiException {
-
-    CmServerCluster cluster = new CmServerCluster();
-    cluster.add(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", hostNames[1]));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", hostNames[0]));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", hostNames[0]));
-    cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", hostNames[1]));
-    for (int i = 1; i < hostNames.length; i++) {
-      cluster.add(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "" + i, hostNames[i]));
-      cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_TASK_TRACKER, CLUSTER_TAG, "" + i, hostNames[i]));
-      cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "" + i, hostNames[i]));
-      cluster.add(new CmServerService(CmServerServiceType.ZOOKEEPER_SERVER, CLUSTER_TAG, "" + i, hostNames[i]));
-    }
-
-    return cluster;
+    api.provision(cluster);
   }
 
   private static String getSystemProperty(String key, String value) {

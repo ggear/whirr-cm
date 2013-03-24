@@ -50,15 +50,17 @@ public abstract class CmServerApiLog {
 
     @Override
     public void logOperation(String operation, CmServerApiLogSyncCommand command) {
+      boolean failed = false;
       log(LOG_REFIX + " [" + operation + "] started");
       try {
         command.execute();
       } catch (Exception e) {
+        failed = true;
         if (logOperation.isErrorEnabled()) {
           logOperation.error("Unexpected error executing command", e);
         }
       }
-      log(LOG_REFIX + " [" + operation + "] finished");
+      log(LOG_REFIX + " [" + operation + "] " + (failed ? "failed" : "finished"));
     }
 
     @Override
@@ -104,14 +106,18 @@ public abstract class CmServerApiLog {
 
     @Override
     public void logOperation(String operation, CmServerApiLogSyncCommand command) {
+      boolean failed = false;
       System.out.print(LOG_REFIX + " [" + operation + "] started .");
       try {
         command.execute();
       } catch (Exception e) {
+        failed = true;
         System.out.println(" . failed");
         e.printStackTrace();
       }
-      System.out.println(" . finished");
+      if (!failed) {
+        System.out.println(" . finished");
+      }
     }
 
     @Override

@@ -48,7 +48,6 @@ public class CmServerHandler extends BaseHandlerCm {
   public static final String ROLE = "cmserver";
 
   public static final String LICENSE_FILE = "cm-license.txt";
-  public static final String AUTO_VARIABLE = "whirr.env.cmauto";
 
   public static final String PROPERTY_PARCEL_PRODUCT = "cmserver.parcel.product";
   public static final String PROPERTY_PARCEL_VERSION = "cmserver.parcel.version";
@@ -56,6 +55,8 @@ public class CmServerHandler extends BaseHandlerCm {
   public static final String PROPERTY_PORT_WEB = "cmserver.port.web";
   public static final String PROPERTY_PORT_COMMS = "cmserver.port.comms";
 
+  public static final String CONFIG_WHIRR_NAME = "whirr.cluster-name";
+  public static final String CONFIG_WHIRR_AUTO_VARIABLE = "whirr.env.cmauto";
   public static final String CONFIG_WHIRR_CM_PREFIX = "whirr.cm.config.";
 
   public static final String CM_USER = "admin";
@@ -167,39 +168,44 @@ public class CmServerHandler extends BaseHandlerCm {
 
     if (!BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().isEmpty()) {
 
-      if (!event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
+      System.out.println();
+      System.out.println(CONSOLE_SPACER);
+      System.out.println("Cloudera Manager Cluster Provision");
+      System.out.println(CONSOLE_SPACER);
 
-        System.out.println("Warning, Cloudera Manager managed CDH nodes detetcted " + BaseHandlerCmCdh.getRoles()
-            + " but [" + AUTO_VARIABLE + "] set to false so not provsioning");
+      if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
-      } else if (event.getClusterSpec().getConfiguration().getBoolean(AUTO_VARIABLE, true)) {
+        System.out.println();
+        System.out.println("Warning, Cloudera Manager managed CDH nodes detected but whirr property ["
+            + CONFIG_WHIRR_AUTO_VARIABLE + "] set to false so not provsioning:");
+        for (String role : BaseHandlerCmCdh.getRoles()) {
+          System.out.println(role);
+        }
+
+      } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
         try {
 
           System.out.println();
-          System.out.println(CONSOLE_SPACER);
-          System.out.println("Cloudera Manager Cluster Topology");
-          System.out.println(CONSOLE_SPACER);
-          System.out.println();
           System.out.println("Roles:");
-
           BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clearServices();
           for (Instance instance : event.getCluster().getInstances()) {
             for (String role : instance.getRoles()) {
               CmServerServiceType type = BaseHandlerCmCdh.getType(role);
               if (type != null) {
-                CmServerService service = new CmServerService(type, CM_CLUSTER_NAME, ""
+                CmServerService service = new CmServerService(type, event.getClusterSpec().getConfiguration()
+                    .getString(CONFIG_WHIRR_NAME, DEFAULT_CM_CLUSTER_NAME), ""
                     + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
                     instance.getPublicHostName());
                 BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
-                System.out.println(service.getName() + "@" + service.getHost());
+                System.out
+                    .println(service.getName() + "@[id=" + instance.getId() + ", host=" + service.getHost() + "]");
               }
             }
           }
 
           System.out.println();
-          System.out.println("Cluster Provision:");
-
+          System.out.println("Provision:");
           Map<String, String> config = new HashMap<String, String>();
           @SuppressWarnings("unchecked")
           Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
@@ -210,13 +216,11 @@ public class CmServerHandler extends BaseHandlerCm {
                   .getString(key));
             }
           }
-
           CmServerApi cmServerApi = new CmServerApi(event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(),
               7180, CM_USER, CM_PASSWORD, new CmServerApiLog.CmServerApiLogSysOut());
           cmServerApi.initialise(config);
           cmServerApi.provision(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
           cmServerApi.configure(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
-          cmServerApi.startFirst(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
 
           System.out.println();
 
@@ -234,11 +238,74 @@ public class CmServerHandler extends BaseHandlerCm {
         }
 
       }
+
+      System.out.println();
+      System.out.println(CONSOLE_SPACER);
+      System.out.println();
+
     }
 
-    System.out.println();
-    System.out.println(CONSOLE_SPACER);
-    System.out.println();
+  }
+
+  @Override
+  protected void afterStart(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.afterStart(event);
+
+    if (!BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().isEmpty()) {
+
+      System.out.println();
+      System.out.println(CONSOLE_SPACER);
+      System.out.println("Cloudera Manager Cluster Start");
+      System.out.println(CONSOLE_SPACER);
+
+      if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+
+        System.out.println();
+        System.out.println("Warning, Cloudera Manager managed CDH nodes detected but whirr property ["
+            + CONFIG_WHIRR_AUTO_VARIABLE + "] set to false so not starting:");
+        for (String role : BaseHandlerCmCdh.getRoles()) {
+          System.out.println(role);
+        }
+
+      } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+
+        try {
+
+          System.out.println();
+          System.out.println("Services:");
+          for (CmServerServiceType type : BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes()) {
+            System.out.println(type);
+          }
+
+          System.out.println();
+          System.out.println("Start:");
+          CmServerApi cmServerApi = new CmServerApi(event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(),
+              7180, CM_USER, CM_PASSWORD, new CmServerApiLog.CmServerApiLogSysOut());
+          cmServerApi.startFirst(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
+
+          System.out.println();
+
+        } catch (Exception e) {
+
+          System.out.println();
+          e.printStackTrace();
+          System.out.println();
+          System.out.println();
+          System.out
+              .println("Failed to execute CM Server API Cluster Start, please review the proceeding exception and log into the web console to resolve:");
+          System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
+              + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
+
+        }
+
+      }
+
+      System.out.println();
+      System.out.println(CONSOLE_SPACER);
+      System.out.println();
+
+    }
 
   }
+
 }

@@ -17,44 +17,64 @@
  */
 package com.cloudera.whirr.cm.api;
 
+enum CmServerServiceTypeRepository {
+  CDH, IMPALA
+};
+
 public enum CmServerServiceType {
 
   // Cluster
-  CLUSTER(null, "CLUSTER"),
+  CLUSTER(null, "CLUSTER", CmServerServiceTypeRepository.CDH),
 
   // HDFS
-  HDFS(CLUSTER, "HDFS"), HDFS_NAMENODE(HDFS, "NAMENODE"), HDFS_SECONDARY_NAMENODE(HDFS, "SECONDARYNAMENODE"), HDFS_DATANODE(
-      HDFS, "DATANODE"),
+  HDFS(CLUSTER, "HDFS", CmServerServiceTypeRepository.CDH), HDFS_NAMENODE(HDFS, "NAMENODE",
+      CmServerServiceTypeRepository.CDH), HDFS_SECONDARY_NAMENODE(HDFS, "SECONDARYNAMENODE",
+      CmServerServiceTypeRepository.CDH), HDFS_DATANODE(HDFS, "DATANODE", CmServerServiceTypeRepository.CDH),
 
   // MapReduce
-  MAPREDUCE(CLUSTER, "MAPREDUCE"), MAPREDUCE_JOB_TRACKER(MAPREDUCE, "JOBTRACKER"), MAPREDUCE_TASK_TRACKER(MAPREDUCE,
-      "TASKTRACKER"),
+  MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepository.CDH), MAPREDUCE_JOB_TRACKER(MAPREDUCE, "JOBTRACKER",
+      CmServerServiceTypeRepository.CDH), MAPREDUCE_TASK_TRACKER(MAPREDUCE, "TASKTRACKER",
+      CmServerServiceTypeRepository.CDH),
 
   // Zookeeper
-  ZOOKEEPER(CLUSTER, "ZOOKEEPER"), ZOOKEEPER_SERVER(ZOOKEEPER, "SERVER"),
+  ZOOKEEPER(CLUSTER, "ZOOKEEPER", CmServerServiceTypeRepository.CDH), ZOOKEEPER_SERVER(ZOOKEEPER, "SERVER",
+      CmServerServiceTypeRepository.CDH),
 
   // HBase
-  HBASE(CLUSTER, "HBASE"), HBASE_MASTER(HBASE, "MASTER"), HBASE_REGIONSERVER(HBASE, "REGIONSERVER"),
+  HBASE(CLUSTER, "HBASE", CmServerServiceTypeRepository.CDH), HBASE_MASTER(HBASE, "MASTER",
+      CmServerServiceTypeRepository.CDH), HBASE_REGIONSERVER(HBASE, "REGIONSERVER", CmServerServiceTypeRepository.CDH),
 
   // Hive
-  HIVE(CLUSTER, "HIVE"), HIVE_METASTORE(HIVE, "HIVEMETASTORE"),
+  HIVE(CLUSTER, "HIVE", CmServerServiceTypeRepository.CDH), HIVE_METASTORE(HIVE, "HIVEMETASTORE",
+      CmServerServiceTypeRepository.CDH),
 
   // Impala
-  IMPALA(CLUSTER, "IMPALA"), IMPALA_STATE_STORE(IMPALA, "IMPALASTATESTORE"), IMPALA_DAEMON(IMPALA, "IMPALADAEMON"),
+  IMPALA(CLUSTER, "IMPALA", CmServerServiceTypeRepository.IMPALA), IMPALA_STATE_STORE(IMPALA, "STATESTORE",
+      CmServerServiceTypeRepository.IMPALA), IMPALA_DAEMON(IMPALA, "IMPALAD", CmServerServiceTypeRepository.IMPALA),
 
   // Client
-  CLIENT(CLUSTER, "GATEWAY");
+  CLIENT(CLUSTER, "GATEWAY", CmServerServiceTypeRepository.CDH);
 
   private CmServerServiceType parent;
   private String label;
+  private CmServerServiceTypeRepository respository;
 
-  private CmServerServiceType(CmServerServiceType parent, String label) {
+  private CmServerServiceType(CmServerServiceType parent, String label, CmServerServiceTypeRepository respository) {
     this.parent = parent;
     this.label = label;
+    this.respository = respository;
   }
 
   public CmServerServiceType getParent() {
     return parent;
+  }
+
+  public String getLabel() {
+    return label;
+  }
+
+  public CmServerServiceTypeRepository getRepository() {
+    return respository;
   }
 
   @Override

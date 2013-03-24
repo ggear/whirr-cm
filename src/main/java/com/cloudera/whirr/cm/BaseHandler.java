@@ -25,7 +25,7 @@ import org.apache.whirr.service.ClusterActionHandlerSupport;
 
 public abstract class BaseHandler extends ClusterActionHandlerSupport {
 
-  protected final static String CM_CLUSTER_NAME = "whirr";
+  protected final static String DEFAULT_CM_CLUSTER_NAME = "whirr";
   
   protected final static String CONFIG_IMPORT_PATH = "functions/cmf/";
 
