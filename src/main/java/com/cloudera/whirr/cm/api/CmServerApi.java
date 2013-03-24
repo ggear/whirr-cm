@@ -19,6 +19,7 @@ package com.cloudera.whirr.cm.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,7 +64,7 @@ public class CmServerApi {
   private static final String CM_PARCEL_STAGE_DISTRIBUTED = "DISTRIBUTED";
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
 
-  private static int API_POLL_PERIOD_MS = 750;
+  private static int API_POLL_PERIOD_MS = 500;
 
   private CmServerApiLog logger;
   final private RootResourceV3 apiResourceRoot;
@@ -174,7 +175,7 @@ public class CmServerApi {
       logger.logOperationFinishedSync("ClusterFirstStart");
 
     } catch (Exception e) {
-      throw new IOException("Failed to start cluster", e);
+      throw new IOException("Failed to first start cluster", e);
     }
 
   }
@@ -303,21 +304,19 @@ public class CmServerApi {
 
   private void provisionParcels(final CmServerCluster cluster) throws InterruptedException, IOException {
 
+    apiResourceRoot.getClouderaManagerResource().updateConfig(
+        new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "1") })));
+
     execute("Wait For Parcels Availability", new Callback() {
       @Override
       public boolean poll() {
-        if (apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster)).readParcels(DataView.FULL)
-            .getParcels().size() >= 2) {
-          apiResourceRoot.getClouderaManagerResource().updateConfig(
-              apiResourceRoot.getClouderaManagerResource().getConfig(DataView.SUMMARY));
-          
-          System.err.println(apiResourceRoot.getClouderaManagerResource().listActiveCommands(DataView.EXPORT));
-          
-          return false;
-        }
-        return true;
+        return apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster)).readParcels(DataView.FULL)
+            .getParcels().size() >= 2;
       }
     });
+
+    apiResourceRoot.getClouderaManagerResource().updateConfig(
+        new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "60") })));
 
     DefaultArtifactVersion parcelVersionCdh = null;
     DefaultArtifactVersion parcelVersionImpala = null;
