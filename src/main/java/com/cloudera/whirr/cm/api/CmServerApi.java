@@ -484,19 +484,19 @@ public class CmServerApi {
       // TODO Refactor, dont hardcode, pass through from whirr config
       switch (subType) {
       case HDFS_NAMENODE:
-        apiConfigList.add(new ApiConfig("dfs_name_dir_list", "/data/1/dfs/nn"));
+        apiConfigList.add(new ApiConfig("dfs_name_dir_list", cluster.getDataDirsForSuffix("/dfs/nn")));
         break;
       case HDFS_SECONDARY_NAMENODE:
-        apiConfigList.add(new ApiConfig("fs_checkpoint_dir_list", "/data/1/dfs/snn"));
+        apiConfigList.add(new ApiConfig("fs_checkpoint_dir_list", cluster.getDataDirsForSuffix("/dfs/snn")));
         break;
       case HDFS_DATANODE:
-        apiConfigList.add(new ApiConfig("dfs_data_dir_list", "/mnt/data/1/dfs/dn"));
+        apiConfigList.add(new ApiConfig("dfs_data_dir_list", cluster.getDataDirsForSuffix("/dfs/dn")));
         break;
       case MAPREDUCE_JOB_TRACKER:
-        apiConfigList.add(new ApiConfig("jobtracker_mapred_local_dir_list", "/data/1/mapred/jt"));
+        apiConfigList.add(new ApiConfig("jobtracker_mapred_local_dir_list", cluster.getDataDirsForSuffix("/mapred/jt")));
         break;
       case MAPREDUCE_TASK_TRACKER:
-        apiConfigList.add(new ApiConfig("tasktracker_mapred_local_dir_list", "/data/1/mapred/local"));
+        apiConfigList.add(new ApiConfig("tasktracker_mapred_local_dir_list", cluster.getDataDirsForSuffix("/mapred/local")));
         break;
       default:
         break;

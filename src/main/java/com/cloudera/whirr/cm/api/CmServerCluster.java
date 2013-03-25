@@ -26,8 +26,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+
 public class CmServerCluster {
 
+  private Set<String> dataMounts = new HashSet<String>();
+  
   private Map<CmServerServiceType, List<CmServerService>> services = new HashMap<CmServerServiceType, List<CmServerService>>();
 
   public CmServerCluster() {
@@ -160,6 +167,24 @@ public class CmServerCluster {
     return hosts;
   }
 
+  public synchronized void setDataMounts(Set<String> mnts) {
+    this.dataMounts.addAll(mnts);
+  }
+
+  public synchronized Set<String> getDataMounts() {
+    return ImmutableSet.copyOf(dataMounts);
+  }
+
+  public String getDataDirsForSuffix(final String suffix) throws IOException {
+    return Joiner.on(',').join(Lists.transform(Lists.newArrayList(getDataMounts()),
+      new Function<String, String>() {
+        @Override public String apply(String input) {
+          return input + suffix;
+        }
+      }
+    ));
+  }
+  
   private void assertConsistentTopology(CmServerServiceType type) throws CmServerApiException {
     if (type.getParent() == null || type.getParent().getParent() == null) {
       throw new CmServerApiException("Invalid cluster topology: Attempt to add non leaf type [" + type + "]");

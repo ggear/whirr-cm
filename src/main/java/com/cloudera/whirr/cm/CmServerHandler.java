@@ -24,6 +24,7 @@ import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -178,6 +179,8 @@ public class CmServerHandler extends BaseHandlerCm {
 
         try {
 
+          BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().setDataMounts(getDataMounts(event));
+          
           System.out.println();
           System.out.println("Roles:");
           BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clearServices();
@@ -312,6 +315,22 @@ public class CmServerHandler extends BaseHandlerCm {
 
     }
 
+  }
+
+  private Set<String> getDataMounts(ClusterActionEvent event) throws IOException {
+    Set<String> mnts = new HashSet<String>();
+
+    String overrideMnt = getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT);
+
+    if (overrideMnt != null) {
+      mnts.add(overrideMnt);
+    } else if (!getDeviceMappings(event).isEmpty()) {
+      mnts.addAll(getDeviceMappings(event).keySet());
+    } else {
+      mnts.add(getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_DEFAULT));
+    }
+
+    return mnts;
   }
 
 }
