@@ -60,7 +60,7 @@ public class CmServerApiTest implements BaseTest {
   @Test
   public void testConfigure() throws CmServerApiException {
 
-//    api.configure(cluster);
+    api.configure(cluster);
     api.unconfigure(cluster);
 
   }
@@ -70,8 +70,8 @@ public class CmServerApiTest implements BaseTest {
 
     api.configure(cluster);
     api.startFirst(cluster);
-//    api.stop(cluster);
-//    api.unconfigure(cluster);
+    api.stop(cluster);
+    api.unconfigure(cluster);
 
   }
 
@@ -107,7 +107,7 @@ public class CmServerApiTest implements BaseTest {
     cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
     cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
     cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    // cluster.add(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CDH_MASTER_IP));
+    // cluster.add(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
     for (int i = 0; i < hostSlaves.length; i++) {
       cluster.add(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "" + i + 1, hostSlaves[i]));
       cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_TASK_TRACKER, CLUSTER_TAG, "" + i + 1,
