@@ -32,4 +32,10 @@ public abstract class BaseHandlerCm extends BaseHandler {
     addStatement(event, call("retry_helpers"));
   }
 
+  @Override
+  protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.beforeConfigure(event);
+    addStatement(event, call("retry_helpers"));
+  }
+
 }
