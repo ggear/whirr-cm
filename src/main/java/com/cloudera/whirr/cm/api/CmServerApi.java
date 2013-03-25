@@ -451,10 +451,9 @@ public class CmServerApi {
     ApiServiceConfig apiServiceConfig = new ApiServiceConfig();
     // TODO Refactor, dont hardcode, pass through from whirr config
     switch (type) {
-    // TODO Implement Impala Service
-    // case HDFS:
-    // apiServiceConfig.add(new ApiConfig("dfs_block_local_path_access_user", "impala"));
-    // break;
+    case HDFS:
+      apiServiceConfig.add(new ApiConfig("dfs_block_local_path_access_user", "impala"));
+      break;
     case MAPREDUCE:
       apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
       break;
@@ -470,12 +469,11 @@ public class CmServerApi {
       apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", "hive"));
       apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "3306"));
       break;
-    // TODO Implement Impala Service
-    // case IMPALA:
-    // apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
-    // apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
-    // apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
-    // break;
+    case IMPALA:
+      apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
+      apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+      apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
+      break;
     default:
       break;
     }
