@@ -116,16 +116,6 @@ public class CmServerHandler extends BaseHandlerCm {
         + "],");
     System.out.println("(progress via terminal (below) and web (above) consoles):");
     System.out.println(event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true));
-    System.out.println();
-    System.out.println("Nodes:");
-    Set<Instance> nodesToInstall = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
-    if (nodesToInstall.isEmpty()) {
-      System.out.println("<none>");
-    } else {
-      for (Instance instance : nodesToInstall) {
-        System.out.println(instance.getPublicIp());
-      }
-    }
 
     System.out.println();
     System.out.println("User:");
