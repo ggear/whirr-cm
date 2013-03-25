@@ -19,6 +19,7 @@ package com.cloudera.whirr.cm.cdh;
 
 import com.cloudera.whirr.cm.api.CmServerServiceType;
 
+// TODO Provide CDH Client implementation, currently just a placeholder
 public class CmCdhClientHandler extends BaseHandlerCmCdh {
 
   public static final String ROLE = "cmcdh-client";

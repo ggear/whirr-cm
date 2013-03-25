@@ -451,7 +451,7 @@ public class CmServerApi {
     ApiServiceConfig apiServiceConfig = new ApiServiceConfig();
     // TODO Refactor, dont hardcode, pass through from whirr config
     switch (type) {
-    // TODO
+    // TODO Implement Impala Service
     // case HDFS:
     // apiServiceConfig.add(new ApiConfig("dfs_block_local_path_access_user", "impala"));
     // break;
@@ -470,6 +470,7 @@ public class CmServerApi {
       apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", "hive"));
       apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "3306"));
       break;
+    // TODO Implement Impala Service
     // case IMPALA:
     // apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
     // apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
@@ -537,7 +538,7 @@ public class CmServerApi {
         execute(
             apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                 .getRoleCommandsResource(cluster.getServiceName(CmServerServiceType.HDFS)).formatCommand(formatList),
-            false);        
+            false);
       }
       break;
     case HIVE:

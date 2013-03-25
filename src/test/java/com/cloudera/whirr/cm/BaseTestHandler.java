@@ -23,12 +23,8 @@ import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.BaseServiceDryRunTest;
-import org.apache.whirr.service.DryRunModule.DryRun;
 import org.junit.Before;
-import org.junit.Test;
-
 import com.cloudera.whirr.cm.cdh.BaseHandlerCmCdh;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.jcraft.jsch.JSchException;
 
@@ -38,7 +34,9 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   public ClusterSpec newClusterSpecForProperties(Map<String, String> properties) throws IOException,
       ConfigurationException, JSchException {
     ClusterSpec clusterSpec = super.newClusterSpecForProperties(ImmutableMap.<String, String> builder()
-        .putAll(properties).put("whirr.cluster-user", CLUSTER_USER).build());
+        .putAll(properties).put("whirr.cluster-user", CLUSTER_USER)
+        .put(BaseHandler.CONFIG_WHIRR_NAME, BaseHandler.CM_CLUSTER_NAME)
+        .put(BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()).build());
     clusterSpec.setPrivateKey(FILE_KEY_PRIVATE);
     clusterSpec.setPublicKey(FILE_KEY_PUBLIC);
     return clusterSpec;
@@ -49,14 +47,6 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
     BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clear();
   }
 
-  @Override
-  @Test
-  public void testBootstrapAndConfigure() throws Exception {
-    ClusterSpec cookbookWithDefaultRecipe = newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        "1 " + Joiner.on("+").join(getInstanceRoles()), BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()));
-    DryRun dryRun = launchWithClusterSpec(cookbookWithDefaultRecipe);
-    assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
-    assertScriptPredicateOnPhase(dryRun, "configure", configurePredicate());
-  }
+
 
 }
