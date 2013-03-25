@@ -445,15 +445,16 @@ public class CmServerApi {
     List<ApiRole> apiRoles = new ArrayList<ApiRole>();
     List<ApiRoleConfigGroup> apiRoleConfigGroups = Lists.newArrayList();
 
-    apiService.setType(type.toString());
+    apiService.setType(type.getLabel());
     apiService.setName(cluster.getServiceName(type));
 
     ApiServiceConfig apiServiceConfig = new ApiServiceConfig();
     // TODO Refactor, dont hardcode, pass through from whirr config
     switch (type) {
-    case HDFS:
-      apiServiceConfig.add(new ApiConfig("dfs_block_local_path_access_user", "impala"));
-      break;
+    // TODO
+    // case HDFS:
+    // apiServiceConfig.add(new ApiConfig("dfs_block_local_path_access_user", "impala"));
+    // break;
     case MAPREDUCE:
       apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
       break;
@@ -469,11 +470,11 @@ public class CmServerApi {
       apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", "hive"));
       apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "3306"));
       break;
-    case IMPALA:
-      apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
-      apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
-      apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
-      break;
+    // case IMPALA:
+    // apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
+    // apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+    // apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
+    // break;
     default:
       break;
     }
@@ -502,7 +503,7 @@ public class CmServerApi {
         break;
       }
       ApiRoleConfigGroup apiRoleConfigGroup = new ApiRoleConfigGroup();
-      apiRoleConfigGroup.setRoleType(subType.toString());
+      apiRoleConfigGroup.setRoleType(subType.getLabel());
       apiRoleConfigGroup.setConfig(apiConfigList);
       apiRoleConfigGroup.setName(cluster.getService(subType).getGroup());
       apiRoleConfigGroup.setBase(false);
@@ -512,7 +513,7 @@ public class CmServerApi {
     for (CmServerService subService : cluster.getServices(type)) {
       ApiRole apiRole = new ApiRole();
       apiRole.setName(subService.getName());
-      apiRole.setType(subService.getType().toString());
+      apiRole.setType(subService.getType().getLabel());
       apiRole.setHostRef(new ApiHostRef(subService.getHost()));
       apiRole.setRoleConfigGroupRef(new ApiRoleConfigGroupRef(subService.getGroup()));
       apiRoles.add(apiRole);
@@ -536,7 +537,7 @@ public class CmServerApi {
         execute(
             apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                 .getRoleCommandsResource(cluster.getServiceName(CmServerServiceType.HDFS)).formatCommand(formatList),
-            false);
+            false);        
       }
       break;
     case HIVE:

@@ -55,10 +55,6 @@ public class CmServerHandler extends BaseHandlerCm {
   public static final String PROPERTY_PORT_WEB = "cmserver.port.web";
   public static final String PROPERTY_PORT_COMMS = "cmserver.port.comms";
 
-  public static final String CONFIG_WHIRR_NAME = "whirr.cluster-name";
-  public static final String CONFIG_WHIRR_AUTO_VARIABLE = "whirr.env.cmauto";
-  public static final String CONFIG_WHIRR_CM_PREFIX = "whirr.cm.config.";
-
   public static final String CM_USER = "admin";
   public static final String CM_PASSWORD = "admin";
 
@@ -70,7 +66,7 @@ public class CmServerHandler extends BaseHandlerCm {
   }
 
   @Override
-  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+  protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     addStatement(event, call("install_cm"));
     addStatement(event, call("install_cm_server"));
@@ -194,7 +190,7 @@ public class CmServerHandler extends BaseHandlerCm {
               CmServerServiceType type = BaseHandlerCmCdh.getType(role);
               if (type != null) {
                 CmServerService service = new CmServerService(type, event.getClusterSpec().getConfiguration()
-                    .getString(CONFIG_WHIRR_NAME, DEFAULT_CM_CLUSTER_NAME), ""
+                    .getString(CONFIG_WHIRR_NAME, CM_CLUSTER_NAME), ""
                     + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
                     instance.getPublicHostName());
                 BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);

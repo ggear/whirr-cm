@@ -53,7 +53,7 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   @Test
   public void testBootstrapAndConfigure() throws Exception {
     ClusterSpec cookbookWithDefaultRecipe = newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        "1 " + Joiner.on("+").join(getInstanceRoles()), CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()));
+        "1 " + Joiner.on("+").join(getInstanceRoles()), BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()));
     DryRun dryRun = launchWithClusterSpec(cookbookWithDefaultRecipe);
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
     assertScriptPredicateOnPhase(dryRun, "configure", configurePredicate());

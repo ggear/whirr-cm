@@ -36,7 +36,7 @@ public class CmNodeHandler extends BaseHandlerCm {
   }
 
   @Override
-  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+  protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     addStatement(event, call("install_cm"));
   }

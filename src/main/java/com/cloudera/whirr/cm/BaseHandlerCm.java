@@ -26,7 +26,8 @@ import org.apache.whirr.service.ClusterActionEvent;
 public abstract class BaseHandlerCm extends BaseHandler {
 
   @Override
-  protected void beforeBootstrap(ClusterActionEvent event) throws IOException {
+  protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.beforeBootstrap(event);
     addStatement(event, call("configure_hostnames"));
     addStatement(event, call("retry_helpers"));
   }

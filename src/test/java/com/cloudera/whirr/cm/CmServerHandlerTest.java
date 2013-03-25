@@ -62,14 +62,14 @@ public class CmServerHandlerTest extends BaseTestHandler {
   @Test
   public void testNodes() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE, CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE,
+        "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE, BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE,
         Boolean.FALSE.toString()))));
   }
 
   @Test
   public void testAgents() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        "1 " + CmServerHandler.ROLE + ",2 " + CmAgentHandler.ROLE, CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE,
+        "1 " + CmServerHandler.ROLE + ",2 " + CmAgentHandler.ROLE, BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE,
         Boolean.FALSE.toString()))));
   }
 
@@ -77,7 +77,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
   public void testNodesAndAgents() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
         "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE + ",2 " + CmAgentHandler.ROLE,
-        CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()))));
+        BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()))));
   }
 
   @Test
@@ -92,9 +92,9 @@ public class CmServerHandlerTest extends BaseTestHandler {
                 + CmAgentHandler.ROLE + "+" + CmCdhDataNodeHandler.ROLE + "+" + CmCdhTaskTrackerHandler.ROLE + "+"
                 + CmCdhZookeeperServerHandler.ROLE + "+" + CmCdhHBaseRegionServerHandler.ROLE + "+"
                 + CmCdhImpalaDaemonHandler.ROLE,
-            CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE,
+            BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE,
             Boolean.FALSE.toString(),
-            CmServerHandler.CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
+            BaseHandler.CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
             "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/\\,http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"))));
     Assert.assertEquals(6, BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes().size());
   }
@@ -105,7 +105,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
     try {
       Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
           "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmCdhNameNodeHandler.ROLE,
-          CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.TRUE.toString()))));
+          BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.TRUE.toString()))));
     } catch (Exception e) {
       caught = true;
     }
@@ -119,7 +119,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
       Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
           "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
               + CmCdhNameNodeHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+" + CmCdhNameNodeHandler.ROLE,
-          CmServerHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()))));
+          BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()))));
     } catch (Exception e) {
       caught = true;
     }

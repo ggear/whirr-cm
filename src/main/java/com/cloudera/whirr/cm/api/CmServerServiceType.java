@@ -77,9 +77,4 @@ public enum CmServerServiceType {
     return respository;
   }
 
-  @Override
-  public String toString() {
-    return label;
-  }
-
 }

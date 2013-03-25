@@ -51,7 +51,7 @@ public class CmAgentHandlerTest extends BaseTestHandler {
   @Test
   public void testNoCmServer() throws Exception {
     DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
-        + CmAgentHandler.ROLE)));
+        + CmAgentHandler.ROLE, BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString())));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
 
@@ -60,7 +60,8 @@ public class CmAgentHandlerTest extends BaseTestHandler {
     boolean caught = false;
     try {
       launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
-          + CmAgentHandler.ROLE + "+" + CmCdhNameNodeHandler.ROLE)));
+          + CmAgentHandler.ROLE + "+" + CmCdhNameNodeHandler.ROLE, BaseHandler.CONFIG_WHIRR_AUTO_VARIABLE,
+          Boolean.FALSE.toString())));
     } catch (Exception e) {
       caught = true;
     }
