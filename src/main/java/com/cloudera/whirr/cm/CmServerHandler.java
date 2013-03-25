@@ -191,10 +191,10 @@ public class CmServerHandler extends BaseHandlerCm {
                 CmServerService service = new CmServerService(type, event.getClusterSpec().getConfiguration()
                     .getString(CONFIG_WHIRR_NAME, CM_CLUSTER_NAME), ""
                     + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
-                    instance.getPublicHostName());
+                    instance);
                 BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
                 System.out.println(service.getName() + "@[id=" + instance.getId() + ", ip=" + instance.getPublicIp()
-                    + ", host=" + service.getHost() + "]");
+                                   + ", host=" + service.getHost().getPublicHostName() + "]");
               }
             }
           }
