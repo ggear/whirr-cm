@@ -109,8 +109,13 @@ public class CmServerHandler extends BaseHandlerCm {
     System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
         + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
     System.out.println();
-    System.out.println("Web Console User/Password (Change these!):");
+    System.out.println("Web Console User/Password (change these!):");
     System.out.println(CM_USER + "/" + CM_PASSWORD);
+    System.out.println();
+    System.out.println("Automatically provision and start Cloudera Manager services [" + CONFIG_WHIRR_AUTO_VARIABLE
+        + "],");
+    System.out.println("(progress via terminal (below) and web (above) consoles):");
+    System.out.println(event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true));
     System.out.println();
     System.out.println("Nodes:");
     Set<Instance> nodesToInstall = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
@@ -172,8 +177,9 @@ public class CmServerHandler extends BaseHandlerCm {
       if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
         System.out.println();
-        System.out.println("Warning, Cloudera Manager managed CDH nodes detected but whirr property ["
-            + CONFIG_WHIRR_AUTO_VARIABLE + "] set to false so not provsioning:");
+        System.out.println("Warning, Cloudera Manager services found but whirr property [" + CONFIG_WHIRR_AUTO_VARIABLE
+            + "]");
+        System.out.println("set to false so not provsioning:");
         for (String role : BaseHandlerCmCdh.getRoles()) {
           System.out.println(role);
         }
@@ -194,8 +200,8 @@ public class CmServerHandler extends BaseHandlerCm {
                     + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
                     instance.getPublicHostName());
                 BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
-                System.out
-                    .println(service.getName() + "@[id=" + instance.getId() + ", host=" + service.getHost() + "]");
+                System.out.println(service.getName() + "@[id=" + instance.getId() + ", ip=" + instance.getPublicIp()
+                    + ", host=" + service.getHost() + "]");
               }
             }
           }
@@ -212,6 +218,7 @@ public class CmServerHandler extends BaseHandlerCm {
                   .getString(key));
             }
           }
+
           CmServerApi cmServerApi = new CmServerApi(event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(),
               7180, CM_USER, CM_PASSWORD, new CmServerApiLog.CmServerApiLogSysOut());
           cmServerApi.initialise(config);
@@ -225,11 +232,11 @@ public class CmServerHandler extends BaseHandlerCm {
           System.out.println();
           e.printStackTrace();
           System.out.println();
-          System.out.println();
           System.out
-              .println("Failed to execute CM Server API Cluster Provision, please review the proceeding exception and log into the web console to resolve:");
-          System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
-              + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
+              .println("Failed to execute Cloudera Manager Cluster Provision, please review the proceeding exception and log into the web console [http://"
+                  + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
+                  + ":"
+                  + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB) + "] to resolve");
 
         }
 
@@ -257,8 +264,9 @@ public class CmServerHandler extends BaseHandlerCm {
       if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
         System.out.println();
-        System.out.println("Warning, Cloudera Manager managed CDH nodes detected but whirr property ["
-            + CONFIG_WHIRR_AUTO_VARIABLE + "] set to false so not starting:");
+        System.out.println("Warning, Cloudera Manager services found but whirr property [" + CONFIG_WHIRR_AUTO_VARIABLE
+            + "]");
+        System.out.println("set to false so not starting:");
         for (String role : BaseHandlerCmCdh.getRoles()) {
           System.out.println(role);
         }
@@ -286,15 +294,27 @@ public class CmServerHandler extends BaseHandlerCm {
           System.out.println();
           e.printStackTrace();
           System.out.println();
-          System.out.println();
           System.out
-              .println("Failed to execute CM Server API Cluster Start, please review the proceeding exception and log into the web console to resolve:");
-          System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
-              + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
+              .println("Failed to execute Cloudera Manager Cluster Start, please review the proceeding exception and log into the web console [http://"
+                  + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
+                  + ":"
+                  + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB) + "] to resolve");
 
         }
 
       }
+
+      System.out.println();
+      System.out.println(CONSOLE_SPACER);
+      System.out.println("Cloudera Manager Server");
+      System.out.println(CONSOLE_SPACER);
+      System.out.println();
+      System.out.println("Web Console:");
+      System.out.println("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
+          + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
+      System.out.println();
+      System.out.println("Web Console User/Password (change these!):");
+      System.out.println(CM_USER + "/" + CM_PASSWORD);
 
       System.out.println();
       System.out.println(CONSOLE_SPACER);
