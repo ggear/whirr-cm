@@ -180,7 +180,7 @@ public class CmServerHandler extends BaseHandlerCm {
         try {
 
           BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().setDataMounts(getDataMounts(event));
-          
+
           System.out.println();
           System.out.println("Roles:");
           BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clearServices();
@@ -191,10 +191,10 @@ public class CmServerHandler extends BaseHandlerCm {
                 CmServerService service = new CmServerService(type, event.getClusterSpec().getConfiguration()
                     .getString(CONFIG_WHIRR_NAME, CM_CLUSTER_NAME), ""
                     + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
-                    instance);
+                    instance.getPublicHostName(), instance.getPublicIp(), instance.getPrivateIp());
                 BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
                 System.out.println(service.getName() + "@[id=" + instance.getId() + ", ip=" + instance.getPublicIp()
-                                   + ", host=" + service.getHost().getPublicHostName() + "]");
+                    + ", host=" + service.getHost() + "]");
               }
             }
           }
