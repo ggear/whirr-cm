@@ -44,6 +44,10 @@ public class CmServerService {
     this(null, null, null, host, ip, null);
   }
 
+  public CmServerService(String host, String ip, String ipInternal) {
+    this(null, null, null, host, ip, ipInternal);
+  }
+
   public CmServerService(CmServerServiceType type, String tag, String qualifier, String host) {
     this(type, tag, qualifier, host, null, null);
   }

@@ -114,15 +114,17 @@ public class CmServerApi {
   public CmServerService getServiceHost(CmServerService service, List<CmServerService> services)
       throws CmServerApiException {
 
+    CmServerService serviceFound = null;
     try {
 
       logger.logOperationStartedSync("GetService");
 
-      for (CmServerService serviceFound : services) {
-        if ((service.getHost() != null && service.getHost().equals(serviceFound.getHost()))
-            || (service.getIp() != null && service.getIp().equals(serviceFound.getIp()))
-            || (service.geIpInternal() != null && service.geIpInternal().equals(serviceFound.getIp()))) {
-          return serviceFound;
+      for (CmServerService serviceTmp : services) {
+        if ((service.getHost() != null && service.getHost().equals(serviceTmp.getHost()))
+            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIp()))
+            || (service.geIpInternal() != null && service.geIpInternal().equals(serviceTmp.getIp()))) {
+          serviceFound = serviceTmp;
+          break;
         }
       }
 
@@ -132,7 +134,11 @@ public class CmServerApi {
       throw new CmServerApiException("Failed to find service", e);
     }
 
-    throw new CmServerApiException("Failed to find service matching " + service);
+    if (serviceFound == null) {
+      throw new CmServerApiException("Failed to find service matching " + service);
+    } else {
+      return serviceFound;
+    }
 
   }
 
@@ -159,14 +165,6 @@ public class CmServerApi {
 
   }
 
-  public void isProvisionedAssert(CmServerCluster cluster, String task) throws CmServerApiException {
-
-    if (!isProvisioned(cluster)) {
-      throw new CmServerApiException("Cluster is not provisioned, cannot " + task);
-    }
-
-  }
-
   public Map<String, String> initialise(Map<String, String> config) throws CmServerApiException {
     Map<String, String> configPostUpdate = null;
     try {
@@ -183,8 +181,9 @@ public class CmServerApi {
     return configPostUpdate;
   }
 
-  public void provision(CmServerCluster cluster) throws CmServerApiException {
+  public boolean provision(CmServerCluster cluster) throws CmServerApiException {
 
+    boolean executed = false;
     try {
 
       logger.logOperationStartedSync("ClusterProvision");
@@ -192,6 +191,7 @@ public class CmServerApi {
       if (!isProvisioned(cluster)) {
         provsionCluster(cluster);
         provisionParcels(cluster);
+        executed = true;
       }
 
       logger.logOperationFinishedSync("ClusterProvision");
@@ -200,6 +200,7 @@ public class CmServerApi {
       throw new CmServerApiException("Failed to provision cluster", e);
     }
 
+    return executed;
   }
 
   public void configure(CmServerCluster cluster) throws CmServerApiException {
@@ -321,6 +322,14 @@ public class CmServerApi {
 
     } catch (Exception e) {
       throw new CmServerApiException("Failed to unprovision cluster", e);
+    }
+
+  }
+
+  private void isProvisionedAssert(CmServerCluster cluster, String task) throws CmServerApiException {
+
+    if (!isProvisioned(cluster)) {
+      throw new CmServerApiException("Cluster is not provisioned, cannot " + task);
     }
 
   }
