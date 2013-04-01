@@ -17,6 +17,9 @@
  */
 package com.cloudera.whirr.cm.api;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -87,6 +93,63 @@ public class CmServerApi {
     } catch (IOException e) {
       throw new RuntimeException("Could not resolve cluster name", e);
     }
+  }
+
+  public boolean getServiceConfigs(final CmServerCluster cluster, final File directory) throws CmServerApiException {
+
+    final AtomicBoolean executed = new AtomicBoolean(false);
+    try {
+
+      logger.logOperation("GetConfig", new CmServerApiLogSyncCommand() {
+        @Override
+        public void execute() throws IOException {
+          for (ApiService apiService : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+              .readServices(DataView.SUMMARY)) {
+            switch (CmServerServiceType.valueOfId(apiService.getType())) {
+            case HDFS:
+            case MAPREDUCE:
+            case HIVE:
+              ZipInputStream configInput = null;
+              try {
+                configInput = new ZipInputStream(apiResourceRoot.getClustersResource()
+                    .getServicesResource(getName(cluster)).getClientConfig(apiService.getName()).getInputStream());
+                ZipEntry configInputZipEntry = null;
+                while ((configInputZipEntry = configInput.getNextEntry()) != null) {
+                  String configFile = configInputZipEntry.getName();
+                  if (configFile.contains(File.separator)) {
+                    configFile = configFile.substring(configFile.lastIndexOf(File.separator), configFile.length());
+                  }
+                  directory.mkdirs();
+                  BufferedWriter configOutput = null;
+                  try {
+                    configOutput = new BufferedWriter(new FileWriter(new File(directory, configFile)));
+                    while (configInput.available() > 0) {
+                      configOutput.write(configInput.read());
+                    }
+                  } finally {
+                    configOutput.close();
+                  }
+                }
+              } finally {
+                if (configInput != null) {
+                  configInput.close();
+                }
+              }
+              executed.set(true);
+              break;
+            default:
+              break;
+            }
+          }
+        }
+      });
+
+    } catch (Exception e) {
+      throw new CmServerApiException("Failed to list cluster hosts", e);
+    }
+
+    return executed.get();
+
   }
 
   public List<CmServerService> getServiceHosts() throws CmServerApiException {

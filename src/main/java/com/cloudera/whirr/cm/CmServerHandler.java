@@ -189,6 +189,8 @@ public class CmServerHandler extends BaseHandlerCm {
           cmServerApi.initialise(config);
           cmServerApi.provision(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
           cmServerApi.configure(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
+          cmServerApi.getServiceConfigs(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance(), event.getClusterSpec()
+              .getClusterDirectory());
 
         } catch (Exception e) {
 

@@ -23,6 +23,8 @@ public interface BaseTest {
 
   public static String CLUSTER_USER = "whirr";
 
+  public static File DIR_CONFIG = new File(new File(".").getAbsolutePath() + "/target/test-client");
+
   public static File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
   public static File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key.pub");
 

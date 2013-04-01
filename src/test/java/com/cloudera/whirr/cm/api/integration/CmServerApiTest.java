@@ -161,6 +161,15 @@ public class CmServerApiTest implements BaseTest {
   }
 
   @Test
+  public void testGetServiceConfig() throws CmServerApiException {
+
+    Assert.assertFalse(api.getServiceConfigs(cluster, DIR_CONFIG));
+    Assert.assertTrue(api.configure(cluster));
+    Assert.assertTrue(api.getServiceConfigs(cluster, DIR_CONFIG));
+
+  }
+
+  @Test
   public void testGetService() throws CmServerApiException {
 
     Assert.assertEquals(0, api.getServices(cluster).size());
