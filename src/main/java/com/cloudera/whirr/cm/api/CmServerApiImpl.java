@@ -407,7 +407,9 @@ public class CmServerApiImpl implements CmServerApi {
 
       if (!isProvisioned(cluster)) {
         provsionCluster(cluster);
-        provisionParcels(cluster);
+        if (cluster.getIsParcel()) {
+          provisionParcels(cluster);
+        }
         executed = true;
       }
 
