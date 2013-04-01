@@ -43,14 +43,9 @@ public class CmServerApiTest implements BaseTest {
 
   private static final String CLUSTER_TAG = "whirr";
 
-  // The CM Server host and port
-  private static String CM_HOST = getSystemProperty("whirr.test.cm.host", "31-222-187-80.static.cloud-ips.co.uk");
+  // The CM Server and database host and port
+  private static String CM_HOST = getSystemProperty("whirr.test.cm.host", "37-188-123-45.static.cloud-ips.co.uk");
   private static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
-
-  // The CDH Master Node, the tests assume a single master provisioned by whirr-cm with all database
-  // dependent roles (eg cm-cdh-hivemetastore)
-  private static String CDH_MASTER_HOST = getSystemProperty("whirr.test.cdh.master.host",
-      "212-64-150-13.static.cloud-ips.co.uk");
 
   // The CM Server config to be uploaded
   private static Map<String, String> CM_CONFIG = ImmutableMap.of("REMOTE_PARCEL_REPO_URLS",
@@ -74,23 +69,22 @@ public class CmServerApiTest implements BaseTest {
       hosts.add(service.getHost());
     }
     Assert.assertFalse(hosts.isEmpty());
-    Assert.assertTrue("Integration test cluster requires at least 4 (+ CM Server) nodes", hosts.size() >= 5);
+    Assert.assertTrue("Integration test cluster requires at least 4 nodes", hosts.size() >= 4);
     clusterSize = hosts.size();
     hosts.remove(CM_HOST);
-    hosts.remove(CDH_MASTER_HOST);
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
 
     cluster = new CmServerCluster();
     cluster.setDataMounts(ImmutableSet.<String> builder().add("/data/" + CLUSTER_TAG).build());
-    cluster.add(new CmServerService(CmServerServiceType.HIVE_METASTORE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HUE_SERVER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HUE_BEESWAX_SERVER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.OOZIE_SERVER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", CDH_MASTER_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CDH_MASTER_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HIVE_METASTORE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HUE_SERVER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HUE_BEESWAX_SERVER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.OOZIE_SERVER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.add(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CM_HOST));
     for (int i = 0; i < hostSlaves.length; i++) {
       cluster
           .add(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
@@ -106,15 +100,29 @@ public class CmServerApiTest implements BaseTest {
   @Before
   public void provisionCluster() throws CmServerApiException {
 
-    Assert.assertTrue(!api.isConfigured(cluster) || api.unconfigure(cluster));
-    Assert.assertTrue(api.isProvisioned(cluster) || api.provision(cluster));
+    try {
+      api.unconfigure(cluster);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    try {
+      api.provision(cluster);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    Assert.assertTrue(api.isProvisioned(cluster));
 
   }
 
   @After
   public void unconfigureCluster() throws CmServerApiException {
 
-    Assert.assertTrue(!api.isConfigured(cluster) || api.unconfigure(cluster));
+    try {
+      api.unconfigure(cluster);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    Assert.assertFalse(api.isConfigured(cluster));
 
   }
 
