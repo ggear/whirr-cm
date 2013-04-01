@@ -32,6 +32,7 @@ import com.cloudera.whirr.cm.BaseTest;
 import com.cloudera.whirr.cm.CmServerHandler;
 import com.cloudera.whirr.cm.api.CmServerApi;
 import com.cloudera.whirr.cm.api.CmServerApiException;
+import com.cloudera.whirr.cm.api.CmServerApiFactory;
 import com.cloudera.whirr.cm.api.CmServerApiLog;
 import com.cloudera.whirr.cm.api.CmServerCluster;
 import com.cloudera.whirr.cm.api.CmServerService;
@@ -60,7 +61,7 @@ public class CmServerApiTest implements BaseTest {
   @BeforeClass
   public static void initialiseCluster() throws CmServerApiException {
 
-    Assert.assertNotNull(api = new CmServerApi(CM_HOST, CM_PORT, CmServerHandler.CM_USER, CmServerHandler.CM_PASSWORD,
+    Assert.assertNotNull(api = CmServerApiFactory.getCmServerApi(CM_HOST, CM_PORT, CmServerHandler.CM_USER, CmServerHandler.CM_PASSWORD,
         new CmServerApiLog.CmServerApiLogSysOut()));
     Assert.assertTrue(api.initialise(CM_CONFIG).size() > 0);
 
