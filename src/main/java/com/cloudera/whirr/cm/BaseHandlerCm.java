@@ -40,27 +40,34 @@ public abstract class BaseHandlerCm extends BaseHandler {
 
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
-    logHeader("Whirr Pre Host Provision");
-    logLineItem("Role:");
-    logLineItemDetail(getRole());
+    logOperation("Host Pre Bootstrap");
     super.beforeBootstrap(event);
     addStatement(event, call("configure_hostnames"));
     addStatement(event, call("retry_helpers"));
   }
 
   @Override
+  protected void afterBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
+    logOperation("Host Post Bootstrap");
+    super.afterBootstrap(event);
+  }
+
+  @Override
   protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
-    logHeader("Whirr Post Host Provision");
-    logLineItem("Role:");
-    logLineItemDetail(getRole());
+    logOperation("Host Pre Configure");
     super.beforeConfigure(event);
     addStatement(event, call("retry_helpers"));
-
     if (getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT) == null) {
       getDeviceMappings(event);
       String devMappings = VolumeManager.asString(deviceMappings);
       addStatement(event, call("prepare_all_disks", "'" + devMappings + "'"));
     }
+  }
+
+  @Override
+  protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
+    logOperation("Host Post Configure");
+    super.afterConfigure(event);
   }
 
   public Map<String, String> getDeviceMappings(ClusterActionEvent event) {
@@ -74,6 +81,14 @@ public abstract class BaseHandlerCm extends BaseHandler {
     }
 
     return deviceMappings;
+  }
+
+  private void logOperation(String operation) {
+
+    logHeader("Whirr " + operation);
+    logLineItem("Role:");
+    logLineItemDetail(getRole());
+
   }
 
   public void logHeader(String message) {
