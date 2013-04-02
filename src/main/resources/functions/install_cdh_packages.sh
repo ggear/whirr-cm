@@ -18,7 +18,7 @@ set -x
 
 function install_cdh_packages() {
     if which dpkg &> /dev/null; then
-        retry_apt_get -y install bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper hue sqoop
+        retry_apt_get -y install bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper hue sqoop flume-ng flume-ng-agent
         if ls /etc/init.d/hadoop-* &> /dev/null; then
             for SERVICE_SCRIPT in /etc/init.d/hadoop-*; do
                 service $(basename $SERVICE_SCRIPT) stop
@@ -27,10 +27,12 @@ function install_cdh_packages() {
         fi
         service hue stop
         update-rc.d -f hue remove
+        service flume-ng-agent stop
+        update-rc.d -f flume-ng-agent remove
         service oozie stop
         update-rc.d -f oozie remove
     elif which rpm &> /dev/null; then
-        retry_yum install -y bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper impala impala-shell hue sqoop
+        retry_yum install -y bigtop-utils bigtop-jsvc bigtop-tomcat hadoop hadoop-hdfs hadoop-httpfs hadoop-mapreduce hadoop-yarn hadoop-client hadoop-0.20-mapreduce hue-plugins hbase hive oozie oozie-client pig zookeeper impala impala-shell hue sqoop flume-ng flume-ng-agent
         if ls /etc/init.d/hadoop-* &> /dev/null; then
             for SERVICE_SCRIPT in /etc/init.d/hadoop-*; do
                 service $(basename $SERVICE_SCRIPT) stop
@@ -39,6 +41,8 @@ function install_cdh_packages() {
         fi
         service hue stop
         chkconfig hue off
+        service flume-ng-agent stop
+        chkconfig flume-ng-agent off
         service oozie stop
         chkconfig oozie off    
     fi
