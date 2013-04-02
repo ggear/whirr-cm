@@ -24,10 +24,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.cloudera.whirr.cm.BaseTest;
+import com.cloudera.whirr.cm.api.CmServerService.CmServerServiceStatus;
 
 public class CmServerClusterTest implements BaseTest {
-
-  private static final String CLUSTER_TAG = "whirrtest";
 
   private CmServerCluster cluster;
 
@@ -46,7 +45,6 @@ public class CmServerClusterTest implements BaseTest {
 
   @Test
   public void testService() throws CmServerApiException {
-
     Assert.assertTrue(new CmServerService(CmServerServiceType.CLUSTER).equals(new CmServerService(
         CmServerServiceType.CLUSTER)));
     Assert.assertTrue(new CmServerService(CmServerServiceType.CLUSTER, CLUSTER_TAG).equals(new CmServerService(
@@ -55,12 +53,13 @@ public class CmServerClusterTest implements BaseTest {
     Assert.assertTrue(new CmServerService("host", "127.0.0.1").equals(new CmServerService("host", "127.0.0.1")));
     Assert.assertTrue(new CmServerService(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
         + CmServerServiceType.HDFS_NAMENODE.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM
-        + CmServerService.NAME_QUALIFIER_DEFAULT, "host", "127.0.0.1", null).equals(new CmServerService(
-        CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, CmServerService.NAME_QUALIFIER_DEFAULT, "host", "127.0.0.1")));
+        + CmServerService.NAME_QUALIFIER_DEFAULT, "host", "127.0.0.1", null, CmServerServiceStatus.UNKNOWN)
+        .equals(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG,
+            CmServerService.NAME_QUALIFIER_DEFAULT, "host", "127.0.0.1")));
     boolean caught = false;
     try {
       Assert
-          .assertTrue(new CmServerService("", "host", "127.0.0.1", null).equals(new CmServerService(
+          .assertTrue(new CmServerService("", "host", CmServerServiceStatus.UNKNOWN).equals(new CmServerService(
               CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, CmServerService.NAME_QUALIFIER_DEFAULT, "host",
               "127.0.0.1")));
     } catch (IllegalArgumentException e) {
@@ -71,15 +70,13 @@ public class CmServerClusterTest implements BaseTest {
     try {
       Assert.assertTrue(new CmServerService(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
           + CmServerService.NAME_TOKEN_DELIM + CmServerServiceType.HDFS_NAMENODE.toString().toLowerCase()
-          + CmServerService.NAME_TOKEN_DELIM + CmServerService.NAME_QUALIFIER_DEFAULT, "host", "127.0.0.1", null)
-          .equals(new CmServerService(CmServerServiceType.HDFS_NAMENODE,
-              CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM, CmServerService.NAME_QUALIFIER_DEFAULT, "host",
-              "127.0.0.1")));
+          + CmServerService.NAME_TOKEN_DELIM + CmServerService.NAME_QUALIFIER_DEFAULT, "host",
+          CmServerServiceStatus.UNKNOWN).equals(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG
+          + CmServerService.NAME_TOKEN_DELIM, CmServerService.NAME_QUALIFIER_DEFAULT, "host", "127.0.0.1")));
     } catch (IllegalArgumentException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
-
   }
 
   @Test

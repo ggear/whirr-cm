@@ -36,7 +36,7 @@ public class CmServerCluster {
   private Set<String> dataMounts = new HashSet<String>();
 
   private boolean isParcel = true;
-  
+
   public CmServerCluster() {
   }
 
@@ -104,7 +104,7 @@ public class CmServerCluster {
     return types;
   }
 
-  public synchronized CmServerService getService(CmServerServiceType type) throws IOException {
+  public synchronized CmServerService getService(CmServerServiceType type) {
     Set<CmServerService> serviceCopy = getServices(type);
     return serviceCopy.size() == 0 ? null : serviceCopy.iterator().next();
   }
@@ -172,7 +172,7 @@ public class CmServerCluster {
   public boolean getIsParcel() {
     return isParcel;
   }
-    
+
   private void assertConsistentTopology(CmServerServiceType type) throws CmServerApiException {
     if (type.getParent() == null || type.getParent().getParent() == null) {
       throw new CmServerApiException("Invalid cluster topology: Attempt to add non leaf type [" + type + "]");

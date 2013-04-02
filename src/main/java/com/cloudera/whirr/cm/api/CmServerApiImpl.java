@@ -61,6 +61,8 @@ import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.whirr.cm.api.CmServerApiLog.CmServerApiLogSyncCommand;
+import com.cloudera.whirr.cm.api.CmServerApiShell.CmServerApiShellMethod;
+import com.cloudera.whirr.cm.api.CmServerService.CmServerServiceStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -84,15 +86,7 @@ public class CmServerApiImpl implements CmServerApi {
   }
 
   @Override
-  public String getName(CmServerCluster cluster) {
-    try {
-      return cluster.getServiceName(CmServerServiceType.CLUSTER);
-    } catch (IOException e) {
-      throw new RuntimeException("Could not resolve cluster name", e);
-    }
-  }
-
-  @Override
+  @CmServerApiShellMethod(name = "client")
   public boolean getServiceConfigs(final CmServerCluster cluster, final File directory) throws CmServerApiException {
 
     final AtomicBoolean executed = new AtomicBoolean(false);
@@ -151,6 +145,7 @@ public class CmServerApiImpl implements CmServerApi {
   }
 
   @Override
+  @CmServerApiShellMethod(name = "hosts")
   public List<CmServerService> getServiceHosts() throws CmServerApiException {
 
     final List<CmServerService> services = new ArrayList<CmServerService>();
@@ -160,7 +155,7 @@ public class CmServerApiImpl implements CmServerApi {
         @Override
         public void execute() {
           for (ApiHost host : apiResourceRoot.getHostsResource().readHosts(DataView.SUMMARY).getHosts()) {
-            services.add(new CmServerService(host.getHostId(), host.getIpAddress()));
+            services.add(new CmServerService(host.getHostId(), host.getIpAddress(), null, CmServerServiceStatus.STARTED));
           }
         }
       });
@@ -208,9 +203,10 @@ public class CmServerApiImpl implements CmServerApi {
   }
 
   @Override
-  public List<CmServerService> getServices(final CmServerCluster cluster) throws CmServerApiException {
+  @CmServerApiShellMethod(name = "services")
+  public CmServerCluster getServices(final CmServerCluster cluster) throws CmServerApiException {
 
-    final List<CmServerService> services = new ArrayList<CmServerService>();
+    final CmServerCluster clusterView = new CmServerCluster();
     try {
 
       logger.logOperation("GetServices", new CmServerApiLogSyncCommand() {
@@ -220,7 +216,8 @@ public class CmServerApiImpl implements CmServerApi {
               .readServices(DataView.SUMMARY)) {
             for (ApiRole apiRole : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                 .getRolesResource(apiService.getName()).readRoles()) {
-              services.add(new CmServerService(apiRole.getName(), apiRole.getHostRef().getHostId(), null, null));
+              clusterView.add(new CmServerService(apiRole.getName(), apiRole.getHostRef().getHostId(),
+                  CmServerServiceStatus.valueOf(apiRole.getRoleState().toString())));
             }
           }
         }
@@ -230,7 +227,7 @@ public class CmServerApiImpl implements CmServerApi {
       throw new CmServerApiException("Failed to find services", e);
     }
 
-    return services;
+    return clusterView;
 
   }
 
@@ -238,26 +235,26 @@ public class CmServerApiImpl implements CmServerApi {
   public CmServerService getService(final CmServerCluster cluster, final CmServerServiceType type)
       throws CmServerApiException {
 
-    List<CmServerService> services = getServices(cluster, type);
-    if (services.isEmpty()) {
+    CmServerCluster clusterView = getServices(cluster, type);
+    if (clusterView.isEmpty()) {
       throw new CmServerApiException("Failed to find service matching type [" + type + "]");
     }
 
-    return services.get(0);
+    return clusterView.getService(type);
 
   }
 
   @Override
-  public List<CmServerService> getServices(final CmServerCluster cluster, final CmServerServiceType type)
+  public CmServerCluster getServices(final CmServerCluster cluster, final CmServerServiceType type)
       throws CmServerApiException {
 
-    List<CmServerService> services = new ArrayList<CmServerService>();
+    final CmServerCluster clusterView = new CmServerCluster();
     try {
 
-      for (CmServerService service : getServices(cluster)) {
+      for (CmServerService service : getServices(cluster).getServices(CmServerServiceType.CLUSTER)) {
         if (type.equals(CmServerServiceType.CLUSTER) || type.equals(service.getType().getParent())
             || type.equals(service.getType())) {
-          services.add(service);
+          clusterView.add(service);
         }
       }
 
@@ -265,7 +262,7 @@ public class CmServerApiImpl implements CmServerApi {
       throw new CmServerApiException("Failed to find services", e);
     }
 
-    return services;
+    return clusterView;
 
   }
 
@@ -565,6 +562,14 @@ public class CmServerApiImpl implements CmServerApi {
 
     return executed;
 
+  }
+
+  private String getName(CmServerCluster cluster) {
+    try {
+      return cluster.getServiceName(CmServerServiceType.CLUSTER);
+    } catch (IOException e) {
+      throw new RuntimeException("Could not resolve cluster name", e);
+    }
   }
 
   private Map<String, String> provisionCmSettings(Map<String, String> config) throws InterruptedException {

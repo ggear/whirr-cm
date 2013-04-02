@@ -21,13 +21,17 @@ import static org.apache.whirr.RolePredicates.role;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.whirr.service.ClusterActionEvent;
+import org.apache.whirr.service.ClusterActionHandler;
 
 import com.cloudera.whirr.cm.BaseHandler;
 import com.cloudera.whirr.cm.CmAgentHandler;
@@ -71,6 +75,18 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
       throw new IOException("Role [" + getRole() + "] requires a node within cluster with role ["
           + CmServerHandler.ROLE + "]");
     }
+  }
+
+  public static Map<String, CmServerServiceType> getRoleToTypeGlobal() {
+    Map<String, CmServerServiceType> roleToTypeGlobal = new HashMap<String, CmServerServiceType>();
+    // This is OK since ServiceLoader creates a cache, which must be weakly referenced since I had issues with this when
+    // staticly cached this when under memory pressure (eg maven tests)
+    for (ClusterActionHandler handler : ServiceLoader.load(ClusterActionHandler.class)) {
+      if (handler instanceof BaseHandlerCmCdh) {
+        roleToTypeGlobal.put(handler.getRole(), ((BaseHandlerCmCdh) handler).getType());
+      }
+    }
+    return roleToTypeGlobal;
   }
 
   public static CmServerServiceType getType(String role) {

@@ -21,11 +21,15 @@ import java.io.File;
 
 public interface BaseTest {
 
-  public static String CLUSTER_USER = "whirr";
+  public static final String CLUSTER_TAG = "whirr";
 
-  public static File DIR_CONFIG = new File(new File(".").getAbsolutePath() + "/target/test-client");
+  public static final String CLUSTER_USER = "whirr";
 
-  public static File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
-  public static File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key.pub");
+  public static final File DIR_CLIENT_CONFIG = new File(new File(".").getAbsolutePath() + "/target/test-client");
+  public static final File FILE_CONFIG_EG = new File(new File(".").getAbsolutePath() + "/cm-ec2.properties");
+  public static final File FILE_HOME_EG = new File(new File(".").getAbsolutePath() + "/src/test/resources");
+  public static final File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
+  public static final File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath()
+      + "/src/test/resources/test-key.pub");
 
 }

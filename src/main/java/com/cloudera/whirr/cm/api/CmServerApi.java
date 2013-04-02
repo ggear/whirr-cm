@@ -23,8 +23,6 @@ import java.util.Map;
 
 public interface CmServerApi {
 
-  public String getName(CmServerCluster cluster);
-
   public boolean getServiceConfigs(CmServerCluster cluster, File directory) throws CmServerApiException;
 
   public List<CmServerService> getServiceHosts() throws CmServerApiException;
@@ -34,12 +32,11 @@ public interface CmServerApi {
   public CmServerService getServiceHost(CmServerService service, List<CmServerService> services)
       throws CmServerApiException;
 
-  public List<CmServerService> getServices(CmServerCluster cluster) throws CmServerApiException;
+  public CmServerCluster getServices(CmServerCluster cluster) throws CmServerApiException;
 
   public CmServerService getService(CmServerCluster cluster, CmServerServiceType type) throws CmServerApiException;
 
-  public List<CmServerService> getServices(CmServerCluster cluster, CmServerServiceType type)
-      throws CmServerApiException;
+  public CmServerCluster getServices(CmServerCluster cluster, CmServerServiceType type) throws CmServerApiException;
 
   public boolean isProvisioned(CmServerCluster cluster) throws CmServerApiException;
 

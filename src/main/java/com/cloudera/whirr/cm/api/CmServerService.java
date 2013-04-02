@@ -19,8 +19,12 @@ package com.cloudera.whirr.cm.api;
 
 public class CmServerService implements Comparable<CmServerService> {
 
+  public enum CmServerServiceStatus {
+    STARTING, STARTED, STOPPING, STOPPED, UNKNOWN
+  }
+
   public static final String NAME_TOKEN_DELIM = "_";
-  public static final String NAME_TAG_DEFAULT = "CDH";
+  public static final String NAME_TAG_DEFAULT = "cdh";
   public static final String NAME_QUALIFIER_DEFAULT = "1";
   public static final String NAME_QUALIFIER_GROUP = "group";
 
@@ -32,6 +36,8 @@ public class CmServerService implements Comparable<CmServerService> {
   private String host;
   private String ip;
   private String ipInternal;
+
+  private transient CmServerServiceStatus status = CmServerServiceStatus.UNKNOWN;
 
   private String toString;
 
@@ -47,15 +53,32 @@ public class CmServerService implements Comparable<CmServerService> {
     this(CmServerServiceType.CLUSTER, NAME_TAG_DEFAULT, NAME_QUALIFIER_DEFAULT, host, ip, null);
   }
 
-  public CmServerService(String host, String ip, String ipInternal) {
-    this(CmServerServiceType.CLUSTER, NAME_TAG_DEFAULT, NAME_QUALIFIER_DEFAULT, host, ip, ipInternal);
+  public CmServerService(String host, String ip, String ipInternal, CmServerServiceStatus status) {
+    this(CmServerServiceType.CLUSTER, NAME_TAG_DEFAULT, NAME_QUALIFIER_DEFAULT, host, ip, ipInternal, status);
+  }
+
+  public CmServerService(CmServerServiceType type, String tag, String qualifier) {
+    this(type, tag, qualifier, null, null, null);
   }
 
   public CmServerService(CmServerServiceType type, String tag, String qualifier, String host) {
     this(type, tag, qualifier, host, null, null);
   }
 
-  public CmServerService(String name, String host, String ip, String ipInternal) {
+  public CmServerService(CmServerServiceType type, String tag, String qualifier, String host, String ip) {
+    this(type, tag, qualifier, host, ip, null);
+  }
+
+  public CmServerService(CmServerServiceType type, String tag, String qualifier, String host, String ip,
+      String ipInternal) {
+    this(type, tag, qualifier, host, ip, ipInternal, CmServerServiceStatus.UNKNOWN);
+  }
+
+  public CmServerService(String name, String host, CmServerServiceStatus status) {
+    this(name, host, null, null, status);
+  }
+
+  public CmServerService(String name, String host, String ip, String ipInternal, CmServerServiceStatus status) {
     if (name == null) {
       throw new IllegalArgumentException("Illegal argumnents passed to constructor");
     }
@@ -73,14 +96,11 @@ public class CmServerService implements Comparable<CmServerService> {
     this.host = host;
     this.ip = ip;
     this.ipInternal = ipInternal;
-  }
-
-  public CmServerService(CmServerServiceType type, String tag, String qualifier, String host, String ip) {
-    this(type, tag, qualifier, host, ip, null);
+    this.status = status;
   }
 
   public CmServerService(CmServerServiceType type, String tag, String qualifier, String host, String ip,
-      String ipInternal) {
+      String ipInternal, CmServerServiceStatus status) {
     if (type == null || tag == null || tag.contains(NAME_TOKEN_DELIM) || qualifier == null
         || qualifier.contains(NAME_TOKEN_DELIM)) {
       throw new IllegalArgumentException("Illgal argumnents passed to constructor");
@@ -93,6 +113,7 @@ public class CmServerService implements Comparable<CmServerService> {
     this.host = host;
     this.ip = ip;
     this.ipInternal = ipInternal;
+    this.status = status;
   }
 
   private static String _getName(CmServerServiceType type, String tag, String qualifier) {
@@ -214,6 +235,10 @@ public class CmServerService implements Comparable<CmServerService> {
 
   public String geIpInternal() {
     return ipInternal;
+  }
+
+  public CmServerServiceStatus getStatus() {
+    return status;
   }
 
 }

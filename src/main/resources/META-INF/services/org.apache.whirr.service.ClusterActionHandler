@@ -19,8 +19,6 @@ com.cloudera.whirr.cm.CmNodeHandler
 com.cloudera.whirr.cm.CmAgentHandler
 com.cloudera.whirr.cm.CmServerHandler
 
-com.cloudera.whirr.cm.cdh.CmCdhClientHandler
-
 com.cloudera.whirr.cm.cdh.CmCdhNameNodeHandler
 com.cloudera.whirr.cm.cdh.CmCdhSecondaryNameNodeHandler
 com.cloudera.whirr.cm.cdh.CmCdhDataNodeHandler

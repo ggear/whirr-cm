@@ -36,9 +36,11 @@ public abstract class CmServerApiLog {
 
   public abstract void logOperationStartedSync(String operation);
 
-  public abstract void logOperationInProgressSync(String operation);
+  public abstract void logOperationInProgressSync(String operation, String detail);
 
   public abstract void logOperationFailedSync(String operation);
+
+  public abstract void logOperationFailedSync(String operation, Throwable throwable);
 
   public abstract void logOperationFinishedSync(String operation);
 
@@ -48,7 +50,66 @@ public abstract class CmServerApiLog {
 
   public abstract void logOperationFailedAsync(String operation);
 
+  public abstract void logOperationFailedAsync(String operation, Throwable throwable);
+
   public abstract void logOperationFinishedAsync(String operation);
+
+  public static class CmServerApiLogNull extends CmServerApiLog {
+
+    @Override
+    public void logOperation(String operation, CmServerApiLogSyncCommand command) {
+      try {
+        command.execute();
+      } catch (Exception e) {
+        // ignore
+      }
+    }
+
+    @Override
+    public void logOperationStartedAsync(String operation) {
+    }
+
+    @Override
+    public void logOperationInProgressAsync(String operation) {
+    }
+
+    @Override
+    public void logOperationFailedAsync(String operation) {
+    }
+
+    @Override
+    public void logOperationFailedAsync(String operation, Throwable throwable) {
+    }
+
+    @Override
+    public void logOperationFinishedAsync(String operation) {
+    }
+
+    @Override
+    public void log(String message) {
+    }
+
+    @Override
+    public void logOperationStartedSync(String operation) {
+    }
+
+    @Override
+    public void logOperationInProgressSync(String operation, String detail) {
+    }
+
+    @Override
+    public void logOperationFailedSync(String operation) {
+    }
+
+    @Override
+    public void logOperationFailedSync(String operation, Throwable throwable) {
+    }
+
+    @Override
+    public void logOperationFinishedSync(String operation) {
+    }
+
+  }
 
   public static class CmServerApiLogSlf4j extends CmServerApiLog {
 
@@ -81,7 +142,12 @@ public abstract class CmServerApiLog {
     public void logOperationFailedAsync(String operation) {
       log(LOG_REFIX + " [" + operation + "] failed");
     }
-    
+
+    @Override
+    public void logOperationFailedAsync(String operation, Throwable throwable) {
+      log(LOG_REFIX + " [" + operation + "] failed", throwable);
+    }
+
     @Override
     public void logOperationFinishedAsync(String operation) {
       log(LOG_REFIX + " [" + operation + "] finished");
@@ -94,21 +160,32 @@ public abstract class CmServerApiLog {
       }
     }
 
+    public void log(String message, Throwable throwable) {
+      if (logOperation.isInfoEnabled()) {
+        logOperation.info(message, throwable);
+      }
+    }
+
     @Override
     public void logOperationStartedSync(String operation) {
       logOperationStartedAsync(operation);
     }
 
     @Override
-    public void logOperationInProgressSync(String operation) {
-      logOperationInProgressAsync(operation);
+    public void logOperationInProgressSync(String operation, String detail) {
+      log(LOG_REFIX + " [" + operation + "] " + detail);
     }
 
     @Override
     public void logOperationFailedSync(String operation) {
       logOperationFailedAsync(operation);
     }
-    
+
+    @Override
+    public void logOperationFailedSync(String operation, Throwable throwable) {
+      logOperationFailedAsync(operation, throwable);
+    }
+
     @Override
     public void logOperationFinishedSync(String operation) {
       logOperationFinishedAsync(operation);
@@ -148,7 +225,13 @@ public abstract class CmServerApiLog {
     public void logOperationFailedAsync(String operation) {
       System.out.println(" . failed");
     }
-    
+
+    @Override
+    public void logOperationFailedAsync(String operation, Throwable throwable) {
+      System.out.println(" . failed");
+      throwable.printStackTrace(System.out);
+    }
+
     @Override
     public void logOperationFinishedAsync(String operation) {
       System.out.println(" . finished");
@@ -165,8 +248,8 @@ public abstract class CmServerApiLog {
     }
 
     @Override
-    public void logOperationInProgressSync(String operation) {
-      System.out.println(LOG_REFIX + " [" + operation + "] in progress");
+    public void logOperationInProgressSync(String operation, String detail) {
+      System.out.println(LOG_REFIX + " [" + operation + "] " + detail);
     }
 
     @Override
@@ -174,7 +257,12 @@ public abstract class CmServerApiLog {
       System.out.println(LOG_REFIX + " [" + operation + "] failed");
     }
 
-    
+    @Override
+    public void logOperationFailedSync(String operation, Throwable throwable) {
+      System.out.println(LOG_REFIX + " [" + operation + "] failed");
+      throwable.printStackTrace(System.out);
+    }
+
     @Override
     public void logOperationFinishedSync(String operation) {
       System.out.println(LOG_REFIX + " [" + operation + "] finished");
