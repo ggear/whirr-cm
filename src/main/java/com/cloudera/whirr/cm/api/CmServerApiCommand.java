@@ -34,13 +34,13 @@ import java.util.Set;
 import org.apache.commons.lang.WordUtils;
 import org.codehaus.plexus.util.StringUtils;
 
-public class CmServerApiShell {
+public class CmServerApiCommand {
 
   public static final String ARGUMENT_PREFIX = "--";
 
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface CmServerApiShellMethod {
+  public @interface CmServerApiCommandMethod {
     String name();
   }
 
@@ -61,37 +61,37 @@ public class CmServerApiShell {
   private static final Map<String, Method> COMMANDS = new HashMap<String, Method>();
   static {
     for (Method method : CmServerApiImpl.class.getMethods()) {
-      if (method.isAnnotationPresent(CmServerApiShellMethod.class)) {
-        COMMANDS.put(method.getAnnotation(CmServerApiShellMethod.class).name(), method);
+      if (method.isAnnotationPresent(CmServerApiCommandMethod.class)) {
+        COMMANDS.put(method.getAnnotation(CmServerApiCommandMethod.class).name(), method);
       }
     }
   }
 
   private static final Map<String, Method> CONFIG_COMMANDS = new HashMap<String, Method>();
   static {
-    for (Method method : CmServerApiShell.class.getMethods()) {
-      if (method.isAnnotationPresent(CmServerApiShellMethod.class)) {
-        CONFIG_COMMANDS.put(method.getAnnotation(CmServerApiShellMethod.class).name(), method);
+    for (Method method : CmServerApiCommand.class.getMethods()) {
+      if (method.isAnnotationPresent(CmServerApiCommandMethod.class)) {
+        CONFIG_COMMANDS.put(method.getAnnotation(CmServerApiCommandMethod.class).name(), method);
       }
     }
   }
 
-  private CmServerApiShell() throws CmServerApiException {
+  private CmServerApiCommand() throws CmServerApiException {
   }
 
   public static Set<String> getCommands() {
     return new HashSet<String>(COMMANDS.keySet());
   }
 
-  public static CmServerApiShell get() throws CmServerApiException {
-    return new CmServerApiShell();
+  public static CmServerApiCommand get() throws CmServerApiException {
+    return new CmServerApiCommand();
   }
 
-  public CmServerApiShell arguments(String[] arguments) throws CmServerApiException {
+  public CmServerApiCommand arguments(String[] arguments) throws CmServerApiException {
     return arguments(argumentsPreProcess(arguments));
   }
 
-  public CmServerApiShell arguments(Map<String, String> arguments) throws CmServerApiException {
+  public CmServerApiCommand arguments(Map<String, String> arguments) throws CmServerApiException {
     for (String argument : arguments.keySet()) {
       if (CONFIG_COMMANDS.containsKey(argument)) {
         try {
@@ -104,8 +104,8 @@ public class CmServerApiShell {
     return this;
   }
 
-  @CmServerApiShellMethod(name = "host")
-  public CmServerApiShell host(String host) throws CmServerApiException {
+  @CmServerApiCommandMethod(name = "host")
+  public CmServerApiCommand host(String host) throws CmServerApiException {
     if (host == null || host.equals("")) {
       throw new CmServerApiException("Illegal host argument passed [" + host + "]");
     }
@@ -114,8 +114,8 @@ public class CmServerApiShell {
     return this;
   }
 
-  @CmServerApiShellMethod(name = "port")
-  public CmServerApiShell port(String port) throws CmServerApiException {
+  @CmServerApiCommandMethod(name = "port")
+  public CmServerApiCommand port(String port) throws CmServerApiException {
     if (port == null || port.equals("") || !StringUtils.isNumeric(port)) {
       throw new CmServerApiException("Illegal port argument passed [" + port + "]");
     }
@@ -124,8 +124,8 @@ public class CmServerApiShell {
     return this;
   }
 
-  @CmServerApiShellMethod(name = "user")
-  public CmServerApiShell user(String user) throws CmServerApiException {
+  @CmServerApiCommandMethod(name = "user")
+  public CmServerApiCommand user(String user) throws CmServerApiException {
     if (user == null || user.equals("")) {
       throw new CmServerApiException("Illegal user argument passed [" + user + "]");
     }
@@ -134,8 +134,8 @@ public class CmServerApiShell {
     return this;
   }
 
-  @CmServerApiShellMethod(name = "password")
-  public CmServerApiShell password(String password) throws CmServerApiException {
+  @CmServerApiCommandMethod(name = "password")
+  public CmServerApiCommand password(String password) throws CmServerApiException {
     if (password == null || password.equals("")) {
       throw new CmServerApiException("Illegal password argument passed [" + password + "]");
     }
@@ -144,8 +144,8 @@ public class CmServerApiShell {
     return this;
   }
 
-  @CmServerApiShellMethod(name = "client")
-  public CmServerApiShell client(String client) throws CmServerApiException {
+  @CmServerApiCommandMethod(name = "client")
+  public CmServerApiCommand client(String client) throws CmServerApiException {
     if (client == null) {
       throw new CmServerApiException("Illegal client argument passed [" + client + "]");
     }
@@ -153,8 +153,8 @@ public class CmServerApiShell {
     return this;
   }
 
-  @CmServerApiShellMethod(name = "command")
-  public CmServerApiShell command(String command) throws CmServerApiException {
+  @CmServerApiCommandMethod(name = "command")
+  public CmServerApiCommand command(String command) throws CmServerApiException {
     if (command == null || !COMMANDS.containsKey(command)) {
       throw new CmServerApiException("Illegal command argument passed [" + command + "]");
     }
@@ -162,7 +162,7 @@ public class CmServerApiShell {
     return this;
   }
 
-  public CmServerApiShell cluster(CmServerCluster cluster) throws CmServerApiException {
+  public CmServerApiCommand cluster(CmServerCluster cluster) throws CmServerApiException {
     if (cluster == null || cluster.isEmpty()) {
       throw new CmServerApiException("Illegal cluster argument passed [" + cluster + "]");
     }
@@ -170,7 +170,7 @@ public class CmServerApiShell {
     return this;
   }
 
-  public CmServerApiShell logger(CmServerApiLog logger) throws CmServerApiException {
+  public CmServerApiCommand logger(CmServerApiLog logger) throws CmServerApiException {
     if (logger == null) {
       throw new CmServerApiException("Illegal logger argument passed [" + logger + "]");
     }

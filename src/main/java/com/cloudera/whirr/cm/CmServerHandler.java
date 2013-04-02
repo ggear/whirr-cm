@@ -99,7 +99,7 @@ public class CmServerHandler extends BaseHandlerCm {
   @Override
   protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterConfigure(event);
-
+    
     logHeader("Cloudera Manager Server");
     logLineItem("Web Console:");
     logLineItemDetail("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"

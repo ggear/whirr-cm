@@ -23,9 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.cloudera.whirr.cm.api.CmServerApiException;
-import com.cloudera.whirr.cm.api.CmServerApiShell;
+import com.cloudera.whirr.cm.api.CmServerApiCommand;
 
-public class CmServerApiShellTest extends BaseTestIntegration {
+public class CmServerApiCommandTest extends BaseTestIntegration {
 
   @Override
   @Before
@@ -42,19 +42,19 @@ public class CmServerApiShellTest extends BaseTestIntegration {
 
   @Test
   public void testClient() throws CmServerApiException, InterruptedException {
-    Assert.assertTrue(CmServerApiShell.get().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath())
+    Assert.assertTrue(CmServerApiCommand.get().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath())
         .command("client").execute());
   }
 
   @Test
   public void testHosts() throws CmServerApiException, InterruptedException {
-    Assert.assertTrue(CmServerApiShell.get().host(CM_HOST).cluster(cluster).command("hosts").execute());
+    Assert.assertTrue(CmServerApiCommand.get().host(CM_HOST).cluster(cluster).command("hosts").execute());
   }
 
   @Test
   public void testServices() throws CmServerApiException, InterruptedException {
-    Assert.assertTrue(CmServerApiShell.get().host(CM_HOST).cluster(cluster).command("hosts").execute());
-    Assert.assertTrue(CmServerApiShell.get().host(CM_HOST).cluster(cluster).command("services").execute());
+    Assert.assertTrue(CmServerApiCommand.get().host(CM_HOST).cluster(cluster).command("hosts").execute());
+    Assert.assertTrue(CmServerApiCommand.get().host(CM_HOST).cluster(cluster).command("services").execute());
   }
   
 }

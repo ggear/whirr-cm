@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import com.cloudera.whirr.cm.BaseTest;
 
-public class CmServerApiShellTest implements BaseTest {
+public class CmServerApiCommandTest implements BaseTest {
 
   private CmServerCluster cluster;
 
@@ -38,14 +38,14 @@ public class CmServerApiShellTest implements BaseTest {
 
   @Test
   public void testGetValid1() throws CmServerApiException {
-    Assert.assertFalse(((Boolean) CmServerApiShell.get().host("host-1").cluster(cluster)
+    Assert.assertFalse(((Boolean) CmServerApiCommand.get().host("host-1").cluster(cluster)
         .client(DIR_CLIENT_CONFIG.getAbsolutePath()).command("client").execute()).booleanValue());
   }
 
   @Test
   public void testGetValid2() throws CmServerApiException {
     Assert
-        .assertFalse(((Boolean) CmServerApiShell
+        .assertFalse(((Boolean) CmServerApiCommand
             .get()
             .arguments(
                 new String[] { "--host", "host-1", "--client", DIR_CLIENT_CONFIG.getAbsolutePath(), "--command",
@@ -54,111 +54,111 @@ public class CmServerApiShellTest implements BaseTest {
 
   @Test(expected = CmServerApiException.class)
   public void testGetException1() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().execute());
+    Assert.assertNotNull(CmServerApiCommand.get().execute());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException2() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host(""));
+    Assert.assertNotNull(CmServerApiCommand.get().host(""));
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException3() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("").port(""));
+    Assert.assertNotNull(CmServerApiCommand.get().host("").port(""));
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException4() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").port(""));
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").port(""));
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException5() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").command(""));
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").command(""));
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException6() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").execute());
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").execute());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException7() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").command("").execute());
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").command("").execute());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException8() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").command("some-rubbish").execute());
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").command("some-rubbish").execute());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException9() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").command("client").execute());
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").command("client").execute());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException10() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").cluster(cluster).execute());
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").cluster(cluster).execute());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException11() throws CmServerApiException {
-    Assert.assertNotNull(CmServerApiShell.get().host("host-1").client(DIR_CLIENT_CONFIG.getAbsolutePath()).execute());
+    Assert.assertNotNull(CmServerApiCommand.get().host("host-1").client(DIR_CLIENT_CONFIG.getAbsolutePath()).execute());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException12() throws CmServerApiException {
-    Assert.assertFalse(((Boolean) CmServerApiShell.get()
+    Assert.assertFalse(((Boolean) CmServerApiCommand.get()
         .arguments(new String[] { "--host", "host-1", "--client", DIR_CLIENT_CONFIG.getAbsolutePath(), "--command" })
         .cluster(cluster).execute()).booleanValue());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testGetException13() throws CmServerApiException {
-    Assert.assertFalse(((Boolean) CmServerApiShell.get()
+    Assert.assertFalse(((Boolean) CmServerApiCommand.get()
         .arguments(new String[] { "--host", "host-1", "--client", DIR_CLIENT_CONFIG.getAbsolutePath() })
         .cluster(cluster).execute()).booleanValue());
   }
 
   @Test
   public void testProcessArgumnetsValid1() throws CmServerApiException {
-    Assert.assertEquals(0, CmServerApiShell.argumentsPreProcess(new String[] {}).size());
-    Assert.assertEquals(1, CmServerApiShell.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties" })
+    Assert.assertEquals(0, CmServerApiCommand.argumentsPreProcess(new String[] {}).size());
+    Assert.assertEquals(1, CmServerApiCommand.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties" })
         .size());
-    Assert.assertEquals(1, CmServerApiShell.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties" })
+    Assert.assertEquals(1, CmServerApiCommand.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties" })
         .size());
     Assert.assertEquals(2,
-        CmServerApiShell.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties", "--host", "host-1" })
+        CmServerApiCommand.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties", "--host", "host-1" })
             .size());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testProcessArgumentsException1() throws CmServerApiException {
-    Assert.assertEquals(1, CmServerApiShell.argumentsPreProcess(new String[] { "--client" }).size());
+    Assert.assertEquals(1, CmServerApiCommand.argumentsPreProcess(new String[] { "--client" }).size());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testProcessArgumentsException2() throws CmServerApiException {
     Assert.assertEquals(2,
-        CmServerApiShell.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties", "host" }).size());
+        CmServerApiCommand.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties", "host" }).size());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testProcessArgumentsException3() throws CmServerApiException {
-    Assert.assertEquals(1, CmServerApiShell.argumentsPreProcess(new String[] { "client", "/tmp/whirr.properties" })
+    Assert.assertEquals(1, CmServerApiCommand.argumentsPreProcess(new String[] { "client", "/tmp/whirr.properties" })
         .size());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testProcessArgumentsException4() throws CmServerApiException {
-    Assert.assertEquals(1, CmServerApiShell.argumentsPreProcess(new String[] { "", "" }).size());
+    Assert.assertEquals(1, CmServerApiCommand.argumentsPreProcess(new String[] { "", "" }).size());
   }
 
   @Test(expected = CmServerApiException.class)
   public void testProcessArgumentsException5() throws CmServerApiException {
     Assert.assertEquals(2,
-        CmServerApiShell.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties", "host", "host-1" })
+        CmServerApiCommand.argumentsPreProcess(new String[] { "--client", "/tmp/whirr.properties", "host", "host-1" })
             .size());
   }
 

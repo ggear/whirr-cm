@@ -1,4 +1,0 @@
-10319012	cm-agent,cm-cdh-datanode,cm-cdh-tasktracker,cm-cdh-hbase-regionserver,cm-cdh-impala-daemon,cm-cdh-zookeeper	46.38.191.205	10.176.0.25
-10319014	cm-agent,cm-cdh-datanode,cm-cdh-tasktracker,cm-cdh-hbase-regionserver,cm-cdh-impala-daemon,cm-cdh-zookeeper	212.64.152.177	10.176.0.89
-10319013	cm-agent,cm-cdh-datanode,cm-cdh-tasktracker,cm-cdh-hbase-regionserver,cm-cdh-impala-daemon,cm-cdh-zookeeper	46.38.191.49	10.176.0.20
-10319015	cm-server,cm-agent,cm-cdh-namenode,cm-cdh-secondarynamenode,cm-cdh-oozie-server,cm-cdh-hbase-master,cm-cdh-jobtracker,cm-cdh-hivemetastore,cm-cdh-impala-statestore,cm-cdh-hue-server,cm-cdh-hue-beeswaxserver	212.64.152.210	10.176.0.171

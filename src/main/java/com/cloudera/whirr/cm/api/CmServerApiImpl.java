@@ -61,7 +61,7 @@ import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.whirr.cm.api.CmServerApiLog.CmServerApiLogSyncCommand;
-import com.cloudera.whirr.cm.api.CmServerApiShell.CmServerApiShellMethod;
+import com.cloudera.whirr.cm.api.CmServerApiCommand.CmServerApiCommandMethod;
 import com.cloudera.whirr.cm.api.CmServerService.CmServerServiceStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -86,7 +86,7 @@ public class CmServerApiImpl implements CmServerApi {
   }
 
   @Override
-  @CmServerApiShellMethod(name = "client")
+  @CmServerApiCommandMethod(name = "client")
   public boolean getServiceConfigs(final CmServerCluster cluster, final File directory) throws CmServerApiException {
 
     final AtomicBoolean executed = new AtomicBoolean(false);
@@ -145,7 +145,7 @@ public class CmServerApiImpl implements CmServerApi {
   }
 
   @Override
-  @CmServerApiShellMethod(name = "hosts")
+  @CmServerApiCommandMethod(name = "hosts")
   public List<CmServerService> getServiceHosts() throws CmServerApiException {
 
     final List<CmServerService> services = new ArrayList<CmServerService>();
@@ -203,7 +203,7 @@ public class CmServerApiImpl implements CmServerApi {
   }
 
   @Override
-  @CmServerApiShellMethod(name = "services")
+  @CmServerApiCommandMethod(name = "services")
   public CmServerCluster getServices(final CmServerCluster cluster) throws CmServerApiException {
 
     final CmServerCluster clusterView = new CmServerCluster();
