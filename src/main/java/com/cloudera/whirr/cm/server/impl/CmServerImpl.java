@@ -67,7 +67,7 @@ import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerCommand.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
-import com.cloudera.whirr.cm.server.CmServerServiceTypeRepository;
+import com.cloudera.whirr.cm.server.CmServerServiceTypeRepo;
 import com.cloudera.whirr.cm.server.impl.CmServerLog.CmServerLogSyncCommand;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -627,19 +627,19 @@ public class CmServerImpl implements CmServer {
 
     apiResourceRoot.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "1") })));
-    final Set<CmServerServiceTypeRepository> repositoriesRequired = new HashSet<CmServerServiceTypeRepository>();
+    final Set<CmServerServiceTypeRepo> repositoriesRequired = new HashSet<CmServerServiceTypeRepo>();
     for (CmServerServiceType type : cluster.getServiceTypes()) {
       repositoriesRequired.add(type.getRepository());
     }
     execute("WaitForParcelsAvailability", new Callback() {
       @Override
       public boolean poll() {
-        Set<CmServerServiceTypeRepository> repositoriesNotLoaded = new HashSet<CmServerServiceTypeRepository>(
+        Set<CmServerServiceTypeRepo> repositoriesNotLoaded = new HashSet<CmServerServiceTypeRepo>(
             repositoriesRequired);
         for (ApiParcel parcel : apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
             .readParcels(DataView.FULL).getParcels()) {
           try {
-            repositoriesNotLoaded.remove(CmServerServiceTypeRepository.valueOf(parcel.getProduct()));
+            repositoriesNotLoaded.remove(CmServerServiceTypeRepo.valueOf(parcel.getProduct()));
           } catch (IllegalArgumentException e) {
             // ignore
           }
@@ -650,7 +650,7 @@ public class CmServerImpl implements CmServer {
     apiResourceRoot.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "60") })));
 
-    for (CmServerServiceTypeRepository repository : repositoriesRequired) {
+    for (CmServerServiceTypeRepo repository : repositoriesRequired) {
       DefaultArtifactVersion parcelVersion = null;
       for (ApiParcel apiParcel : apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
           .readParcels(DataView.FULL).getParcels()) {

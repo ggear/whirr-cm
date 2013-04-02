@@ -20,53 +20,53 @@ package com.cloudera.whirr.cm.server;
 public enum CmServerServiceType {
 
   // Cluster
-  CLUSTER(null, "CLUSTER", CmServerServiceTypeRepository.CDH),
+  CLUSTER(null, "CLUSTER", CmServerServiceTypeRepo.CDH),
 
   // HDFS
-  HDFS(CLUSTER, "HDFS", CmServerServiceTypeRepository.CDH), HDFS_NAMENODE(HDFS, "NAMENODE",
-      CmServerServiceTypeRepository.CDH), HDFS_SECONDARY_NAMENODE(HDFS, "SECONDARYNAMENODE",
-      CmServerServiceTypeRepository.CDH), HDFS_DATANODE(HDFS, "DATANODE", CmServerServiceTypeRepository.CDH),
+  HDFS(CLUSTER, "HDFS", CmServerServiceTypeRepo.CDH), HDFS_NAMENODE(HDFS, "NAMENODE",
+      CmServerServiceTypeRepo.CDH), HDFS_SECONDARY_NAMENODE(HDFS, "SECONDARYNAMENODE",
+      CmServerServiceTypeRepo.CDH), HDFS_DATANODE(HDFS, "DATANODE", CmServerServiceTypeRepo.CDH),
 
   // MapReduce
-  MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepository.CDH), MAPREDUCE_JOB_TRACKER(MAPREDUCE, "JOBTRACKER",
-      CmServerServiceTypeRepository.CDH), MAPREDUCE_TASK_TRACKER(MAPREDUCE, "TASKTRACKER",
-      CmServerServiceTypeRepository.CDH),
+  MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepo.CDH), MAPREDUCE_JOB_TRACKER(MAPREDUCE, "JOBTRACKER",
+      CmServerServiceTypeRepo.CDH), MAPREDUCE_TASK_TRACKER(MAPREDUCE, "TASKTRACKER",
+      CmServerServiceTypeRepo.CDH),
 
   // Zookeeper
-  ZOOKEEPER(CLUSTER, "ZOOKEEPER", CmServerServiceTypeRepository.CDH), ZOOKEEPER_SERVER(ZOOKEEPER, "SERVER",
-      CmServerServiceTypeRepository.CDH),
+  ZOOKEEPER(CLUSTER, "ZOOKEEPER", CmServerServiceTypeRepo.CDH), ZOOKEEPER_SERVER(ZOOKEEPER, "SERVER",
+      CmServerServiceTypeRepo.CDH),
 
   // HBase
-  HBASE(CLUSTER, "HBASE", CmServerServiceTypeRepository.CDH), HBASE_MASTER(HBASE, "MASTER",
-      CmServerServiceTypeRepository.CDH), HBASE_REGIONSERVER(HBASE, "REGIONSERVER", CmServerServiceTypeRepository.CDH),
+  HBASE(CLUSTER, "HBASE", CmServerServiceTypeRepo.CDH), HBASE_MASTER(HBASE, "MASTER",
+      CmServerServiceTypeRepo.CDH), HBASE_REGIONSERVER(HBASE, "REGIONSERVER", CmServerServiceTypeRepo.CDH),
 
   // Hive
-  HIVE(CLUSTER, "HIVE", CmServerServiceTypeRepository.CDH), HIVE_METASTORE(HIVE, "HIVEMETASTORE",
-      CmServerServiceTypeRepository.CDH),
+  HIVE(CLUSTER, "HIVE", CmServerServiceTypeRepo.CDH), HIVE_METASTORE(HIVE, "HIVEMETASTORE",
+      CmServerServiceTypeRepo.CDH),
 
   // Hue
-  HUE(CLUSTER, "HUE", CmServerServiceTypeRepository.CDH), HUE_SERVER(HUE, "HUE_SERVER",
-      CmServerServiceTypeRepository.CDH), HUE_BEESWAX_SERVER(HUE, "BEESWAX_SERVER", CmServerServiceTypeRepository.CDH),
+  HUE(CLUSTER, "HUE", CmServerServiceTypeRepo.CDH), HUE_SERVER(HUE, "HUE_SERVER",
+      CmServerServiceTypeRepo.CDH), HUE_BEESWAX_SERVER(HUE, "BEESWAX_SERVER", CmServerServiceTypeRepo.CDH),
 
   // Oozie
-  OOZIE(CLUSTER, "OOZIE", CmServerServiceTypeRepository.CDH), OOZIE_SERVER(OOZIE, "OOZIE_SERVER",
-      CmServerServiceTypeRepository.CDH),
+  OOZIE(CLUSTER, "OOZIE", CmServerServiceTypeRepo.CDH), OOZIE_SERVER(OOZIE, "OOZIE_SERVER",
+      CmServerServiceTypeRepo.CDH),
 
   // Impala
-  IMPALA(CLUSTER, "IMPALA", CmServerServiceTypeRepository.IMPALA), IMPALA_STATE_STORE(IMPALA, "STATESTORE",
-      CmServerServiceTypeRepository.IMPALA), IMPALA_DAEMON(IMPALA, "IMPALAD", CmServerServiceTypeRepository.IMPALA),
+  IMPALA(CLUSTER, "IMPALA", CmServerServiceTypeRepo.IMPALA), IMPALA_STATE_STORE(IMPALA, "STATESTORE",
+      CmServerServiceTypeRepo.IMPALA), IMPALA_DAEMON(IMPALA, "IMPALAD", CmServerServiceTypeRepo.IMPALA),
 
   // Flume
-  FLUME(CLUSTER, "FLUME", CmServerServiceTypeRepository.CDH), FLUME_AGENT(FLUME, "AGENT", CmServerServiceTypeRepository.CDH),
+  FLUME(CLUSTER, "FLUME", CmServerServiceTypeRepo.CDH), FLUME_AGENT(FLUME, "AGENT", CmServerServiceTypeRepo.CDH),
 
   // Client
-  CLIENT(CLUSTER, "GATEWAY", CmServerServiceTypeRepository.CDH);
+  CLIENT(CLUSTER, "GATEWAY", CmServerServiceTypeRepo.CDH);
 
   private CmServerServiceType parent;
   private String id;
-  private CmServerServiceTypeRepository respository;
+  private CmServerServiceTypeRepo respository;
 
-  private CmServerServiceType(CmServerServiceType parent, String id, CmServerServiceTypeRepository respository) {
+  private CmServerServiceType(CmServerServiceType parent, String id, CmServerServiceTypeRepo respository) {
     this.parent = parent;
     this.id = id;
     this.respository = respository;
@@ -80,7 +80,7 @@ public enum CmServerServiceType {
     return id;
   }
 
-  public CmServerServiceTypeRepository getRepository() {
+  public CmServerServiceTypeRepo getRepository() {
     return respository;
   }
 
