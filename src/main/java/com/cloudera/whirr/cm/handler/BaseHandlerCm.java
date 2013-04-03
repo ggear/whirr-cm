@@ -27,6 +27,7 @@ import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.hadoop.VolumeManager;
 
+import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.collect.Iterables;
 
 public abstract class BaseHandlerCm extends BaseHandler {
@@ -36,10 +37,13 @@ public abstract class BaseHandlerCm extends BaseHandler {
 
   public static final String CONSOLE_SPACER = "-------------------------------------------------------------------------------";
 
+  private static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(false);
+
   protected Map<String, String> deviceMappings = new HashMap<String, String>();
 
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
+
     logOperation("Host Pre Bootstrap");
     super.beforeBootstrap(event);
     addStatement(event, call("configure_hostnames"));
@@ -79,49 +83,36 @@ public abstract class BaseHandlerCm extends BaseHandler {
   }
 
   private void logOperation(String operation) {
-
     logHeader("Whirr " + operation);
     logLineItem("Role:");
     logLineItemDetail(getRole());
-
   }
 
   public void logHeader(String message) {
-
-    System.out.println();
-    System.out.println(CONSOLE_SPACER);
-    System.out.println(message);
-    System.out.println(CONSOLE_SPACER);
-
+    logger.logOperation();
+    logger.logOperation(CONSOLE_SPACER);
+    logger.logOperation(message);
+    logger.logOperation(CONSOLE_SPACER);
   }
 
   public void logFooter() {
-
-    System.out.println();
-    System.out.println(CONSOLE_SPACER);
-
+    logger.logOperation();
+    logger.logOperation(CONSOLE_SPACER);
   }
 
   public void logLineItem(String message) {
-
-    System.out.println();
-    System.out.println(message);
-
+    logger.logOperation();
+    logger.logOperation(message);
   }
 
   public void logLineItemDetail(String message) {
-
-    System.out.println(message);
-
+    logger.logOperation(message);
   }
 
   public void logException(String message, Throwable throwable) {
-
-    System.out.println();
-    throwable.printStackTrace();
-    System.out.println();
-    System.out.println(message);
-
+    logger.logOperation();
+    logger.logOperationStackTrace(throwable);
+    logger.logOperation();
+    logger.logOperation(message);
   }
-
 }

@@ -99,7 +99,7 @@ public class CmServerHandler extends BaseHandlerCm {
   @Override
   protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterConfigure(event);
-    
+
     logHeader("Cloudera Manager Server");
     logLineItem("Web Console:");
     logLineItemDetail("http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
@@ -160,7 +160,7 @@ public class CmServerHandler extends BaseHandlerCm {
           } else {
             BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().setIsParcel(true);
           }
-          
+
           BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().setDataMounts(getDataMounts(event));
 
           logLineItem("Roles:");
@@ -191,9 +191,9 @@ public class CmServerHandler extends BaseHandlerCm {
             }
           }
 
-          CmServer server = CmServerFactory.getCmServer(event.getCluster()
-              .getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
-              new CmServerLog.CmServerLogSysOut());
+          CmServer server = CmServerFactory.getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
+              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_CM_SERVER_API_TAG,
+              false));
           server.initialise(config);
           server.provision(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
           server.configure(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
@@ -243,7 +243,8 @@ public class CmServerHandler extends BaseHandlerCm {
 
           logLineItem("Start:");
           CmServer server = CmServerFactory.getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
-              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut());
+              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_CM_SERVER_API_TAG,
+              false));
           server.start(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
 
         } catch (Exception e) {
