@@ -26,11 +26,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.Set;
 
 import org.apache.whirr.command.Command;
 import org.apache.whirr.util.KeyPair;
@@ -51,7 +49,8 @@ import com.google.common.collect.Lists;
 public class CmServerCommandTest extends BaseTestCommand {
 
   private static final List<Class<? extends BaseCommand>> COMMANDS = ImmutableList.<Class<? extends BaseCommand>> of(
-      CmServerDownloadConfigCommand.class, CmServerCreateServicesCommand.class, CmServerDestroyServicesCommand.class);
+      CmServerDownloadConfigCommand.class, CmServerCreateServicesCommand.class, CmServerDestroyServicesCommand.class,
+      CmServerListServicesCommand.class);
 
   @Test
   public void testCommandServiceLoader() throws Exception {

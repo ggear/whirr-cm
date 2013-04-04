@@ -27,5 +27,6 @@ public interface CmConstants {
   public static final String CONFIG_WHIRR_NAME_DEFAULT = "whirr";
 
   public static final String LOG_TAG_WHIRR_HANDLER = "Whirr Handler";
+  public static final String LOG_TAG_WHIRR_COMMAND = "Whirr Command";
 
 }

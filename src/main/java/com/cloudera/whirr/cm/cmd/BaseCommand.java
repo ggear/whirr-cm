@@ -23,6 +23,7 @@ import java.util.List;
 
 import joptsimple.OptionSet;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.whirr.ClusterController;
 import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.ClusterSpec;
@@ -31,8 +32,11 @@ import org.apache.whirr.state.ClusterStateStore;
 import org.apache.whirr.state.ClusterStateStoreFactory;
 
 import com.cloudera.whirr.cm.CmConstants;
+import com.cloudera.whirr.cm.server.impl.CmServerLog;
 
 public abstract class BaseCommand extends AbstractClusterCommand implements CmConstants {
+
+  protected static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_WHIRR_COMMAND, false);
 
   public BaseCommand(String name, String description, ClusterControllerFactory factory,
       ClusterStateStoreFactory stateStoreFactory) {
@@ -45,6 +49,10 @@ public abstract class BaseCommand extends AbstractClusterCommand implements CmCo
 
   public abstract int run(ClusterSpec clusterSpec, ClusterStateStore clusterStateStore,
       ClusterController clusterController) throws Exception;
+
+  public String getLabel() {
+    return WordUtils.capitalize(getName().replace("-", " ").replace("_", " ")).replace(" ", "");
+  }
 
   @Override
   public int run(InputStream in, PrintStream out, PrintStream err, List<String> args) throws Exception {

@@ -28,6 +28,9 @@ import com.cloudera.whirr.cm.server.CmServerException;
 
 public class CmServerCreateServicesCommand extends BaseCommandCmServer {
 
+  public static final String NAME = "create-services";
+  public static final String DESCRIPTION = "Create the cluster services.";
+
   public CmServerCreateServicesCommand() throws IOException {
     this(new ClusterControllerFactory());
   }
@@ -37,7 +40,7 @@ public class CmServerCreateServicesCommand extends BaseCommandCmServer {
   }
 
   public CmServerCreateServicesCommand(ClusterControllerFactory factory, ClusterStateStoreFactory stateStoreFactory) {
-    super("create-services", "Create the cluster services.", factory, stateStoreFactory);
+    super(NAME, DESCRIPTION, factory, stateStoreFactory);
   }
 
   @Override

@@ -61,8 +61,13 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     CmServerCommand command = CmServerCommand.get().host(serverHost).cluster(cluster)
         .client(clusterSpec.getClusterDirectory().getAbsolutePath());
 
-    return run(cluster, command);
+    logger.logOperationStartedSync(getLabel());
 
+    int returnInt = run(cluster, command);
+
+    logger.logOperationFinishedSync(getLabel());
+
+    return returnInt;
   }
 
 }

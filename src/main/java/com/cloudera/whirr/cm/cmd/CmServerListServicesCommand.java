@@ -25,27 +25,39 @@ import org.apache.whirr.state.ClusterStateStoreFactory;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerCommand;
 import com.cloudera.whirr.cm.server.CmServerException;
+import com.cloudera.whirr.cm.server.CmServerService;
+import com.cloudera.whirr.cm.server.CmServerServiceType;
 
-public class CmServerDestroyServicesCommand extends BaseCommandCmServer {
+public class CmServerListServicesCommand extends BaseCommandCmServer {
 
-  public static final String NAME = "destroy-services";
-  public static final String DESCRIPTION = "Terminate and cleanup resources for a service.";
-  
-  public CmServerDestroyServicesCommand() throws IOException {
+  public static final String NAME = "list-services";
+  public static final String DESCRIPTION = "List services in a cluster.";
+
+  public CmServerListServicesCommand() throws IOException {
     this(new ClusterControllerFactory());
   }
 
-  public CmServerDestroyServicesCommand(ClusterControllerFactory factory) {
+  public CmServerListServicesCommand(ClusterControllerFactory factory) {
     this(factory, new ClusterStateStoreFactory());
   }
 
-  public CmServerDestroyServicesCommand(ClusterControllerFactory factory, ClusterStateStoreFactory stateStoreFactory) {
+  public CmServerListServicesCommand(ClusterControllerFactory factory, ClusterStateStoreFactory stateStoreFactory) {
     super(NAME, DESCRIPTION, factory, stateStoreFactory);
   }
 
   @Override
   public int run(CmServerCluster cluster, CmServerCommand serverCommand) throws CmServerException {
-    return serverCommand.command("unconfigure").executeBoolean() ? 0 : -1;
+
+    CmServerCluster commandReturnCluster = serverCommand.command("services").executeCluster();
+    for (CmServerServiceType type : commandReturnCluster.getServiceTypes()) {
+      logger.logOperationInProgressSync(getLabel(), type.toString());
+      for (CmServerService service : commandReturnCluster.getServices(type)) {
+        logger.logOperationInProgressSync(getLabel(), "  " + service.getName() + "@" + service.getHost() + "="
+            + service.getStatus());
+      }
+    }
+
+    return 0;
   }
 
 }
