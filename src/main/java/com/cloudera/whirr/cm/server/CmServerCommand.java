@@ -224,7 +224,8 @@ public class CmServerCommand {
       throw new CmServerException("Required paramater [command] not set");
     }
     if (server == null) {
-      server = CmServerFactory.getCmServer(host, port, user, password, new CmServerLog.CmServerLogNull());
+      server = CmServerFactory.getCmServer(host, port, user, password, new CmServerLog.CmServerLogSysOut(
+          CmServerConstants.LOG_TAG_CM_SERVER_API, false));
     }
     List<Object> paramaters = new ArrayList<Object>();
     for (Class<?> clazz : COMMANDS.get(command).getParameterTypes()) {

@@ -151,7 +151,6 @@ public class CmServerImpl implements CmServer {
   }
 
   @Override
-  @CmServerCommandMethod(name = "hosts")
   public List<CmServerService> getServiceHosts() throws CmServerException {
 
     final List<CmServerService> services = new ArrayList<CmServerService>();
@@ -426,6 +425,7 @@ public class CmServerImpl implements CmServer {
   }
 
   @Override
+  @CmServerCommandMethod(name = "configure")
   public boolean configure(CmServerCluster cluster) throws CmServerException {
 
     boolean executed = false;

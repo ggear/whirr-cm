@@ -20,6 +20,7 @@ package com.cloudera.whirr.cm.cmd.integration;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
 import com.cloudera.whirr.cm.server.CmServerException;
 
@@ -31,6 +32,11 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
   }
 
   @Test
+  public void testCommandCreateServices() throws CmServerException {
+    Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(cluster, command));
+  }
+
+  @Test
   public void testCommandDownloadConfig() throws CmServerException {
     Assert.assertTrue(server.configure(cluster));
     Assert.assertEquals(0, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
@@ -39,7 +45,8 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
   @Test
   public void testCommandLifecycle() throws CmServerException {
     Assert.assertEquals(-1, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
-    Assert.assertTrue(server.configure(cluster));
+    Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(cluster, command));
+    Assert.assertEquals(-1, new CmServerCreateServicesCommand(null, null).run(cluster, command));
     Assert.assertEquals(0, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
   }
 
