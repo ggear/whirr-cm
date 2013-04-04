@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +59,7 @@ public class CmServerCommand {
 
   private CmServerCluster cluster;
 
-  private CmServerLog logger = new CmServerLog.CmServerLogSysOut();
+  private CmServerLog logger = new CmServerLog.CmServerLogSysOut(CmServerConstants.LOG_TAG_CM_SERVER_CMD, false);
 
   private CmServer server;
 
@@ -167,7 +168,7 @@ public class CmServerCommand {
   }
 
   public CmServerCommand cluster(CmServerCluster cluster) throws CmServerException {
-    if (cluster == null || cluster.isEmpty()) {
+    if (cluster == null) {
       throw new CmServerException("Illegal cluster argument passed [" + cluster + "]");
     }
     this.cluster = cluster;
@@ -182,8 +183,40 @@ public class CmServerCommand {
     return this;
   }
 
+  public void execute() throws CmServerException {
+    executeObject();
+  }
+
+  public boolean executeBoolean() throws CmServerException {
+    Object object = executeObject();
+    if (object instanceof Boolean) {
+      return ((Boolean) object).booleanValue();
+    } else {
+      return object != null;
+    }
+  }
+
   @SuppressWarnings("unchecked")
-  public boolean execute() throws CmServerException {
+  public List<CmServerService> executeServices() throws CmServerException {
+    Object object = executeObject();
+    if (object instanceof List
+        && (((List<?>) object).isEmpty() || ((List<?>) object).get(0) instanceof CmServerService)) {
+      return (List<CmServerService>) object;
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  public CmServerCluster executeCluster() throws CmServerException {
+    Object object = executeObject();
+    if (object instanceof CmServerCluster) {
+      return (CmServerCluster) object;
+    } else {
+      return new CmServerCluster();
+    }
+  }
+
+  private Object executeObject() throws CmServerException {
     if (host == null) {
       throw new CmServerException("Required paramater [host] not set");
     }
@@ -211,43 +244,15 @@ public class CmServerCommand {
     }
     try {
 
-      logger.logOperationStartedSync(WordUtils.capitalize(command));
+      String label = WordUtils.capitalize(command);
+
+      logger.logOperationStartedSync(label);
 
       Object commandReturn = COMMANDS.get(command).invoke(server, paramaters.toArray());
 
-      boolean commandReturnBoolean = false;
-      if (commandReturn instanceof Boolean) {
+      logger.logOperationFinishedSync(label);
 
-        commandReturnBoolean = ((Boolean) commandReturn).booleanValue();
-
-      } else if (commandReturn instanceof List<?>) {
-
-        List<?> commandReturnList = ((List<?>) commandReturn);
-        commandReturnBoolean = !commandReturnList.isEmpty();
-        if (commandReturnBoolean && commandReturnList.get(0) instanceof CmServerService) {
-          for (CmServerService service : ((List<CmServerService>) commandReturnList)) {
-            logger.logOperationInProgressSync(WordUtils.capitalize(command),
-                "  " + (service.getName() + "@" + service.getHost() + "=" + service.getStatus()));
-          }
-        }
-
-      } else if (commandReturn instanceof CmServerCluster) {
-
-        CmServerCluster commandReturnCluster = ((CmServerCluster) commandReturn);
-        commandReturnBoolean = !commandReturnCluster.isEmpty();
-        for (CmServerServiceType type : commandReturnCluster.getServiceTypes()) {
-          logger.logOperationInProgressSync(WordUtils.capitalize(command), "  " + type.toString());
-          for (CmServerService service : commandReturnCluster.getServices(type)) {
-            logger.logOperationInProgressSync(WordUtils.capitalize(command),
-                "    " + service.getName() + "@" + service.getHost() + "=" + service.getStatus());
-          }
-        }
-
-      }
-
-      logger.logOperationFinishedSync(WordUtils.capitalize(command));
-
-      return commandReturnBoolean;
+      return commandReturn;
 
     } catch (Exception exception) {
       throw new CmServerException("Unexpected runtime exception executing CM Server", exception);

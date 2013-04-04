@@ -27,7 +27,7 @@ import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
 
-public class CmServerTest extends BaseTestIntegrationServer {
+public class CmServerClusterTest extends BaseTestIntegrationServer {
 
   @Test
   public void testClean() throws CmServerException {

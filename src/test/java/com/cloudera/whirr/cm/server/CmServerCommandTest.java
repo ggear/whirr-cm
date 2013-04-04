@@ -37,7 +37,7 @@ public class CmServerCommandTest extends BaseTestServer {
   @Test
   public void testGetValid1() throws CmServerException {
     Assert.assertFalse(((Boolean) CmServerCommand.get().host("host-1").cluster(cluster)
-        .client(DIR_CLIENT_CONFIG.getAbsolutePath()).command("client").execute()).booleanValue());
+        .client(DIR_CLIENT_CONFIG.getAbsolutePath()).command("client").executeBoolean()).booleanValue());
   }
 
   @Test
@@ -47,12 +47,12 @@ public class CmServerCommandTest extends BaseTestServer {
             .get()
             .arguments(
                 new String[] { "--host", "host-1", "--client", DIR_CLIENT_CONFIG.getAbsolutePath(), "--command",
-                    "client" }).cluster(cluster).execute()).booleanValue());
+                    "client" }).cluster(cluster).executeBoolean()).booleanValue());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException1() throws CmServerException {
-    Assert.assertNotNull(CmServerCommand.get().execute());
+    Assert.assertNotNull(CmServerCommand.get().executeBoolean());
   }
 
   @Test(expected = CmServerException.class)
@@ -77,46 +77,46 @@ public class CmServerCommandTest extends BaseTestServer {
 
   @Test(expected = CmServerException.class)
   public void testGetException6() throws CmServerException {
-    Assert.assertNotNull(CmServerCommand.get().host("host-1").execute());
+    Assert.assertNotNull(CmServerCommand.get().host("host-1").executeBoolean());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException7() throws CmServerException {
-    Assert.assertNotNull(CmServerCommand.get().host("host-1").command("").execute());
+    Assert.assertNotNull(CmServerCommand.get().host("host-1").command("").executeBoolean());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException8() throws CmServerException {
-    Assert.assertNotNull(CmServerCommand.get().host("host-1").command("some-rubbish").execute());
+    Assert.assertNotNull(CmServerCommand.get().host("host-1").command("some-rubbish").executeBoolean());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException9() throws CmServerException {
-    Assert.assertNotNull(CmServerCommand.get().host("host-1").command("client").execute());
+    Assert.assertNotNull(CmServerCommand.get().host("host-1").command("client").executeBoolean());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException10() throws CmServerException {
-    Assert.assertNotNull(CmServerCommand.get().host("host-1").cluster(cluster).execute());
+    Assert.assertNotNull(CmServerCommand.get().host("host-1").cluster(cluster).executeBoolean());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException11() throws CmServerException {
-    Assert.assertNotNull(CmServerCommand.get().host("host-1").client(DIR_CLIENT_CONFIG.getAbsolutePath()).execute());
+    Assert.assertNotNull(CmServerCommand.get().host("host-1").client(DIR_CLIENT_CONFIG.getAbsolutePath()).executeBoolean());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException12() throws CmServerException {
     Assert.assertFalse(((Boolean) CmServerCommand.get()
         .arguments(new String[] { "--host", "host-1", "--client", DIR_CLIENT_CONFIG.getAbsolutePath(), "--command" })
-        .cluster(cluster).execute()).booleanValue());
+        .cluster(cluster).executeBoolean()).booleanValue());
   }
 
   @Test(expected = CmServerException.class)
   public void testGetException13() throws CmServerException {
     Assert.assertFalse(((Boolean) CmServerCommand.get()
         .arguments(new String[] { "--host", "host-1", "--client", DIR_CLIENT_CONFIG.getAbsolutePath() })
-        .cluster(cluster).execute()).booleanValue());
+        .cluster(cluster).executeBoolean()).booleanValue());
   }
 
   @Test

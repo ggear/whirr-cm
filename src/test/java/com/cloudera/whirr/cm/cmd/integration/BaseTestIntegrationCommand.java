@@ -15,10 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.whirr.cm.cmd;
+package com.cloudera.whirr.cm.cmd.integration;
 
-public class CmServerClientCommandTest extends BaseTestCommand {
+import org.junit.Before;
 
-  // TODO
-  
+import com.cloudera.whirr.cm.BaseTestIntegration;
+import com.cloudera.whirr.cm.server.CmServerCommand;
+import com.cloudera.whirr.cm.server.CmServerException;
+
+public abstract class BaseTestIntegrationCommand extends BaseTestIntegration {
+
+  protected CmServerCommand command;
+
+  @Override
+  @Before
+  public void provisionCluster() throws CmServerException {
+    super.provisionCluster();
+    command = CmServerCommand.get().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath());
+  }
+
 }

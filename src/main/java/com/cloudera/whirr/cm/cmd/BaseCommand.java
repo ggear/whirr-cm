@@ -17,8 +17,54 @@
  */
 package com.cloudera.whirr.cm.cmd;
 
-public class BaseCommand {
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.List;
 
-  // TODO
+import joptsimple.OptionSet;
+
+import org.apache.whirr.ClusterController;
+import org.apache.whirr.ClusterControllerFactory;
+import org.apache.whirr.ClusterSpec;
+import org.apache.whirr.command.AbstractClusterCommand;
+import org.apache.whirr.state.ClusterStateStore;
+import org.apache.whirr.state.ClusterStateStoreFactory;
+
+import com.cloudera.whirr.cm.CmConstants;
+
+public abstract class BaseCommand extends AbstractClusterCommand implements CmConstants {
+
+  public BaseCommand(String name, String description, ClusterControllerFactory factory,
+      ClusterStateStoreFactory stateStoreFactory) {
+    super(name, description, factory, stateStoreFactory);
+  }
+
+  public BaseCommand(String name, String description, ClusterControllerFactory factory) {
+    super(name, description, factory);
+  }
+
+  public abstract int run(ClusterSpec clusterSpec, ClusterStateStore clusterStateStore,
+      ClusterController clusterController) throws Exception;
+
+  @Override
+  public int run(InputStream in, PrintStream out, PrintStream err, List<String> args) throws Exception {
+
+    OptionSet optionSet = parser.parse(args.toArray(new String[args.size()]));
+    if (!optionSet.nonOptionArguments().isEmpty()) {
+      printUsage(err);
+      return -1;
+    }
+
+    try {
+      ClusterSpec clusterSpec = getClusterSpec(optionSet);
+      printProviderInfo(out, err, clusterSpec, optionSet);
+      return run(clusterSpec, createClusterStateStore(clusterSpec),
+          createClusterController(clusterSpec.getServiceName()));
+    } catch (Exception e) {
+      printErrorAndHelpHint(err, e);
+      return -1;
+    }
+
+  }
 
 }

@@ -30,4 +30,6 @@ public interface BaseTest {
   public static final File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath()
       + "/src/test/resources/test-key.pub");
 
+  public static final String LOG_TAG_CM_SERVER_API_TEST = "TestBootstrap";
+
 }

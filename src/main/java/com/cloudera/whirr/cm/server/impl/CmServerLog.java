@@ -47,8 +47,12 @@ public abstract class CmServerLog {
     this.quiet = quiet;
   }
 
-  public void logOperation() {
-    logOperation((String) null, (String) null);
+  public void logSpacer() {
+    logOperation("", "");
+  }
+
+  public void logSpacerDashed() {
+    logOperation("", "-----------------------------------------------------------------");
   }
 
   public void logOperation(String message) {
@@ -57,15 +61,21 @@ public abstract class CmServerLog {
 
   public void logOperation(String operation, String message) {
     if (!quiet) {
-      logMessage((tag == null ? "" : (tag + " ")) + (operation == null ? "" : ("[" + operation + "] "))
-          + (message == null ? "" : message));
+      logMessage((operation == null ? "" : (tag == null ? "" : (tag + " ")))
+          + (operation == null || operation.equals("") ? "" : (((tag == null ? "" : "[") + operation
+              + (tag == null ? "" : "]") + " "))) + (message == null ? "" : message));
     }
+  }
+
+  public void logOperationIntermediate(String message) {
+    logOperationIntermediate(null, message);
   }
 
   public void logOperationIntermediate(String operation, String message) {
     if (!quiet) {
-      logMessageIntermediate((tag == null ? "" : (tag + " ")) + (operation == null ? "" : ("[" + operation + "] "))
-          + (message == null ? "" : message));
+      logMessageIntermediate((operation == null ? "" : (tag == null ? "" : (tag + " ")))
+          + (operation == null || operation.equals("") ? "" : (((tag == null ? "" : "[") + operation
+              + (tag == null ? "" : "]") + " "))) + (message == null ? "" : message));
     }
   }
 
@@ -292,12 +302,12 @@ public abstract class CmServerLog {
 
     @Override
     protected void logMessage(String message) {
-        System.out.println(message);
+      System.out.println(message);
     }
 
     @Override
     public void logMessageIntermediate(String message) {
-        System.out.println(message);
+      System.out.print(message);
     }
 
     @Override
@@ -308,38 +318,38 @@ public abstract class CmServerLog {
         command.execute();
       } catch (Exception e) {
         failed = true;
-        logMessage(" . failed");
+        logOperation(". failed");
         e.printStackTrace();
       }
       if (!failed) {
-        logMessage(" . finished");
+        logOperation(". finished");
       }
     }
 
     @Override
     public void logOperationStartedAsync(String operation) {
-      logOperationIntermediate(operation, "started");
+      logOperationIntermediate(operation, "started .");
     }
 
     @Override
     public void logOperationInProgressAsync(String operation) {
-      logMessageIntermediate(" .");
+      logOperationIntermediate(".");
     }
 
     @Override
     public void logOperationFailedAsync(String operation) {
-      logOperation(operation, "failed");
+      logOperation("failed");
     }
 
     @Override
     public void logOperationFailedAsync(String operation, Throwable throwable) {
-      logOperation(operation, ". failed");
+      logOperation(". failed");
       logOperationStackTrace(operation, throwable);
     }
 
     @Override
     public void logOperationFinishedAsync(String operation) {
-      logOperation(operation, ". finished");
+      logOperation(". finished");
     }
 
     @Override

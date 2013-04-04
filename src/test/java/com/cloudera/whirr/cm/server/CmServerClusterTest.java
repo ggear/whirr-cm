@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.whirr.cm.server.impl;
+package com.cloudera.whirr.cm.server;
 
 import java.io.IOException;
 
@@ -23,13 +23,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.cloudera.whirr.cm.server.CmServerCluster;
-import com.cloudera.whirr.cm.server.CmServerException;
-import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
-import com.cloudera.whirr.cm.server.CmServerServiceType;
 
-public class CmServerClusterTest extends BaseTestServerImpl {
+public class CmServerClusterTest extends BaseTestServer {
 
   private CmServerCluster cluster;
 

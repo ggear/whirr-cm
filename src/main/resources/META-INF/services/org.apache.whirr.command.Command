@@ -15,3 +15,4 @@
 # limitations under the License.
 #
 
+com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand

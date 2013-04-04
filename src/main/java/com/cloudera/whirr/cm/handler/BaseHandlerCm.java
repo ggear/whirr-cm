@@ -35,16 +35,13 @@ public abstract class BaseHandlerCm extends BaseHandler {
   public static final String DATA_DIRS_ROOT = "cm.data.dirs.root";
   public static final String DATA_DIRS_DEFAULT = "cm.data.dirs.default";
 
-  public static final String CONSOLE_SPACER = "-------------------------------------------------------------------------------";
-
-  private static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(false);
+  private static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_WHIRR_HANDLER, false);
 
   protected Map<String, String> deviceMappings = new HashMap<String, String>();
 
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
-
-    logOperation("Host Pre Bootstrap");
+    logHeaderHandlerLifecycle("HostBeforeBootstrap");
     super.beforeBootstrap(event);
     addStatement(event, call("configure_hostnames"));
     addStatement(event, call("retry_helpers"));
@@ -52,13 +49,13 @@ public abstract class BaseHandlerCm extends BaseHandler {
 
   @Override
   protected void afterBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
-    logOperation("Host Post Bootstrap");
+    logHeaderHandlerLifecycle("HostAfterBootstrap");
     super.afterBootstrap(event);
   }
 
   @Override
   protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
-    logOperation("Host Pre Configure");
+    logHeaderHandlerLifecycle("HostBeforeConfigure");
     super.beforeConfigure(event);
     addStatement(event, call("retry_helpers"));
     if (getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT) == null) {
@@ -66,7 +63,7 @@ public abstract class BaseHandlerCm extends BaseHandler {
       String devMappings = VolumeManager.asString(deviceMappings);
       addStatement(event, call("prepare_all_disks", "'" + devMappings + "'"));
     }
-    logOperation("Host Post Configure");
+    logHeaderHandlerLifecycle("HostPostConfigure");
   }
 
   public Map<String, String> getDeviceMappings(ClusterActionEvent event) {
@@ -82,37 +79,37 @@ public abstract class BaseHandlerCm extends BaseHandler {
     return deviceMappings;
   }
 
-  private void logOperation(String operation) {
-    logHeader("Whirr " + operation);
-    logLineItem("Role:");
-    logLineItemDetail(getRole());
+  private void logHeaderHandlerLifecycle(String operation) {
+    logHeader(operation);
+    logLineItem(operation, "Role:");
+    logLineItemDetail(operation, getRole());
   }
 
-  public void logHeader(String message) {
-    logger.logOperation();
-    logger.logOperation(CONSOLE_SPACER);
-    logger.logOperation(message);
-    logger.logOperation(CONSOLE_SPACER);
+  public void logHeader(String operation) {
+    logger.logSpacer();
+    logger.logSpacerDashed();
+    logger.logOperation(operation, "");
+    logger.logSpacerDashed();
   }
 
   public void logFooter() {
-    logger.logOperation();
-    logger.logOperation(CONSOLE_SPACER);
+    logger.logSpacer();
+    logger.logSpacerDashed();
   }
 
-  public void logLineItem(String message) {
-    logger.logOperation();
-    logger.logOperation(message);
+  public void logLineItem(String operation, String detail) {
+    logger.logSpacer();
+    logger.logOperationInProgressSync(operation, detail);
   }
 
-  public void logLineItemDetail(String message) {
-    logger.logOperation(message);
+  public void logLineItemDetail(String operation, String detail) {
+    logger.logOperationInProgressSync(operation, detail);
   }
 
   public void logException(String message, Throwable throwable) {
-    logger.logOperation();
+    logger.logSpacer();
     logger.logOperationStackTrace(throwable);
-    logger.logOperation();
-    logger.logOperation(message);
+    logger.logSpacer();
+    logger.logOperation("", message);
   }
 }

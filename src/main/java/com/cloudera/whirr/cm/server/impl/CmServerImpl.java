@@ -952,7 +952,9 @@ public class CmServerImpl implements CmServer {
   private ApiCommand execute(String label, ApiCommand command, Callback callback, boolean checkReturn)
       throws InterruptedException {
 
-    logger.logOperationStartedAsync(WordUtils.capitalize(label.replace("-", " ").replace("_", " ")).replace(" ", ""));
+    label = WordUtils.capitalize(label.replace("-", " ").replace("_", " ")).replace(" ", "");
+    
+    logger.logOperationStartedAsync(label);
 
     ApiCommand commandReturn = null;
     while (true) {
