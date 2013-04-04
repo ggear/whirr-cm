@@ -24,49 +24,61 @@ import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
 import com.cloudera.whirr.cm.cmd.CmServerListServicesCommand;
-import com.cloudera.whirr.cm.server.CmServerException;
 
 public class CmServerCommandTest extends BaseTestIntegrationCommand {
 
   @Test
-  public void testClean() throws CmServerException {
+  public void testClean() throws Exception {
     Assert.assertTrue(true);
   }
 
   @Test
-  public void testCommandCreateServices() throws CmServerException {
-    Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(cluster, command));
+  public void testCommandCreateServices() throws Exception {
+    Assert.assertEquals(0,
+        new CmServerCreateServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
   }
 
   @Test
-  public void testCommandDestroyServices() throws CmServerException {
+  public void testCommandDestroyServices() throws Exception {
     Assert.assertTrue(serverBootstrap.configure(cluster));
-    Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(cluster, command));
+    Assert.assertEquals(0,
+        new CmServerDestroyServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
   }
 
   @Test
-  public void testCommandDownloadConfig() throws CmServerException {
+  public void testCommandDownloadConfig() throws Exception {
     Assert.assertTrue(serverBootstrap.configure(cluster));
-    Assert.assertEquals(0, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
+    Assert.assertEquals(0,
+        new CmServerDownloadConfigCommand(null, null).run(user, server, agents, nodes, cluster, command));
   }
 
   @Test
-  public void testListServicesConfig() throws CmServerException {
+  public void testListServicesConfig() throws Exception {
     Assert.assertTrue(serverBootstrap.configure(cluster));
-    Assert.assertEquals(0, new CmServerListServicesCommand(null, null).run(cluster, command));
+    Assert.assertEquals(0,
+        new CmServerListServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
   }
 
   @Test
-  public void testCommandLifecycle() throws CmServerException {
-    Assert.assertEquals(0, new CmServerListServicesCommand(null, null).run(cluster, command));
-    Assert.assertEquals(-1, new CmServerDestroyServicesCommand(null, null).run(cluster, command));
-    Assert.assertEquals(-1, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
-    Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(cluster, command));
-    Assert.assertEquals(-1, new CmServerCreateServicesCommand(null, null).run(cluster, command));
-    Assert.assertEquals(0, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
-    Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(cluster, command));
-    Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(cluster, command));
-    Assert.assertEquals(0, new CmServerListServicesCommand(null, null).run(cluster, command));
+  public void testCommandLifecycle() throws Exception {
+    Assert.assertEquals(0,
+        new CmServerListServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(-1,
+        new CmServerDestroyServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(-1,
+        new CmServerDownloadConfigCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(0,
+        new CmServerCreateServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(-1,
+        new CmServerCreateServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(0,
+        new CmServerDownloadConfigCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(0,
+        new CmServerDestroyServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(0,
+        new CmServerCreateServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
+    Assert.assertEquals(0,
+        new CmServerListServicesCommand(null, null).run(user, server, agents, nodes, cluster, command));
   }
 
 }

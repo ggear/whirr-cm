@@ -18,13 +18,13 @@
 package com.cloudera.whirr.cm.cmd;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.state.ClusterStateStoreFactory;
 
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerCommand;
-import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 
@@ -46,11 +46,31 @@ public class CmServerListServicesCommand extends BaseCommandCmServer {
   }
 
   @Override
-  public int run(CmServerCluster cluster, CmServerCommand serverCommand) throws CmServerException {
+  public int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
+      CmServerCommand serverCommand) throws Exception {
 
     CmServerCluster commandReturnCluster = serverCommand.command("services").executeCluster();
+    
+    logger.logOperationInProgressSync(getLabel(), "CM SERVER");
+    logger.logOperationInProgressSync(getLabel(), "  http://" + cmServer + ":7180");
+    logger.logOperationInProgressSync(getLabel(), "  ssh -o StrictHostKeyChecking=no " + user + "@" + cmServer);
+
+    if (!cmAgents.isEmpty()) {
+      logger.logOperationInProgressSync(getLabel(), "CM AGENTS");
+    }
+    for (String cmAgent : cmAgents) {
+      logger.logOperationInProgressSync(getLabel(), "  ssh -o StrictHostKeyChecking=no " + user + "@" + cmAgent);
+    }
+
+    if (!cmNodes.isEmpty()) {
+      logger.logOperationInProgressSync(getLabel(), "CM NODES");
+    }
+    for (String cmNode : cmNodes) {
+      logger.logOperationInProgressSync(getLabel(), "  ssh -o StrictHostKeyChecking=no " + user + "@" + cmNode);
+    }
+
     if (commandReturnCluster.isEmpty()) {
-      logger.logOperationInProgressSync(getLabel(), "NONE");
+      logger.logOperationInProgressSync(getLabel(), "NO CDH SERVICES");
     } else {
       for (CmServerServiceType type : commandReturnCluster.getServiceTypes()) {
         logger.logOperationInProgressSync(getLabel(), type.toString());

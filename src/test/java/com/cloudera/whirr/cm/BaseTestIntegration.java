@@ -40,7 +40,7 @@ import com.google.common.collect.ImmutableSet;
 public class BaseTestIntegration implements BaseTest {
 
   // The CM Server and database host and port
-  protected static String CM_HOST = getSystemProperty("whirr.test.cm.host", "31-222-163-86.static.cloud-ips.co.uk");
+  protected static String CM_HOST = getSystemProperty("whirr.test.cm.host", "31-222-162-46.static.cloud-ips.co.uk");
   protected static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
 
   // The CM Server config to be uploaded
@@ -51,6 +51,7 @@ public class BaseTestIntegration implements BaseTest {
 
   protected static CmServer serverBootstrap;
   protected static CmServerCluster cluster;
+  protected static Set<String> hosts;
   protected static int clusterSize;
 
   @BeforeClass
@@ -58,7 +59,7 @@ public class BaseTestIntegration implements BaseTest {
     Assert.assertNotNull(serverBootstrap = CmServerFactory.getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
         CmServerHandler.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false)));
     Assert.assertTrue(serverBootstrap.initialise(CM_CONFIG).size() > 0);
-    Set<String> hosts = new HashSet<String>();
+    hosts = new HashSet<String>();
     for (CmServerService service : serverBootstrap.getServiceHosts()) {
       hosts.add(service.getHost());
     }

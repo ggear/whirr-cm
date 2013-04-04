@@ -17,6 +17,9 @@
  */
 package com.cloudera.whirr.cm.cmd.integration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 
 import com.cloudera.whirr.cm.BaseTestIntegration;
@@ -26,12 +29,18 @@ import com.cloudera.whirr.cm.server.CmServerException;
 public abstract class BaseTestIntegrationCommand extends BaseTestIntegration {
 
   protected CmServerCommand command;
+  protected String user = "whirr";
+  protected String server = null;
+  protected List<String> agents = new ArrayList<String>();
+  protected List<String> nodes = new ArrayList<String>();
 
   @Override
   @Before
   public void provisionCluster() throws CmServerException {
     super.provisionCluster();
     command = CmServerCommand.get().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath());
+    server = CM_HOST;
+    agents.addAll(hosts);
   }
 
 }

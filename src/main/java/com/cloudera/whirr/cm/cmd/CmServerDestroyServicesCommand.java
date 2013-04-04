@@ -18,6 +18,7 @@
 package com.cloudera.whirr.cm.cmd;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.state.ClusterStateStoreFactory;
@@ -49,7 +50,8 @@ public class CmServerDestroyServicesCommand extends BaseCommandCmServer {
   }
   
   @Override
-  public int run(CmServerCluster cluster, CmServerCommand serverCommand) throws CmServerException {
+  public int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
+      CmServerCommand serverCommand) throws Exception {
     return serverCommand.command("unconfigure").executeBoolean() ? 0 : -1;
   }
 
