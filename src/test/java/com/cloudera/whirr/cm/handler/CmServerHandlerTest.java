@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
+import com.cloudera.whirr.cm.handler.cdh.CmCdhFlumeAgentHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseMasterHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseRegionServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsDataNodeHandler;
@@ -42,6 +43,7 @@ import com.cloudera.whirr.cm.handler.cdh.CmCdhMapReduceJobTrackerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhMapReduceTaskTrackerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhOozieServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhZookeeperServerHandler;
+import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -92,13 +94,15 @@ public class CmServerHandlerTest extends BaseTestHandler {
                     + CmCdhHueServerHandler.ROLE + "+" + CmCdhHueBeeswaxServerHandler.ROLE + "+"
                     + CmCdhMapReduceJobTrackerHandler.ROLE + "+" + CmCdhHBaseMasterHandler.ROLE + "+"
                     + CmCdhHiveMetaStoreHandler.ROLE + "+" + CmCdhImpalaStateStoreHandler.ROLE + "+"
-                    + CmCdhOozieServerHandler.ROLE + ",3 "
-                    + CmAgentHandler.ROLE + "+" + CmCdhHdfsDataNodeHandler.ROLE + "+" + CmCdhMapReduceTaskTrackerHandler.ROLE + "+"
-                    + CmCdhZookeeperServerHandler.ROLE + "+" + CmCdhHBaseRegionServerHandler.ROLE + "+"
-                    + CmCdhImpalaDaemonHandler.ROLE,
+                    + CmCdhOozieServerHandler.ROLE + ",3 " + CmAgentHandler.ROLE + "+" + CmCdhHdfsDataNodeHandler.ROLE
+                    + "+" + CmCdhMapReduceTaskTrackerHandler.ROLE + "+" + CmCdhZookeeperServerHandler.ROLE + "+"
+                    + CmCdhHBaseRegionServerHandler.ROLE + "+" + CmCdhImpalaDaemonHandler.ROLE + "+"
+                    + CmCdhFlumeAgentHandler.ROLE,
                 CmConstants.CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
                 "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/\\,http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"))));
-    Assert.assertEquals(8, BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes().size());
+    Assert.assertEquals(9, BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes().size());
+    Assert.assertEquals(15,
+        BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(CmServerServiceType.CLUSTER).size());
   }
 
   @Test

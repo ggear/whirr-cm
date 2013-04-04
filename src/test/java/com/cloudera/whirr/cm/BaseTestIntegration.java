@@ -86,6 +86,7 @@ public class BaseTestIntegration implements BaseTest {
       cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
       cluster.add(new CmServerService(CmServerServiceType.ZOOKEEPER_SERVER, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
       cluster.add(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
+      cluster.add(new CmServerService(CmServerServiceType.FLUME_AGENT, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
     }
   }
 
