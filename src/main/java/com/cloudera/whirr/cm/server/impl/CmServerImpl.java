@@ -61,10 +61,10 @@ import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.whirr.cm.server.CmServer;
-import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerCluster;
-import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerCommand.CmServerCommandMethod;
+import com.cloudera.whirr.cm.server.CmServerException;
+import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.CmServerServiceTypeRepo;
@@ -518,6 +518,7 @@ public class CmServerImpl implements CmServer {
   }
 
   @Override
+  @CmServerCommandMethod(name = "unconfigure")
   public boolean unconfigure(final CmServerCluster cluster) throws CmServerException {
 
     boolean executed = false;
@@ -634,8 +635,7 @@ public class CmServerImpl implements CmServer {
     execute("WaitForParcelsAvailability", new Callback() {
       @Override
       public boolean poll() {
-        Set<CmServerServiceTypeRepo> repositoriesNotLoaded = new HashSet<CmServerServiceTypeRepo>(
-            repositoriesRequired);
+        Set<CmServerServiceTypeRepo> repositoriesNotLoaded = new HashSet<CmServerServiceTypeRepo>(repositoriesRequired);
         for (ApiParcel parcel : apiResourceRoot.getClustersResource().getParcelsResource(getName(cluster))
             .readParcels(DataView.FULL).getParcels()) {
           try {
@@ -953,7 +953,7 @@ public class CmServerImpl implements CmServer {
       throws InterruptedException {
 
     label = WordUtils.capitalize(label.replace("-", " ").replace("_", " ")).replace(" ", "");
-    
+
     logger.logOperationStartedAsync(label);
 
     ApiCommand commandReturn = null;

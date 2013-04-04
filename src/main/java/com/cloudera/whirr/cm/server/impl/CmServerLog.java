@@ -318,11 +318,11 @@ public abstract class CmServerLog {
         command.execute();
       } catch (Exception e) {
         failed = true;
-        logOperation(". failed");
+        logOperation(".. failed");
         e.printStackTrace();
       }
       if (!failed) {
-        logOperation(". finished");
+        logOperation(".. finished");
       }
     }
 
@@ -338,18 +338,18 @@ public abstract class CmServerLog {
 
     @Override
     public void logOperationFailedAsync(String operation) {
-      logOperation("failed");
+      logOperation(".. failed");
     }
 
     @Override
     public void logOperationFailedAsync(String operation, Throwable throwable) {
-      logOperation(". failed");
+      logOperation(".. failed");
       logOperationStackTrace(operation, throwable);
     }
 
     @Override
     public void logOperationFinishedAsync(String operation) {
-      logOperation(". finished");
+      logOperation(".. finished");
     }
 
     @Override

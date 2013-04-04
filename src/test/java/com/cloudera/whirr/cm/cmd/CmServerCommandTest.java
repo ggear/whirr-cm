@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,13 +50,13 @@ import com.google.common.collect.Lists;
 
 public class CmServerCommandTest extends BaseTestCommand {
 
-  private static final List<Class<? extends BaseCommand>> COMMANDS = ImmutableList
-      .<Class<? extends BaseCommand>> of(CmServerDownloadConfigCommand.class);
+  private static final List<Class<? extends BaseCommand>> COMMANDS = ImmutableList.<Class<? extends BaseCommand>> of(
+      CmServerDownloadConfigCommand.class, CmServerCreateServicesCommand.class, CmServerDestroyServicesCommand.class);
 
   @Test
   public void testCommandServiceLoader() throws Exception {
 
-    Set<Class<? extends BaseCommand>> commands = new HashSet<Class<? extends BaseCommand>>();
+    List<Class<? extends BaseCommand>> commands = new ArrayList<Class<? extends BaseCommand>>();
     for (Command command : ServiceLoader.load(Command.class)) {
       if (command instanceof BaseCommand) {
         commands.add(((BaseCommand) command).getClass());

@@ -26,23 +26,23 @@ import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerCommand;
 import com.cloudera.whirr.cm.server.CmServerException;
 
-public class CmServerCreateServicesCommand extends BaseCommandCmServer {
+public class CmServerDestroyServicesCommand extends BaseCommandCmServer {
 
-  public CmServerCreateServicesCommand() throws IOException {
+  public CmServerDestroyServicesCommand() throws IOException {
     this(new ClusterControllerFactory());
   }
 
-  public CmServerCreateServicesCommand(ClusterControllerFactory factory) {
+  public CmServerDestroyServicesCommand(ClusterControllerFactory factory) {
     this(factory, new ClusterStateStoreFactory());
   }
 
-  public CmServerCreateServicesCommand(ClusterControllerFactory factory, ClusterStateStoreFactory stateStoreFactory) {
-    super("create-services", "Create the cluster services.", factory, stateStoreFactory);
+  public CmServerDestroyServicesCommand(ClusterControllerFactory factory, ClusterStateStoreFactory stateStoreFactory) {
+    super("destroy-services", "Terminate and cleanup resources for a service.", factory, stateStoreFactory);
   }
 
   @Override
   public int run(CmServerCluster cluster, CmServerCommand serverCommand) throws CmServerException {
-    return serverCommand.command("configure").executeBoolean() ? 0 : -1;
+    return serverCommand.command("unconfigure").executeBoolean() ? 0 : -1;
   }
 
 }

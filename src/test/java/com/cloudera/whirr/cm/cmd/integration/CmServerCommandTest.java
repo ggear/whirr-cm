@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
+import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
 import com.cloudera.whirr.cm.server.CmServerException;
 
@@ -37,17 +38,26 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
   }
 
   @Test
+  public void testCommandDestroyServices() throws CmServerException {
+    Assert.assertTrue(serverBootstrap.configure(cluster));
+    Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(cluster, command));
+  }
+
+  @Test
   public void testCommandDownloadConfig() throws CmServerException {
-    Assert.assertTrue(server.configure(cluster));
+    Assert.assertTrue(serverBootstrap.configure(cluster));
     Assert.assertEquals(0, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
   }
 
   @Test
   public void testCommandLifecycle() throws CmServerException {
+    Assert.assertEquals(-1, new CmServerDestroyServicesCommand(null, null).run(cluster, command));
     Assert.assertEquals(-1, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
     Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(cluster, command));
     Assert.assertEquals(-1, new CmServerCreateServicesCommand(null, null).run(cluster, command));
     Assert.assertEquals(0, new CmServerDownloadConfigCommand(null, null).run(cluster, command));
+    Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(cluster, command));
+    Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(cluster, command));
   }
 
 }

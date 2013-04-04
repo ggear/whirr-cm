@@ -17,8 +17,27 @@
  */
 package com.cloudera.whirr.cm.server.integration;
 
+import org.junit.Assert;
+import org.junit.BeforeClass;
+
 import com.cloudera.whirr.cm.BaseTestIntegration;
+import com.cloudera.whirr.cm.handler.CmServerHandler;
+import com.cloudera.whirr.cm.server.CmServer;
+import com.cloudera.whirr.cm.server.CmServerConstants;
+import com.cloudera.whirr.cm.server.CmServerException;
+import com.cloudera.whirr.cm.server.impl.CmServerFactory;
+import com.cloudera.whirr.cm.server.impl.CmServerLog;
 
 public class BaseTestIntegrationServer extends BaseTestIntegration {
+
+  protected static CmServer server;
+
+  @BeforeClass
+  public static void initialiseServer() throws CmServerException {
+    Assert
+        .assertNotNull(server = CmServerFactory.getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
+            CmServerHandler.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(CmServerConstants.LOG_TAG_CM_SERVER_API,
+                false)));
+  }
 
 }

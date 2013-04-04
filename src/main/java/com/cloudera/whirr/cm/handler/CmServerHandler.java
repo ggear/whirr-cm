@@ -109,18 +109,17 @@ public class CmServerHandler extends BaseHandlerCm {
             + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
     logLineItem("ClouderaManagerServer", "Web Console User/Password (change these!):");
     logLineItemDetail("ClouderaManagerServer", CM_USER + "/" + CM_PASSWORD);
-    logLineItem("ClouderaManagerServer", "Automatically provision and start Cloudera Manager services ["
-        + CONFIG_WHIRR_AUTO_VARIABLE + "],\n" + "progress via terminal (below) and web (above) consoles:");
+    logLineItem("ClouderaManagerServer", "Auto provision and start services:");
     logLineItemDetail("ClouderaManagerServer",
         "" + event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true));
 
-    logLineItemDetail("ClouderaManagerServer", "User:");
-    logLineItem("ClouderaManagerServer", event.getClusterSpec().getClusterUser());
-    logLineItemDetail("ClouderaManagerServer", "Private Key Path:");
-    logLineItem("ClouderaManagerServer", event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>" : event
+    logLineItem("ClouderaManagerServer", "User:");
+    logLineItemDetail("ClouderaManagerServer", event.getClusterSpec().getClusterUser());
+    logLineItem("ClouderaManagerServer", "Private Key Path:");
+    logLineItemDetail("ClouderaManagerServer", event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>" : event
         .getClusterSpec().getPrivateKeyFile().getCanonicalPath());
-    logLineItemDetail("ClouderaManagerServer", "Console:");
-    logLineItem("ClouderaManagerServer", "ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser()
+    logLineItem("ClouderaManagerServer", "Console:");
+    logLineItemDetail("ClouderaManagerServer", "ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser()
         + "@" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
 
     Set<Instance> nodes = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
@@ -149,8 +148,10 @@ public class CmServerHandler extends BaseHandlerCm {
 
       if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
-        logLineItem("ClouderaManagerClusterProvision", "Warning, Cloudera Manager services found but whirr property ["
-            + CONFIG_WHIRR_AUTO_VARIABLE + "]\n" + "set to false so not provsioning:");
+        logLineItem("ClouderaManagerClusterProvision", "Warning, services found, but whirr");
+        logLineItemDetail("ClouderaManagerClusterProvision", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
+        logLineItemDetail("ClouderaManagerClusterProvision", "set to false so not provsioning.");        
+        logLineItem("ClouderaManagerClusterProvision", "Roles:");
         for (String role : BaseHandlerCmCdh.getRoles()) {
           logLineItemDetail("ClouderaManagerClusterProvision", role);
         }
@@ -223,8 +224,11 @@ public class CmServerHandler extends BaseHandlerCm {
 
       if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
-        logLineItem("ClouderaManagerClusterStart", "Warning, Cloudera Manager services found but whirr property ["
-            + CONFIG_WHIRR_AUTO_VARIABLE + "]\n" + "set to false so not starting:");
+        logLineItem("ClouderaManagerClusterStart", "Warning, services found, but whirr");
+        logLineItemDetail("ClouderaManagerClusterStart", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
+        logLineItemDetail("ClouderaManagerClusterStart", "set to false so not starting:");
+
+        logLineItem("ClouderaManagerClusterStart", "Roles:");
         for (String role : BaseHandlerCmCdh.getRoles()) {
           logLineItemDetail("ClouderaManagerClusterStart", role);
         }

@@ -49,17 +49,17 @@ public class BaseTestIntegration implements BaseTest {
           "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/" + ","
               + "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"));
 
-  protected static CmServer server;
+  protected static CmServer serverBootstrap;
   protected static CmServerCluster cluster;
   protected static int clusterSize;
 
   @BeforeClass
   public static void initialiseCluster() throws CmServerException {
-    Assert.assertNotNull(server = CmServerFactory.getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
+    Assert.assertNotNull(serverBootstrap = CmServerFactory.getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
         CmServerHandler.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false)));
-    Assert.assertTrue(server.initialise(CM_CONFIG).size() > 0);
+    Assert.assertTrue(serverBootstrap.initialise(CM_CONFIG).size() > 0);
     Set<String> hosts = new HashSet<String>();
-    for (CmServerService service : server.getServiceHosts()) {
+    for (CmServerService service : serverBootstrap.getServiceHosts()) {
       hosts.add(service.getHost());
     }
     Assert.assertFalse(hosts.isEmpty());
@@ -92,26 +92,26 @@ public class BaseTestIntegration implements BaseTest {
   @Before
   public void provisionCluster() throws CmServerException {
     try {
-      server.unconfigure(cluster);
+      serverBootstrap.unconfigure(cluster);
     } catch (Exception e) {
       e.printStackTrace();
     }
     try {
-      server.provision(cluster);
+      serverBootstrap.provision(cluster);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    Assert.assertTrue(server.isProvisioned(cluster));
+    Assert.assertTrue(serverBootstrap.isProvisioned(cluster));
   }
 
   @After
   public void unconfigureCluster() throws CmServerException {
     try {
-      server.unconfigure(cluster);
+      serverBootstrap.unconfigure(cluster);
     } catch (Exception e) {
       e.printStackTrace();
     }
-    Assert.assertFalse(server.isConfigured(cluster));
+    Assert.assertFalse(serverBootstrap.isConfigured(cluster));
   }
 
   private static String getSystemProperty(String key, String value) {
