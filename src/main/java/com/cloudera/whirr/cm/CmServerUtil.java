@@ -43,8 +43,7 @@ public class CmServerUtil implements CmConstants {
         CmServerServiceType type = BaseHandlerCmCdh.getRoleToTypeGlobal().get(role);
         if (type != null) {
           CmServerService service = new CmServerService(type, clusterSpec.getConfiguration().getString(
-              CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT), ""
-              + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
+              CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT), "" + (cluster.getServices(type).size() + 1),
               instance.getPublicHostName(), instance.getPublicIp(), instance.getPrivateIp());
           cluster.add(service);
         }

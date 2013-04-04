@@ -79,7 +79,7 @@ public class CmServerImpl implements CmServer {
   private static final String CM_PARCEL_STAGE_DISTRIBUTED = "DISTRIBUTED";
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
 
-  private static int API_POLL_PERIOD_MS = 500;
+  private static int API_POLL_PERIOD_MS = 1000;
 
   private CmServerLog logger;
   final private RootResourceV3 apiResourceRoot;

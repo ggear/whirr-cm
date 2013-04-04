@@ -49,11 +49,15 @@ public class CmServerListServicesCommand extends BaseCommandCmServer {
   public int run(CmServerCluster cluster, CmServerCommand serverCommand) throws CmServerException {
 
     CmServerCluster commandReturnCluster = serverCommand.command("services").executeCluster();
-    for (CmServerServiceType type : commandReturnCluster.getServiceTypes()) {
-      logger.logOperationInProgressSync(getLabel(), type.toString());
-      for (CmServerService service : commandReturnCluster.getServices(type)) {
-        logger.logOperationInProgressSync(getLabel(), "  " + service.getName() + "@" + service.getHost() + "="
-            + service.getStatus());
+    if (commandReturnCluster.isEmpty()) {
+      logger.logOperationInProgressSync(getLabel(), "NONE");
+    } else {
+      for (CmServerServiceType type : commandReturnCluster.getServiceTypes()) {
+        logger.logOperationInProgressSync(getLabel(), type.toString());
+        for (CmServerService service : commandReturnCluster.getServices(type)) {
+          logger.logOperationInProgressSync(getLabel(), "  " + service.getName() + "@" + service.getHost() + "="
+              + service.getStatus());
+        }
       }
     }
 

@@ -30,7 +30,7 @@ public class CmServerDestroyServicesCommand extends BaseCommandCmServer {
 
   public static final String NAME = "destroy-services";
   public static final String DESCRIPTION = "Terminate and cleanup resources for a service.";
-  
+
   public CmServerDestroyServicesCommand() throws IOException {
     this(new ClusterControllerFactory());
   }
