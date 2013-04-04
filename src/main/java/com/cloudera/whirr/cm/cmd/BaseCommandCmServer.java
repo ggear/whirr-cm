@@ -60,11 +60,11 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     return false;
   }
 
-  public abstract int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
-      CmServerCommand serverCommand) throws Exception;
+  public abstract int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes,
+      CmServerCluster cluster, CmServerCommand serverCommand) throws Exception;
 
-  private OptionSpec<String> rolesOption = parser.accepts("roles", "Cluster roles to target").withRequiredArg()
-      .ofType(String.class);
+  private OptionSpec<String> rolesOption = isRoleFilterable() ? parser.accepts("roles", "Cluster roles to target")
+      .withRequiredArg().ofType(String.class) : null;
 
   @Override
   public int run(OptionSet optionSet, ClusterSpec clusterSpec, ClusterStateStore clusterStateStore,
@@ -78,7 +78,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
         roles.add(role);
       }
     }
-    
+
     String server = null;
     List<String> agents = new ArrayList<String>();
     List<String> nodes = new ArrayList<String>();

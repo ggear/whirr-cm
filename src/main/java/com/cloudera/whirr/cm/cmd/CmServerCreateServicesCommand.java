@@ -25,7 +25,6 @@ import org.apache.whirr.state.ClusterStateStoreFactory;
 
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerCommand;
-import com.cloudera.whirr.cm.server.CmServerException;
 
 public class CmServerCreateServicesCommand extends BaseCommandCmServer {
 

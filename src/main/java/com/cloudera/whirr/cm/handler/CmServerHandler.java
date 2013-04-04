@@ -37,6 +37,7 @@ import org.apache.whirr.service.FirewallManager.Rule;
 import com.cloudera.whirr.cm.CmServerUtil;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.server.CmServer;
+import com.cloudera.whirr.cm.server.CmServerConstants;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
@@ -116,11 +117,12 @@ public class CmServerHandler extends BaseHandlerCm {
     logLineItem("ClouderaManagerServer", "User:");
     logLineItemDetail("ClouderaManagerServer", event.getClusterSpec().getClusterUser());
     logLineItem("ClouderaManagerServer", "Private Key Path:");
-    logLineItemDetail("ClouderaManagerServer", event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>" : event
-        .getClusterSpec().getPrivateKeyFile().getCanonicalPath());
+    logLineItemDetail("ClouderaManagerServer", event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>"
+        : event.getClusterSpec().getPrivateKeyFile().getCanonicalPath());
     logLineItem("ClouderaManagerServer", "Console:");
-    logLineItemDetail("ClouderaManagerServer", "ssh -o StrictHostKeyChecking=no " + event.getClusterSpec().getClusterUser()
-        + "@" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
+    logLineItemDetail("ClouderaManagerServer", "ssh -o StrictHostKeyChecking=no "
+        + event.getClusterSpec().getClusterUser() + "@"
+        + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
 
     Set<Instance> nodes = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
     if (!nodes.isEmpty()) {
@@ -150,7 +152,7 @@ public class CmServerHandler extends BaseHandlerCm {
 
         logLineItem("ClouderaManagerClusterProvision", "Warning, services found, but whirr");
         logLineItemDetail("ClouderaManagerClusterProvision", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
-        logLineItemDetail("ClouderaManagerClusterProvision", "set to false so not provsioning.");        
+        logLineItemDetail("ClouderaManagerClusterProvision", "set to false so not provsioning.");
         logLineItem("ClouderaManagerClusterProvision", "Roles:");
         for (String role : BaseHandlerCmCdh.getRoles()) {
           logLineItemDetail("ClouderaManagerClusterProvision", role);
@@ -191,7 +193,8 @@ public class CmServerHandler extends BaseHandlerCm {
           }
 
           CmServer server = CmServerFactory.getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
-              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(false));
+              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(
+              CmServerConstants.LOG_TAG_CM_SERVER_API, false));
           server.initialise(config);
           server.provision(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
           server.configure(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
@@ -244,7 +247,8 @@ public class CmServerHandler extends BaseHandlerCm {
 
           logLineItem("ClouderaManagerClusterStart", "Start:");
           CmServer server = CmServerFactory.getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
-              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(false));
+              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(
+              CmServerConstants.LOG_TAG_CM_SERVER_API, false));
           server.start(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
 
         } catch (Exception e) {
