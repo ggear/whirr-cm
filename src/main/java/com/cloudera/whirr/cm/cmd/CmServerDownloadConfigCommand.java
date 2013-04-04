@@ -30,7 +30,7 @@ public class CmServerDownloadConfigCommand extends BaseCommandCmServer {
 
   public static final String NAME = "download-config";
   public static final String DESCRIPTION = "Download cluster config.";
-  
+
   public CmServerDownloadConfigCommand() throws IOException {
     this(new ClusterControllerFactory());
   }

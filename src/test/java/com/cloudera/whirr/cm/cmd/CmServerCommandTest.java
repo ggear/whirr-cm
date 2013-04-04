@@ -86,8 +86,7 @@ public class CmServerCommandTest extends BaseTestCommand {
         "--private-key-file", keys.get("private").getAbsolutePath()));
 
     assertThat(rc, is(-1));
-    assertThat(errBytes.toString(), containsString("Could not find cm-server in template."));
-
+    assertThat(errBytes.toString(), containsString("Could not find cm-server."));
     verify(factory).create("test-service");
   }
 
@@ -106,12 +105,16 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
     };
 
+    ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
+    PrintStream err = new PrintStream(errBytes);
+
     Map<String, File> keys = KeyPair.generateTemporaryFiles();
-    int rc = clusterCommand.run(null, System.out, System.err, Lists.newArrayList("--instance-templates", "1 noop",
+    int rc = clusterCommand.run(null, System.out, err, Lists.newArrayList("--instance-templates", "1 noop",
         "--service-name", "test-service", "--cluster-name", "test-cluster", "--identity", "myusername", "--quiet",
         "--private-key-file", keys.get("private").getAbsolutePath()));
 
-    assertThat(rc, is(0));
+    assertThat(rc, is(-1));
+    assertThat(errBytes.toString(), containsString("No appropriate roles found to target."));
     verify(factory).create("test-service");
 
   }
@@ -139,6 +142,74 @@ public class CmServerCommandTest extends BaseTestCommand {
         "--private-key-file", keys.get("private").getAbsolutePath()));
 
     assertThat(rc, is(0));
+    verify(factory).create("test-service");
+
+  }
+
+  @Test
+  public void testBaseCommandCmServerHdfsRolesFiltered() throws Exception {
+
+    initialiseCluster(new String[][] {
+        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsNameNodeHandler.ROLE,
+            CmCdhHdfsSecondaryNameNodeHandler.ROLE },
+        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
+
+    BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
+      @Override
+      public boolean isRoleFilterable() {
+        return true;
+      }
+
+      @Override
+      public int run(CmServerCluster cluster, CmServerCommand serverCommand) {
+        assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
+        assertThat(true, is(serverCommand != null));
+        return 0;
+      }
+    };
+
+    Map<String, File> keys = KeyPair.generateTemporaryFiles();
+    int rc = clusterCommand.run(null, System.out, System.err, Lists.newArrayList("--instance-templates", "1 noop",
+        "--service-name", "test-service", "--cluster-name", "test-cluster", "--identity", "myusername", "--roles",
+        CmCdhHdfsDataNodeHandler.ROLE, "--quiet", "--private-key-file", keys.get("private").getAbsolutePath()));
+
+    assertThat(rc, is(0));
+    verify(factory).create("test-service");
+
+  }
+
+  @Test
+  public void testBaseCommandCmServerHdfsRolesFilteredEroneous() throws Exception {
+
+    initialiseCluster(new String[][] {
+        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsNameNodeHandler.ROLE,
+            CmCdhHdfsSecondaryNameNodeHandler.ROLE },
+        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
+
+    BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
+      @Override
+      public boolean isRoleFilterable() {
+        return true;
+      }
+
+      @Override
+      public int run(CmServerCluster cluster, CmServerCommand serverCommand) {
+        assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
+        assertThat(true, is(serverCommand != null));
+        return 0;
+      }
+    };
+
+    ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
+    PrintStream err = new PrintStream(errBytes);
+
+    Map<String, File> keys = KeyPair.generateTemporaryFiles();
+    int rc = clusterCommand.run(null, System.out, err, Lists.newArrayList("--instance-templates", "1 noop",
+        "--service-name", "test-service", "--cluster-name", "test-cluster", "--identity", "myusername", "--roles",
+        "some-fake-role", "--quiet", "--private-key-file", keys.get("private").getAbsolutePath()));
+
+    assertThat(rc, is(-1));
+    assertThat(errBytes.toString(), containsString("No appropriate roles found to target."));
     verify(factory).create("test-service");
 
   }

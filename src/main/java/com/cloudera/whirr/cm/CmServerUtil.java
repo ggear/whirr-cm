@@ -19,6 +19,7 @@ package com.cloudera.whirr.cm;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.whirr.Cluster;
@@ -36,12 +37,16 @@ public class CmServerUtil implements CmConstants {
 
   public static CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Cluster.Instance> instances,
       CmServerCluster cluster) throws IOException, CmServerException {
+    return getCluster(clusterSpec, instances, cluster, Collections.<String> emptySet());
+  }
 
+  public static CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Cluster.Instance> instances,
+      CmServerCluster cluster, Set<String> roles) throws IOException, CmServerException {
     cluster = (cluster == null ? new CmServerCluster() : cluster);
     for (Instance instance : instances) {
       for (String role : instance.getRoles()) {
         CmServerServiceType type = BaseHandlerCmCdh.getRoleToTypeGlobal().get(role);
-        if (type != null) {
+        if (type != null && (roles == null || roles.isEmpty() || roles.contains(role))) {
           CmServerService service = new CmServerService(type, clusterSpec.getConfiguration().getString(
               CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT), "" + (cluster.getServices(type).size() + 1),
               instance.getPublicHostName(), instance.getPublicIp(), instance.getPrivateIp());
@@ -49,12 +54,10 @@ public class CmServerUtil implements CmConstants {
         }
       }
     }
-
     return cluster;
   }
 
   public static String getServerHost(Set<Cluster.Instance> instances) throws UnknownHostException {
-
     for (Instance instance : instances) {
       for (String role : instance.getRoles()) {
         if (role.equals(CmServerHandler.ROLE)) {
@@ -63,7 +66,6 @@ public class CmServerUtil implements CmConstants {
       }
     }
     throw new UnknownHostException("Could not find server host");
-
   }
 
 }

@@ -47,7 +47,7 @@ public abstract class BaseCommand extends AbstractClusterCommand implements CmCo
     super(name, description, factory);
   }
 
-  public abstract int run(ClusterSpec clusterSpec, ClusterStateStore clusterStateStore,
+  public abstract int run(OptionSet optionSet, ClusterSpec clusterSpec, ClusterStateStore clusterStateStore,
       ClusterController clusterController) throws Exception;
 
   public String getLabel() {
@@ -66,7 +66,7 @@ public abstract class BaseCommand extends AbstractClusterCommand implements CmCo
     try {
       ClusterSpec clusterSpec = getClusterSpec(optionSet);
       printProviderInfo(out, err, clusterSpec, optionSet);
-      return run(clusterSpec, createClusterStateStore(clusterSpec),
+      return run(optionSet, clusterSpec, createClusterStateStore(clusterSpec),
           createClusterController(clusterSpec.getServiceName()));
     } catch (Exception e) {
       printErrorAndHelpHint(err, e);

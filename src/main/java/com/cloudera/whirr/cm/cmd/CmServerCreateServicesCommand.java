@@ -44,6 +44,11 @@ public class CmServerCreateServicesCommand extends BaseCommandCmServer {
   }
 
   @Override
+  public boolean isRoleFilterable() {
+    return true;
+  }
+
+  @Override
   public int run(CmServerCluster cluster, CmServerCommand serverCommand) throws CmServerException {
     return serverCommand.command("configure").executeBoolean() ? 0 : -1;
   }

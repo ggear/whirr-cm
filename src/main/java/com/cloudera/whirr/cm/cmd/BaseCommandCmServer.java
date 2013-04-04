@@ -17,7 +17,14 @@
  */
 package com.cloudera.whirr.cm.cmd;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.UnknownHostException;
+import java.util.HashSet;
+import java.util.Set;
+
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import org.apache.whirr.ClusterController;
 import org.apache.whirr.ClusterControllerFactory;
@@ -30,6 +37,7 @@ import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerCommand;
 import com.cloudera.whirr.cm.server.CmServerException;
+import com.google.common.base.Splitter;
 
 public abstract class BaseCommandCmServer extends BaseCommand {
 
@@ -42,21 +50,38 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     super(name, description, factory);
   }
 
+  public boolean isRoleFilterable() {
+    return false;
+  }
+
   public abstract int run(CmServerCluster cluster, CmServerCommand serverCommand) throws Exception;
 
+  private OptionSpec<String> rolesOption = parser.accepts("roles", "Cluster roles to target").withRequiredArg()
+      .ofType(String.class);
+
   @Override
-  public int run(ClusterSpec clusterSpec, ClusterStateStore clusterStateStore, ClusterController clusterController)
-      throws Exception {
+  public int run(OptionSet optionSet, ClusterSpec clusterSpec, ClusterStateStore clusterStateStore,
+      ClusterController clusterController) throws Exception {
 
     String serverHost = null;
     try {
       serverHost = CmServerUtil.getServerHost(clusterController.getInstances(clusterSpec, clusterStateStore));
     } catch (UnknownHostException exception) {
-      throw new CmServerException("Could not find " + CmServerHandler.ROLE + " in template.");
+      throw new CmServerException("Could not find " + CmServerHandler.ROLE + ".");
+    }
+
+    Set<String> roles = new HashSet<String>();
+    if (isRoleFilterable() && optionSet.hasArgument(rolesOption)) {
+      for (String role : Splitter.on(",").split(optionSet.valueOf(rolesOption))) {
+        roles.add(role);
+      }
     }
 
     CmServerCluster cluster = CmServerUtil.getCluster(clusterSpec,
-        clusterController.getInstances(clusterSpec, clusterStateStore), new CmServerCluster());
+        clusterController.getInstances(clusterSpec, clusterStateStore), new CmServerCluster(), roles);
+    if (cluster.isEmpty()) {
+      throw new CmServerException("No appropriate roles found to target.");
+    }
 
     CmServerCommand command = CmServerCommand.get().host(serverHost).cluster(cluster)
         .client(clusterSpec.getClusterDirectory().getAbsolutePath());
@@ -68,6 +93,17 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     logger.logOperationFinishedSync(getLabel());
 
     return returnInt;
+  }
+
+  @Override
+  public void printUsage(PrintStream stream) throws IOException {
+    if (isRoleFilterable()) {
+      stream.println("Usage: whirr " + getName() + " [OPTIONS] [--roles role1,role2]");
+      stream.println();
+      parser.printHelpOn(stream);
+    } else {
+      super.printUsage(stream);
+    }
   }
 
 }

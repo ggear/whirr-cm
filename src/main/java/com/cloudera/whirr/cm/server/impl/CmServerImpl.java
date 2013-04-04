@@ -394,6 +394,7 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFinishedSync("ClusterInitialise");
 
     } catch (Exception e) {
+      logger.logOperationFailedSync("ClusterInitialise");
       throw new CmServerException("Failed to initialise cluster", e);
     }
     return configPostUpdate;
@@ -418,6 +419,7 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFinishedSync("ClusterProvision");
 
     } catch (Exception e) {
+      logger.logOperationFailedSync("ClusterProvision");
       throw new CmServerException("Failed to provision cluster", e);
     }
 
@@ -445,6 +447,7 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFinishedSync("ClusterConfigure");
 
     } catch (Exception e) {
+      logger.logOperationFailedSync("ClusterConfigure");
       throw new CmServerException("Failed to configure cluster", e);
     }
 
@@ -484,6 +487,7 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFinishedSync("ClusterStart");
 
     } catch (Exception e) {
+      logger.logOperationFailedSync("ClusterStart");
       throw new CmServerException("Failed to start cluster", e);
     }
 
@@ -511,6 +515,7 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFinishedSync("ClusterStop");
 
     } catch (Exception e) {
+      logger.logOperationFailedSync("ClusterStop");
       throw new CmServerException("Failed to stop cluster", e);
     }
 
@@ -537,6 +542,7 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFinishedSync("ClusterUnConfigure");
 
     } catch (Exception e) {
+      logger.logOperationFailedSync("ClusterUnConfigure");
       throw new CmServerException("Failed to unconfigure cluster", e);
     }
 
@@ -564,6 +570,7 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFinishedSync("ClusterUnProvision");
 
     } catch (Exception e) {
+      logger.logOperationFailedSync("ClusterUnProvision");
       throw new CmServerException("Failed to unprovision cluster", e);
     }
 

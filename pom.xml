@@ -176,6 +176,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.whirr</groupId>
+			<artifactId>whirr-cli</artifactId>
+			<version>${whirr.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.whirr</groupId>
 			<artifactId>whirr-cdh</artifactId>
 			<version>${whirr.version}</version>
 			<scope>provided</scope>

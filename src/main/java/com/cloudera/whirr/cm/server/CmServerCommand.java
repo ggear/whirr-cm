@@ -168,7 +168,7 @@ public class CmServerCommand {
   }
 
   public CmServerCommand cluster(CmServerCluster cluster) throws CmServerException {
-    if (cluster == null) {
+    if (cluster == null || cluster.isEmpty()) {
       throw new CmServerException("Illegal cluster argument passed [" + cluster + "]");
     }
     this.cluster = cluster;
@@ -243,9 +243,10 @@ public class CmServerCommand {
         throw new CmServerException("Unexpected paramater type [" + clazz.getName() + "]");
       }
     }
-    try {
 
-      String label = WordUtils.capitalize(command);
+    String label = WordUtils.capitalize(command);
+
+    try {
 
       logger.logOperationStartedSync(label);
 
@@ -256,7 +257,11 @@ public class CmServerCommand {
       return commandReturn;
 
     } catch (Exception exception) {
-      throw new CmServerException("Unexpected runtime exception executing CM Server", exception);
+
+      logger.logOperationFailedSync(label, exception);
+
+      throw new CmServerException("Unexpected runtime exception executing CM Server command", exception);
+
     }
   }
 
