@@ -226,7 +226,7 @@ public class CmServerHandler extends BaseHandlerCm {
 
         logLineItem("ClouderaManagerClusterStart", "Warning, services found, but whirr");
         logLineItemDetail("ClouderaManagerClusterStart", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
-        logLineItemDetail("ClouderaManagerClusterStart", "set to false so not starting:");
+        logLineItemDetail("ClouderaManagerClusterStart", "set to false so not starting.");
 
         logLineItem("ClouderaManagerClusterStart", "Roles:");
         for (String role : BaseHandlerCmCdh.getRoles()) {
