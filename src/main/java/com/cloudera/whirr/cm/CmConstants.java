@@ -17,7 +17,9 @@
  */
 package com.cloudera.whirr.cm;
 
-public interface CmConstants {
+import com.cloudera.whirr.cm.server.CmServerConstants;
+
+public interface CmConstants extends CmServerConstants {
 
   public static final String CONFIG_WHIRR_NAME = "whirr.cluster-name";
   public static final String CONFIG_WHIRR_AUTO_VARIABLE = "whirr.env.cmauto";

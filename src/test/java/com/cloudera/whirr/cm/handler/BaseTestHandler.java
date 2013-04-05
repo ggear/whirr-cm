@@ -38,8 +38,8 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
       ConfigurationException, JSchException {
     ClusterSpec clusterSpec = super.newClusterSpecForProperties(ImmutableMap.<String, String> builder()
         .putAll(properties).put("whirr.cluster-user", CLUSTER_USER)
-        .put(CmConstants.CONFIG_WHIRR_NAME, CmConstants.CONFIG_WHIRR_NAME_DEFAULT)
-        .put(CmConstants.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()).build());
+        .put(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT)
+        .put(CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()).build());
     clusterSpec.setPrivateKey(FILE_KEY_PRIVATE);
     clusterSpec.setPublicKey(FILE_KEY_PUBLIC);
     return clusterSpec;

@@ -98,7 +98,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
                     + "+" + CmCdhMapReduceTaskTrackerHandler.ROLE + "+" + CmCdhZookeeperServerHandler.ROLE + "+"
                     + CmCdhHBaseRegionServerHandler.ROLE + "+" + CmCdhImpalaDaemonHandler.ROLE + "+"
                     + CmCdhFlumeAgentHandler.ROLE,
-                CmConstants.CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
+                CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
                 "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/\\,http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"))));
     Assert.assertEquals(9, BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes().size());
     Assert.assertEquals(15,
@@ -111,7 +111,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
     try {
       Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
           "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmCdhHdfsNameNodeHandler.ROLE,
-          CmConstants.CONFIG_WHIRR_AUTO_VARIABLE, Boolean.TRUE.toString()))));
+          CONFIG_WHIRR_AUTO_VARIABLE, Boolean.TRUE.toString()))));
     } catch (Exception e) {
       caught = true;
     }
@@ -138,7 +138,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
       ClusterSpec clusterSpec = newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
           + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
           + CmCdhHdfsNameNodeHandler.ROLE));
-      clusterSpec.getConfiguration().setProperty(CmConstants.CONFIG_WHIRR_NAME, "some_cluster_name");
+      clusterSpec.getConfiguration().setProperty(CONFIG_WHIRR_NAME, "some_cluster_name");
       Assert.assertNotNull(launchWithClusterSpec(clusterSpec));
     } catch (Exception e) {
       caught = true;

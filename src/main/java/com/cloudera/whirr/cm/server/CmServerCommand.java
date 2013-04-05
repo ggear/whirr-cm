@@ -39,7 +39,7 @@ import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerImpl;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 
-public class CmServerCommand {
+public class CmServerCommand implements CmServerConstants {
 
   public static final String ARGUMENT_PREFIX = "--";
 
@@ -59,7 +59,7 @@ public class CmServerCommand {
 
   private CmServerCluster cluster;
 
-  private CmServerLog logger = new CmServerLog.CmServerLogSysOut(CmServerConstants.LOG_TAG_CM_SERVER_CMD, false);
+  private CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_CMD, false);
 
   private CmServer server;
 
@@ -225,7 +225,7 @@ public class CmServerCommand {
     }
     if (server == null) {
       server = CmServerFactory.getCmServer(host, port, user, password, new CmServerLog.CmServerLogSysOut(
-          CmServerConstants.LOG_TAG_CM_SERVER_API, false));
+          LOG_TAG_CM_SERVER_API, false));
     }
     List<Object> paramaters = new ArrayList<Object>();
     for (Class<?> clazz : COMMANDS.get(command).getParameterTypes()) {
