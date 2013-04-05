@@ -26,7 +26,6 @@ import org.apache.whirr.ClusterSpec;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhFlumeAgentHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseMasterHandler;

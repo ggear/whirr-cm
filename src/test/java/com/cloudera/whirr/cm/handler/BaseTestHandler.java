@@ -26,7 +26,6 @@ import org.apache.whirr.service.BaseServiceDryRunTest;
 import org.junit.Before;
 
 import com.cloudera.whirr.cm.BaseTest;
-import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.google.common.collect.ImmutableMap;
 import com.jcraft.jsch.JSchException;
