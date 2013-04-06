@@ -17,14 +17,9 @@
  */
 package com.cloudera.whirr.cm.handler;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +28,7 @@ import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.BaseServiceDryRunTest;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.Mockito;
 
 import com.cloudera.whirr.cm.BaseTest;
 import com.cloudera.whirr.cm.CmServerClusterInstance;
@@ -43,6 +39,7 @@ import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
+import com.cloudera.whirr.cm.server.impl.CmServerLog.CmServerLogSyncCommand;
 import com.google.common.collect.ImmutableMap;
 import com.jcraft.jsch.JSchException;
 
@@ -51,104 +48,104 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   @BeforeClass
   public static void mockCmServer() {
 
-    CmServerFactory factory = mock(CmServerFactory.class);
+    CmServerFactory factory = Mockito.mock(CmServerFactory.class);
     CmServerClusterInstance.getFactory(factory);
 
-    when(factory.getCmServer(anyString(), anyInt(), anyString(), anyString(), (CmServerLog) any())).thenReturn(
-        new CmServer() {
+    Mockito.when(
+        factory.getCmServer(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(),
+            Mockito.<CmServerLog> any())).thenReturn(new CmServer() {
 
-          @Override
-          public boolean getServiceConfigs(CmServerCluster cluster, File directory) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean getServiceConfigs(CmServerCluster cluster, File directory) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public List<CmServerService> getServiceHosts() throws CmServerException {
-            return null;
-          }
+      @Override
+      public List<CmServerService> getServiceHosts() throws CmServerException {
+        return any(Collections.emptyList());
+      }
 
-          @Override
-          public CmServerService getServiceHost(CmServerService service) throws CmServerException {
-            return null;
-          }
+      @Override
+      public CmServerService getServiceHost(CmServerService service) throws CmServerException {
+        return any(null);
+      }
 
-          @Override
-          public CmServerService getServiceHost(CmServerService service, List<CmServerService> services)
-              throws CmServerException {
-            return null;
-          }
+      @Override
+      public CmServerService getServiceHost(CmServerService service, List<CmServerService> services)
+          throws CmServerException {
+        return any(null);
+      }
 
-          @Override
-          public CmServerCluster getServices(CmServerCluster cluster) throws CmServerException {
-            return null;
-          }
+      @Override
+      public CmServerCluster getServices(CmServerCluster cluster) throws CmServerException {
+        return any(new CmServerCluster());
+      }
 
-          @Override
-          public CmServerService getService(CmServerCluster cluster, CmServerServiceType type) throws CmServerException {
-            return null;
-          }
+      @Override
+      public CmServerService getService(CmServerCluster cluster, CmServerServiceType type) throws CmServerException {
+        return any(null);
+      }
 
-          @Override
-          public CmServerCluster getServices(CmServerCluster cluster, CmServerServiceType type)
-              throws CmServerException {
-            return null;
-          }
+      @Override
+      public CmServerCluster getServices(CmServerCluster cluster, CmServerServiceType type) throws CmServerException {
+        return any(new CmServerCluster());
+      }
 
-          @Override
-          public boolean isProvisioned(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean isProvisioned(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean isConfigured(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean isConfigured(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean isStarted(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean isStarted(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean isStopped(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean isStopped(CmServerCluster cluster) throws CmServerException {
+        return any(false);
+      }
 
-          @Override
-          public Map<String, String> initialise(Map<String, String> config) throws CmServerException {
-            return null;
-          }
+      @Override
+      public Map<String, String> initialise(Map<String, String> config) throws CmServerException {
+        return any(Collections.emptyMap());
+      }
 
-          @Override
-          public boolean provision(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean provision(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean configure(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean configure(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean start(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean start(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean stop(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean stop(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean unconfigure(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
+      @Override
+      public boolean unconfigure(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
 
-          @Override
-          public boolean unprovision(CmServerCluster cluster) throws CmServerException {
-            return false;
-          }
-        });
+      @Override
+      public boolean unprovision(CmServerCluster cluster) throws CmServerException {
+        return any(true);
+      }
+    });
 
   }
 
@@ -166,6 +163,20 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   @Before
   public void clearClusterSingleton() {
     CmServerClusterInstance.getCluster(true);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T any(Object value) {
+    logNoOp();
+    return (T) value;
+  }
+
+  private static void logNoOp() {
+    new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false).logOperation("NoOp", new CmServerLogSyncCommand() {
+      @Override
+      public void execute() throws Exception {
+      }
+    });
   }
 
 }

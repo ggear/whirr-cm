@@ -40,7 +40,6 @@ import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
-import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
@@ -169,7 +168,7 @@ public class CmServerHandler extends BaseHandlerCm {
 
           logLineItem("ClouderaManagerClusterProvision", "Roles:");
 
-          CmServerClusterInstance.getCluster(event.getClusterSpec(), event.getCluster().getInstances());                   
+          CmServerClusterInstance.getCluster(event.getClusterSpec(), event.getCluster().getInstances());
 
           if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
             CmServerClusterInstance.getCluster().setIsParcel(false);
@@ -195,17 +194,23 @@ public class CmServerHandler extends BaseHandlerCm {
             }
           }
 
-          CmServer server = CmServerClusterInstance.getFactory().getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
-              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API,
-              false));
+          CmServer server = CmServerClusterInstance.getFactory().getCmServer(
+              event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
+              new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
           server.initialise(config);
-          server.provision(CmServerClusterInstance.getCluster());
-          server.configure(CmServerClusterInstance.getCluster());
-          server.getServiceConfigs(CmServerClusterInstance.getCluster(), event.getClusterSpec().getClusterDirectory());
+          if (server.configure(CmServerClusterInstance.getCluster())) {
+            if (!server.getServiceConfigs(CmServerClusterInstance.getCluster(), event.getClusterSpec()
+                .getClusterDirectory())) {
+              throw new CmServerException("Unexepcted error attempting to download cluster config");
+            }
+          } else {
+            throw new CmServerException("Unexepcted error attempting to configure cluster");
+          }
 
         } catch (Exception e) {
 
           logException(
+              "ClouderaManagerClusterProvision",
               "Failed to execute Cloudera Manager Cluster Provision, please review the proceeding exception and log into the web console [http://"
                   + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
                   + ":"
@@ -240,22 +245,27 @@ public class CmServerHandler extends BaseHandlerCm {
 
       } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
+        logLineItem("ClouderaManagerClusterStart", "Services:");
+        for (CmServerServiceType type : CmServerClusterInstance.getCluster().getServiceTypes()) {
+          logLineItemDetail("ClouderaManagerClusterStart", type.toString());
+        }
+
         try {
 
-          logLineItem("ClouderaManagerClusterStart", "Services:");
-          for (CmServerServiceType type : CmServerClusterInstance.getCluster().getServiceTypes()) {
-            logLineItemDetail("ClouderaManagerClusterStart", type.toString());
-          }
-
           logLineItem("ClouderaManagerClusterStart", "Start:");
-          CmServer server = CmServerClusterInstance.getFactory().getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
-              .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API,
-              false));
-          server.start(CmServerClusterInstance.getCluster());
+          CmServer server = CmServerClusterInstance.getFactory().getCmServer(
+              event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
+              new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
+          if (server.isConfigured(CmServerClusterInstance.getCluster())) {
+            server.start(CmServerClusterInstance.getCluster());
+          } else {
+            throw new CmServerException("Unexpected error starting cluster, not correctly provisioned");
+          }
 
         } catch (Exception e) {
 
           logException(
+              "ClouderaManagerClusterStart",
               "Failed to execute Cloudera Manager Cluster Start, please review the proceeding exception and log into the web console [http://"
                   + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
                   + ":"

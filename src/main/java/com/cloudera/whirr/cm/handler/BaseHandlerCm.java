@@ -110,10 +110,10 @@ public abstract class BaseHandlerCm extends BaseHandler {
     logger.logOperationInProgressSync(operation, detail);
   }
 
-  public void logException(String message, Throwable throwable) {
+  public void logException(String operation, String message, Throwable throwable) {
+    logger.logOperationInProgressSync(operation, "Failed");
+    logger.logOperationStackTrace(operation, throwable);
     logger.logSpacer();
-    logger.logOperationStackTrace(throwable);
-    logger.logSpacer();
-    logger.logOperation("", message);
+    logger.logOperation(operation, message);
   }
 }
