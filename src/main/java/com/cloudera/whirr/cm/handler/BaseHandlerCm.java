@@ -35,7 +35,7 @@ public abstract class BaseHandlerCm extends BaseHandler {
   public static final String DATA_DIRS_ROOT = "cm.data.dirs.root";
   public static final String DATA_DIRS_DEFAULT = "cm.data.dirs.default";
 
-  private static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_WHIRR_HANDLER, false);
+  protected static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_WHIRR_HANDLER, false);
 
   protected Map<String, String> deviceMappings = new HashMap<String, String>();
 

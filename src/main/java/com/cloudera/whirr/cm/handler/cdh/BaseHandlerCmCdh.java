@@ -22,13 +22,9 @@ import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandler;
@@ -45,8 +41,6 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
 
   public abstract CmServerServiceType getType();
 
-  private static ConcurrentMap<String, CmServerServiceType> roleToType = new ConcurrentHashMap<String, CmServerServiceType>();
-
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
@@ -58,7 +52,6 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
-    roleToType.putIfAbsent(getRole(), getType());
     if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
       addStatement(event, call("register_cdh_repo"));
       addStatement(event, call("install_cdh_packages"));
@@ -86,14 +79,6 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
       }
     }
     return roleToTypeGlobal;
-  }
-
-  public static CmServerServiceType getType(String role) {
-    return roleToType.get(role);
-  }
-
-  public static Set<String> getRoles() {
-    return new HashSet<String>(roleToType.keySet());
   }
 
 }

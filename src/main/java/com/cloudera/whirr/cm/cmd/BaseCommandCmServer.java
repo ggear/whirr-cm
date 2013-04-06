@@ -19,6 +19,7 @@ package com.cloudera.whirr.cm.cmd;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,7 +56,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     return false;
   }
 
-  public abstract int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception;
+  public abstract int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand)
+      throws Exception;
 
   private OptionSpec<String> rolesOption = isRoleFilterable() ? parser.accepts("roles", "Cluster roles to target")
       .withRequiredArg().ofType(String.class) : null;
@@ -74,7 +76,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     }
 
     CmServerCluster cluster = CmServerClusterInstance.getCluster(specification,
-        clusterController.getInstances(specification, clusterStateStore), roles);
+        clusterController.getInstances(specification, clusterStateStore), Collections.<String> emptySet(), roles);
 
     if (cluster.getServer() == null) {
       throw new CmServerException("Could not find " + CmServerHandler.ROLE + ".");

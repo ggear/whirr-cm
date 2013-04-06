@@ -33,8 +33,8 @@ public class CmServerCluster {
 
   private String server;
   private boolean isParcel = true;
-  private Set<String> agents = new HashSet<String>();
-  private Set<String> nodes = new HashSet<String>();
+  private Set<String> agents = new TreeSet<String>();
+  private Set<String> nodes = new TreeSet<String>();
   private Set<String> mounts = new HashSet<String>();
   private Map<CmServerServiceType, Set<CmServerService>> services = new HashMap<CmServerServiceType, Set<CmServerService>>();
 
@@ -171,11 +171,11 @@ public class CmServerCluster {
   }
 
   public synchronized Set<String> getAgents() {
-    return new HashSet<String>(agents);
+    return new TreeSet<String>(agents);
   }
 
   public synchronized Set<String> getNodes() {
-    return new HashSet<String>(nodes);
+    return new TreeSet<String>(nodes);
   }
 
   public synchronized void setMounts(Set<String> mounts) {

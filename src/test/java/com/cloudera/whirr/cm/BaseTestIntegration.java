@@ -56,8 +56,8 @@ public class BaseTestIntegration implements BaseTest {
 
   @BeforeClass
   public static void initialiseCluster() throws CmServerException {
-    Assert.assertNotNull(serverBootstrap = new CmServerFactory().getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
-        CmServerHandler.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false)));
+    Assert.assertNotNull(serverBootstrap = new CmServerFactory().getCmServer(CM_HOST, CM_PORT, CmConstants.CM_USER,
+        CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false)));
     Assert.assertTrue(serverBootstrap.initialise(CM_CONFIG).size() > 0);
     hosts = new HashSet<String>();
     for (CmServerService service : serverBootstrap.getServiceHosts()) {

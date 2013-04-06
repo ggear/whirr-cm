@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 
 import com.cloudera.whirr.cm.BaseTestIntegration;
+import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerException;
@@ -33,8 +34,8 @@ public class BaseTestIntegrationServer extends BaseTestIntegration {
 
   @BeforeClass
   public static void initialiseServer() throws CmServerException {
-    Assert.assertNotNull(server = new CmServerFactory().getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
-        CmServerHandler.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
+    Assert.assertNotNull(server = new CmServerFactory().getCmServer(CM_HOST, CM_PORT, CmConstants.CM_USER,
+        CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
   }
 
 }

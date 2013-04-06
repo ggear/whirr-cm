@@ -52,7 +52,7 @@ public class CmAgentHandlerTest extends BaseTestHandler {
 
   @Test
   public void testNoCmServer() throws Exception {
-    DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
+    DryRun dryRun = launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
         + CmAgentHandler.ROLE)));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
@@ -61,7 +61,7 @@ public class CmAgentHandlerTest extends BaseTestHandler {
   public void testNoCmServerCluster() throws Exception {
     boolean caught = false;
     try {
-      launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
+      launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
           + CmAgentHandler.ROLE + "+" + CmCdhHdfsNameNodeHandler.ROLE)));
     } catch (Exception e) {
       caught = true;

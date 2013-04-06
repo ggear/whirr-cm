@@ -33,6 +33,7 @@ import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
+import com.cloudera.whirr.cm.server.impl.CmServerLog;
 
 public class CmServerClusterInstance implements CmConstants {
 
@@ -58,22 +59,29 @@ public class CmServerClusterInstance implements CmConstants {
     return clear ? (cluster = new CmServerCluster()) : (cluster == null ? (cluster = new CmServerCluster()) : cluster);
   }
 
-  public static CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances) throws CmServerException,
-      IOException {
-    return getCluster(clusterSpec, instances, Collections.<String> emptySet());
+  public static synchronized CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances)
+      throws CmServerException, IOException {
+    return getCluster(clusterSpec, instances, Collections.<String> emptySet(), Collections.<String> emptySet());
   }
 
-  public static CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances, Set<String> roles)
-      throws CmServerException, IOException {
+  public static synchronized CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances,
+      Set<String> mounts) throws CmServerException, IOException {
+    return getCluster(clusterSpec, instances, mounts, Collections.<String> emptySet());
+  }
+
+  public static synchronized CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances,
+      Set<String> mounts, Set<String> roles) throws CmServerException, IOException {
     cluster = new CmServerCluster();
+    cluster.setIsParcel(!clusterSpec.getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false));
+    cluster.setMounts(mounts);
     for (Instance instance : instances) {
       for (String role : instance.getRoles()) {
         if (role.equals(CmServerHandler.ROLE)) {
-          cluster.addServer(instance.getPublicHostName());
+          cluster.addServer(instance.getPublicIp());
         } else if (role.equals(CmAgentHandler.ROLE)) {
-          cluster.addAgent(instance.getPublicHostName());
+          cluster.addAgent(instance.getPublicIp());
         } else if (role.equals(CmNodeHandler.ROLE)) {
-          cluster.addNode(instance.getPublicHostName());
+          cluster.addNode(instance.getPublicIp());
         } else {
           CmServerServiceType type = BaseHandlerCmCdh.getRoleToTypeGlobal().get(role);
           if (type != null && (roles == null || roles.isEmpty() || roles.contains(role))) {
@@ -86,6 +94,49 @@ public class CmServerClusterInstance implements CmConstants {
       }
     }
     return cluster;
+  }
+
+  public static boolean logCluster(CmServerLog logger, String label, ClusterSpec specification, CmServerCluster cluster) {
+
+    logger.logOperationInProgressSync(label, "CM SERVER");
+    if (cluster.getServer() != null) {
+      logger.logOperationInProgressSync(label, "  http://" + cluster.getServer() + ":7180");
+      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
+          + "@" + cluster.getServer());
+    } else {
+      logger.logOperationInProgressSync(label, "NO CM SERVER");
+    }
+
+    if (!cluster.getAgents().isEmpty()) {
+      logger.logOperationInProgressSync(label, "CM AGENTS");
+    }
+    for (String cmAgent : cluster.getAgents()) {
+      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
+          + "@" + cmAgent);
+    }
+
+    if (!cluster.getNodes().isEmpty()) {
+      logger.logOperationInProgressSync(label, "CM NODES");
+    }
+    for (String cmNode : cluster.getNodes()) {
+      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
+          + "@" + cmNode);
+    }
+
+    if (cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
+      logger.logOperationInProgressSync(label, "NO CDH SERVICES");
+    } else {
+      for (CmServerServiceType type : cluster.getServiceTypes()) {
+        logger.logOperationInProgressSync(label, type.toString());
+        for (CmServerService service : cluster.getServices(type)) {
+          logger.logOperationInProgressSync(label,
+              "  " + service.getName() + "@" + service.getIp() + "=" + service.getStatus());
+        }
+      }
+    }
+
+    return !cluster.isEmpty();
+
   }
 
 }

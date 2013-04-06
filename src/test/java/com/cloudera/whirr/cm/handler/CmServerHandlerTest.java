@@ -67,26 +67,26 @@ public class CmServerHandlerTest extends BaseTestHandler {
 
   @Test
   public void testNodes() throws Exception {
-    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+    Assert.assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
         "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE))));
   }
 
   @Test
   public void testAgents() throws Exception {
-    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+    Assert.assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
         "1 " + CmServerHandler.ROLE + ",2 " + CmAgentHandler.ROLE))));
   }
 
   @Test
   public void testNodesAndAgents() throws Exception {
-    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+    Assert.assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
         "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE + ",2 " + CmAgentHandler.ROLE))));
   }
 
   @Test
   public void testNodesAndAgentsAndCluster() throws Exception {
     Assert
-        .assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap
+        .assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap
             .of("whirr.instance-templates",
                 "1 " + CmServerHandler.ROLE + "+" + CmAgentHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
                     + CmCdhHdfsNameNodeHandler.ROLE + "+" + CmCdhHdfsSecondaryNameNodeHandler.ROLE + "+"
@@ -106,7 +106,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
   @Test
   public void testNodesAndAgentsAndClusterNotAuto() throws Exception {
     Assert
-        .assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap
+        .assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap
             .of("whirr.instance-templates",
                 "1 " + CmServerHandler.ROLE + "+" + CmAgentHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
                     + CmCdhHdfsNameNodeHandler.ROLE + "+" + CmCdhHdfsSecondaryNameNodeHandler.ROLE + "+"
@@ -128,7 +128,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
   public void testNoAgentsAndCluster() throws Exception {
     boolean caught = false;
     try {
-      Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
+      Assert.assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of(
           "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmCdhHdfsNameNodeHandler.ROLE))));
     } catch (Exception e) {
       caught = true;
@@ -140,7 +140,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
   public void testAgentsAndMultipleNameNodes() throws Exception {
     boolean caught = false;
     try {
-      Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
+      Assert.assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of(
           "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
               + CmCdhHdfsNameNodeHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+" + CmCdhHdfsNameNodeHandler.ROLE))));
     } catch (Exception e) {
@@ -153,7 +153,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
   public void testMultipleCmServers() throws Exception {
     boolean caught = false;
     try {
-      Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
+      Assert.assertNotNull(launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of(
           "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",1 " + CmServerHandler.ROLE))));
     } catch (Exception e) {
       caught = true;
@@ -169,7 +169,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
           + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
           + CmCdhHdfsNameNodeHandler.ROLE));
       clusterSpec.getConfiguration().setProperty(CONFIG_WHIRR_NAME, "some_cluster_name");
-      Assert.assertNotNull(launchWithClusterSpec(clusterSpec));
+      Assert.assertNotNull(launchAndDestroy(clusterSpec));
     } catch (Exception e) {
       caught = true;
     }

@@ -23,10 +23,9 @@ import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.state.ClusterStateStoreFactory;
 
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerCommand;
-import com.cloudera.whirr.cm.server.CmServerService;
-import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmServerListServicesCommand extends BaseCommandCmServer {
 
@@ -47,42 +46,8 @@ public class CmServerListServicesCommand extends BaseCommandCmServer {
 
   @Override
   public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
-
-    CmServerCluster commandReturnCluster = serverCommand.command("services").executeCluster();
-
-    logger.logOperationInProgressSync(getLabel(), "CM SERVER");
-    logger.logOperationInProgressSync(getLabel(), "  http://" + cluster.getServer() + ":7180");
-    logger.logOperationInProgressSync(getLabel(), "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
-        + "@" + cluster.getServer());
-
-    if (!cluster.getAgents().isEmpty()) {
-      logger.logOperationInProgressSync(getLabel(), "CM AGENTS");
-    }
-    for (String cmAgent : cluster.getAgents()) {
-      logger.logOperationInProgressSync(getLabel(),
-          "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser() + "@" + cmAgent);
-    }
-
-    if (!cluster.getNodes().isEmpty()) {
-      logger.logOperationInProgressSync(getLabel(), "CM NODES");
-    }
-    for (String cmNode : cluster.getNodes()) {
-      logger.logOperationInProgressSync(getLabel(),
-          "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser() + "@" + cmNode);
-    }
-
-    if (commandReturnCluster.isEmpty()) {
-      logger.logOperationInProgressSync(getLabel(), "NO CDH SERVICES");
-    } else {
-      for (CmServerServiceType type : commandReturnCluster.getServiceTypes()) {
-        logger.logOperationInProgressSync(getLabel(), type.toString());
-        for (CmServerService service : commandReturnCluster.getServices(type)) {
-          logger.logOperationInProgressSync(getLabel(), "  " + service.getName() + "@" + service.getHost() + "="
-              + service.getStatus());
-        }
-      }
-    }
-
+    CmServerClusterInstance.logCluster(logger, getLabel(), specification, serverCommand.command("services")
+        .executeCluster());
     return 0;
   }
 

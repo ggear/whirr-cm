@@ -30,16 +30,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.FirewallManager.Rule;
 
 import com.cloudera.whirr.cm.CmServerClusterInstance;
-import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.server.CmServer;
+import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
-import com.cloudera.whirr.cm.server.CmServerService;
-import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
@@ -57,9 +54,6 @@ public class CmServerHandler extends BaseHandlerCm {
   public static final String PROPERTY_PORTS = "cm-server.ports";
   public static final String PROPERTY_PORT_WEB = "cm-server.port.web";
   public static final String PROPERTY_PORT_COMMS = "cm-server.port.comms";
-
-  public static final String CM_USER = "admin";
-  public static final String CM_PASSWORD = "admin";
 
   @Override
   public String getRole() {
@@ -106,83 +100,28 @@ public class CmServerHandler extends BaseHandlerCm {
   protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterConfigure(event);
 
-    logHeader("ClouderaManagerServer");
-    logLineItem("ClouderaManagerServer", "Web Console:");
-    logLineItemDetail(
-        "ClouderaManagerServer",
-        "http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
-            + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
-    logLineItem("ClouderaManagerServer", "Web Console User/Password (change these!):");
-    logLineItemDetail("ClouderaManagerServer", CM_USER + "/" + CM_PASSWORD);
-    logLineItem("ClouderaManagerServer", "Auto provision and start services:");
-    logLineItemDetail("ClouderaManagerServer",
-        "" + event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true));
-
-    logLineItem("ClouderaManagerServer", "User:");
-    logLineItemDetail("ClouderaManagerServer", event.getClusterSpec().getClusterUser());
-    logLineItem("ClouderaManagerServer", "Private Key Path:");
-    logLineItemDetail("ClouderaManagerServer", event.getClusterSpec().getPrivateKeyFile() == null ? "<not-defined>"
-        : event.getClusterSpec().getPrivateKeyFile().getCanonicalPath());
-    logLineItem("ClouderaManagerServer", "Console:");
-    logLineItemDetail("ClouderaManagerServer", "ssh -o StrictHostKeyChecking=no "
-        + event.getClusterSpec().getClusterUser() + "@"
-        + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp());
-
-    Set<Instance> nodes = event.getCluster().getInstancesMatching(role(CmNodeHandler.ROLE));
-    if (!nodes.isEmpty()) {
-      logHeader("ClouderaManagerNodes");
-      logLineItem("ClouderaManagerNodes", "Consoles:");
-      for (Instance instance : nodes) {
-        logLineItemDetail("ClouderaManagerNodes", "ssh -o StrictHostKeyChecking=no "
-            + event.getClusterSpec().getClusterUser() + "@" + instance.getPublicIp());
-      }
-    }
-
-    Set<Instance> agents = event.getCluster().getInstancesMatching(role(CmAgentHandler.ROLE));
-    if (!agents.isEmpty()) {
-      logHeader("ClouderaManagerAgents");
-      logLineItem("ClouderaManagerAgents", "Consoles:");
-      for (Instance instance : agents) {
-        logLineItemDetail("ClouderaManagerAgents", "ssh -o StrictHostKeyChecking=no "
-            + event.getClusterSpec().getClusterUser() + "@" + instance.getPublicIp());
-      }
-    }
-
     if (!CmServerClusterInstance.getCluster().isEmpty()) {
 
-      logHeader("ClouderaManagerClusterProvision");
+      logHeader("CMClusterProvision");
 
       if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
-        logLineItem("ClouderaManagerClusterProvision", "Warning, services found, but whirr");
-        logLineItemDetail("ClouderaManagerClusterProvision", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
-        logLineItemDetail("ClouderaManagerClusterProvision", "set to false so not provsioning.");
-        logLineItem("ClouderaManagerClusterProvision", "Roles:");
-        for (String role : BaseHandlerCmCdh.getRoles()) {
-          logLineItemDetail("ClouderaManagerClusterProvision", role);
-        }
+        logLineItem("CMClusterProvision", "Warning, services found, but whirr");
+        logLineItemDetail("CMClusterProvision", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
+        logLineItemDetail("CMClusterProvision", "set to false so not provsioning.");
 
       } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
         try {
 
-          logLineItem("ClouderaManagerClusterProvision", "Roles:");
+          CmServerClusterInstance.getCluster(event.getClusterSpec(), event.getCluster().getInstances(),
+              getDataMounts(event));
 
-          CmServerClusterInstance.getCluster(event.getClusterSpec(), event.getCluster().getInstances());
+          logLineItem("CMClusterProvision", "Provision Cluster Topology:");
+          CmServerClusterInstance.logCluster(logger, "CMClusterProvision", event.getClusterSpec(),
+              CmServerClusterInstance.getCluster());
 
-          if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
-            CmServerClusterInstance.getCluster().setIsParcel(false);
-          } else {
-            CmServerClusterInstance.getCluster().setIsParcel(true);
-          }
-
-          CmServerClusterInstance.getCluster().setMounts(getDataMounts(event));
-
-          for (CmServerService service : CmServerClusterInstance.getCluster().getServices(CmServerServiceType.CLUSTER)) {
-            logLineItemDetail("ClouderaManagerClusterProvision", service.getName() + "@" + service.getIp());
-          }
-
-          logLineItem("ClouderaManagerClusterProvision", "Provision:");
+          logLineItem("CMClusterProvision", "Provision Cluster Execute:");
           Map<String, String> config = new HashMap<String, String>();
           @SuppressWarnings("unchecked")
           Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
@@ -208,14 +147,7 @@ public class CmServerHandler extends BaseHandlerCm {
           }
 
         } catch (Exception e) {
-
-          logException(
-              "ClouderaManagerClusterProvision",
-              "Failed to execute Cloudera Manager Cluster Provision, please review the proceeding exception and log into the web console [http://"
-                  + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
-                  + ":"
-                  + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB) + "] to resolve", e);
-
+          logException("CMClusterProvision", "Failed to execute (see above), log into the web console to resolve", e);
         }
 
       }
@@ -230,59 +162,47 @@ public class CmServerHandler extends BaseHandlerCm {
 
     if (!CmServerClusterInstance.getCluster().isEmpty()) {
 
-      logHeader("ClouderaManagerClusterStart");
+      logHeader("CMClusterStart");
 
       if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
-        logLineItem("ClouderaManagerClusterStart", "Warning, services found, but whirr");
-        logLineItemDetail("ClouderaManagerClusterStart", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
-        logLineItemDetail("ClouderaManagerClusterStart", "set to false so not starting.");
-
-        logLineItem("ClouderaManagerClusterStart", "Roles:");
-        for (String role : BaseHandlerCmCdh.getRoles()) {
-          logLineItemDetail("ClouderaManagerClusterStart", role);
-        }
+        logLineItem("CMClusterStart", "Warning, services found, but whirr");
+        logLineItemDetail("CMClusterStart", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
+        logLineItemDetail("CMClusterStart", "set to false so not starting.");
 
       } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
 
-        logLineItem("ClouderaManagerClusterStart", "Services:");
-        for (CmServerServiceType type : CmServerClusterInstance.getCluster().getServiceTypes()) {
-          logLineItemDetail("ClouderaManagerClusterStart", type.toString());
-        }
-
         try {
 
-          logLineItem("ClouderaManagerClusterStart", "Start:");
+          logLineItem("CMClusterStart", "Start Cluster Execute:");
+          CmServerCluster cluster = new CmServerCluster();
           CmServer server = CmServerClusterInstance.getFactory().getCmServer(
               event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
               new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
           if (server.isConfigured(CmServerClusterInstance.getCluster())) {
             server.start(CmServerClusterInstance.getCluster());
+            if ((cluster = server.getServices(CmServerClusterInstance.getCluster())).isEmpty()) {
+              throw new CmServerException("Unexpected error, empty cluster returned");
+            }
           } else {
             throw new CmServerException("Unexpected error starting cluster, not correctly provisioned");
           }
 
+          logLineItem("CMClusterStart", "Started Cluster Topology:");
+          CmServerClusterInstance.logCluster(logger, "CMClusterStart", event.getClusterSpec(), cluster);
+
         } catch (Exception e) {
-
-          logException(
-              "ClouderaManagerClusterStart",
-              "Failed to execute Cloudera Manager Cluster Start, please review the proceeding exception and log into the web console [http://"
-                  + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
-                  + ":"
-                  + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB) + "] to resolve", e);
-
+          logException("CMClusterStart", "Failed to execute (see above), log into the web console to resolve", e);
         }
 
       }
 
-      logHeader("ClouderaManagerServer");
-      logLineItem("ClouderaManagerServer", "Web Console:");
-      logLineItemDetail(
-          "ClouderaManagerServer",
-          "http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
-              + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
-      logLineItem("ClouderaManagerServer", "Web Console User/Password (change these!):");
-      logLineItemDetail("ClouderaManagerServer", CM_USER + "/" + CM_PASSWORD);
+      logHeader("CMServer");
+      logLineItem("CMServer", "Web Console:");
+      logLineItemDetail("CMServer", "http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
+          + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
+      logLineItem("CMServer", "Web Console User/Password (change these!):");
+      logLineItemDetail("CMServer", CM_USER + "/" + CM_PASSWORD);
 
       logFooter();
 
@@ -291,19 +211,18 @@ public class CmServerHandler extends BaseHandlerCm {
   }
 
   private Set<String> getDataMounts(ClusterActionEvent event) throws IOException {
-    Set<String> mnts = new HashSet<String>();
 
-    String overrideMnt = getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT);
-
-    if (overrideMnt != null) {
-      mnts.add(overrideMnt);
+    Set<String> mounts = new HashSet<String>();
+    String overirdeMounts = getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT);
+    if (overirdeMounts != null) {
+      mounts.add(overirdeMounts);
     } else if (!getDeviceMappings(event).isEmpty()) {
-      mnts.addAll(getDeviceMappings(event).keySet());
+      mounts.addAll(getDeviceMappings(event).keySet());
     } else {
-      mnts.add(getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_DEFAULT));
+      mounts.add(getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_DEFAULT));
     }
 
-    return mnts;
+    return mounts;
   }
 
 }

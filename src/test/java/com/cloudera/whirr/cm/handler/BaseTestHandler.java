@@ -24,10 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.whirr.Cluster;
+import org.apache.whirr.ClusterController;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.BaseServiceDryRunTest;
+import org.apache.whirr.service.DryRunModule.DryRun;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.cloudera.whirr.cm.BaseTest;
@@ -52,8 +56,8 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
     CmServerClusterInstance.getFactory(factory);
 
     Mockito.when(
-        factory.getCmServer(Mockito.anyString(), Mockito.anyInt(), Mockito.anyString(), Mockito.anyString(),
-            Mockito.<CmServerLog> any())).thenReturn(new CmServer() {
+        factory.getCmServer(Matchers.anyString(), Matchers.anyInt(), Matchers.anyString(), Matchers.anyString(),
+            Matchers.<CmServerLog> any())).thenReturn(new CmServer() {
 
       @Override
       public boolean getServiceConfigs(CmServerCluster cluster, File directory) throws CmServerException {
@@ -78,17 +82,17 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
 
       @Override
       public CmServerCluster getServices(CmServerCluster cluster) throws CmServerException {
-        return any(new CmServerCluster());
+        return any(cluster);
       }
 
       @Override
       public CmServerService getService(CmServerCluster cluster, CmServerServiceType type) throws CmServerException {
-        return any(null);
+        return any(cluster.getServiceTypes(type));
       }
 
       @Override
       public CmServerCluster getServices(CmServerCluster cluster, CmServerServiceType type) throws CmServerException {
-        return any(new CmServerCluster());
+        return any(cluster);
       }
 
       @Override
@@ -163,6 +167,16 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   @Before
   public void clearClusterSingleton() {
     CmServerClusterInstance.getCluster(true);
+  }
+
+  protected DryRun launchAndDestroy(ClusterSpec clusterSpec) throws IOException, InterruptedException {
+    ClusterController controller = new ClusterController();
+    DryRun dryRun = controller.getCompute().apply(clusterSpec).utils().injector().getInstance(DryRun.class);
+    dryRun.reset();
+    Cluster cluster = controller.launchCluster(clusterSpec);
+    controller.stopServices(clusterSpec, cluster);
+    controller.destroyCluster(clusterSpec);
+    return dryRun;
   }
 
   @SuppressWarnings("unchecked")
