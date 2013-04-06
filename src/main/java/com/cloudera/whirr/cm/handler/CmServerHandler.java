@@ -37,6 +37,9 @@ import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
+import com.cloudera.whirr.cm.server.CmServerService;
+import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
+import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
@@ -64,7 +67,7 @@ public class CmServerHandler extends BaseHandlerCm {
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     try {
-      CmServerClusterInstance.getCluster().addServer(getInstanceId());
+      CmServerClusterInstance.getCluster().setServer(getInstanceId());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
@@ -99,119 +102,131 @@ public class CmServerHandler extends BaseHandlerCm {
   @Override
   protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterConfigure(event);
-
-    if (!CmServerClusterInstance.getCluster().isEmpty()) {
-
-      logHeader("CMClusterProvision");
-
-      if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
-
-        logLineItem("CMClusterProvision", "Warning, services found, but whirr");
-        logLineItemDetail("CMClusterProvision", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
-        logLineItemDetail("CMClusterProvision", "set to false so not provsioning.");
-
-      } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
-
-        try {
-
-          CmServerClusterInstance.getCluster(event.getClusterSpec(), event.getCluster().getInstances(),
-              getDataMounts(event));
-
-          logLineItem("CMClusterProvision", "Provision Cluster Topology:");
-          CmServerClusterInstance.logCluster(logger, "CMClusterProvision", event.getClusterSpec(),
-              CmServerClusterInstance.getCluster());
-
-          logLineItem("CMClusterProvision", "Provision Cluster Execute:");
-          Map<String, String> config = new HashMap<String, String>();
-          @SuppressWarnings("unchecked")
-          Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
-          while (keys.hasNext()) {
-            String key = keys.next();
-            if (key.startsWith(CONFIG_WHIRR_CM_PREFIX)) {
-              config.put(key.replaceFirst(CONFIG_WHIRR_CM_PREFIX, ""), event.getClusterSpec().getConfiguration()
-                  .getString(key));
-            }
+    executeServer("CMClusterProvision", event, null, new ServerCommand() {
+      @Override
+      public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
+          throws Exception {
+        Map<String, String> config = new HashMap<String, String>();
+        @SuppressWarnings("unchecked")
+        Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
+        while (keys.hasNext()) {
+          String key = keys.next();
+          if (key.startsWith(CONFIG_WHIRR_CM_PREFIX)) {
+            config.put(key.replaceFirst(CONFIG_WHIRR_CM_PREFIX, ""), event.getClusterSpec().getConfiguration()
+                .getString(key));
           }
-
-          CmServer server = CmServerClusterInstance.getFactory().getCmServer(
-              event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
-              new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
-          server.initialise(config);
-          if (server.configure(CmServerClusterInstance.getCluster())) {
-            if (!server.getServiceConfigs(CmServerClusterInstance.getCluster(), event.getClusterSpec()
-                .getClusterDirectory())) {
-              throw new CmServerException("Unexepcted error attempting to download cluster config");
-            }
-          } else {
-            throw new CmServerException("Unexepcted error attempting to configure cluster");
-          }
-
-        } catch (Exception e) {
-          logException("CMClusterProvision", "Failed to execute (see above), log into the web console to resolve", e);
         }
-
+        server.initialise(config);
+        if (server.configure(clusterInput)) {
+          if (!server.getServiceConfigs(clusterInput, event.getClusterSpec().getClusterDirectory())) {
+            throw new CmServerException("Unexepcted error attempting to download cluster config");
+          }
+        } else {
+          throw new CmServerException("Unexepcted error attempting to configure cluster");
+        }
+        return clusterInput;
       }
-
-    }
-
+    });
   }
 
   @Override
   protected void afterStart(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterStart(event);
+    executeServer("CMClusterStart", event, CmServerServiceStatus.STARTING, new ServerCommand() {
+      @Override
+      public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
+          throws Exception {
+        CmServerCluster clusterOutput = new CmServerCluster();
+        if (server.isConfigured(clusterInput)) {
+          server.start(clusterInput);
+          if ((clusterOutput = server.getServices(clusterInput)).isEmpty()) {
+            throw new CmServerException("Unexpected error, empty cluster returned");
+          }
+        } else {
+          throw new CmServerException("Unexpected error starting cluster, not correctly provisioned");
+        }
+        return clusterOutput;
+      }
+    });
+  }
 
-    if (!CmServerClusterInstance.getCluster().isEmpty()) {
+  @Override
+  protected void afterStop(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.afterStop(event);
+    executeServer("CMClusterStop", event, CmServerServiceStatus.STOPPING, new ServerCommand() {
+      @Override
+      public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
+          throws Exception {
+        CmServerCluster clusterOutput = new CmServerCluster();
+        if (server.isConfigured(clusterInput)) {
+          server.stop(clusterInput);
+          if ((clusterOutput = server.getServices(clusterInput)).isEmpty()) {
+            throw new CmServerException("Unexpected error, empty cluster returned");
+          }
+        } else {
+          throw new CmServerException("Unexpected error starting cluster, not correctly provisioned");
+        }
+        return clusterOutput;
+      }
+    });
+  }
 
-      logHeader("CMClusterStart");
-
-      if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
-
-        logLineItem("CMClusterStart", "Warning, services found, but whirr");
-        logLineItemDetail("CMClusterStart", "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
-        logLineItemDetail("CMClusterStart", "set to false so not starting.");
-
-      } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
-
-        try {
-
-          logLineItem("CMClusterStart", "Start Cluster Execute:");
-          CmServerCluster cluster = new CmServerCluster();
+  private void executeServer(String operation, ClusterActionEvent event, CmServerServiceStatus status,
+      ServerCommand command) throws IOException, InterruptedException {
+    super.afterStart(event);
+    try {
+      logHeader(operation);
+      CmServerCluster cluster = getCluster(event, status);
+      if (!cluster.isEmpty()) {
+        if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+          logLineItem(operation, "Warning, services found, but whirr");
+          logLineItemDetail(operation, "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
+          logLineItemDetail(operation, "set to false so not executing.");
+        } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+          logLineItem(operation, "Execute:");
           CmServer server = CmServerClusterInstance.getFactory().getCmServer(
               event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
               new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
-          if (server.isConfigured(CmServerClusterInstance.getCluster())) {
-            server.start(CmServerClusterInstance.getCluster());
-            if ((cluster = server.getServices(CmServerClusterInstance.getCluster())).isEmpty()) {
-              throw new CmServerException("Unexpected error, empty cluster returned");
-            }
-          } else {
-            throw new CmServerException("Unexpected error starting cluster, not correctly provisioned");
-          }
-
-          logLineItem("CMClusterStart", "Started Cluster Topology:");
-          CmServerClusterInstance.logCluster(logger, "CMClusterStart", event.getClusterSpec(), cluster);
-
-        } catch (Exception e) {
-          logException("CMClusterStart", "Failed to execute (see above), log into the web console to resolve", e);
+          cluster = command.execute(event, server, cluster);
+          logLineItem(operation, "Cluster:");
+          CmServerClusterInstance.logCluster(logger, operation, event.getClusterSpec(), cluster);
         }
-
       }
-
-      logHeader("CMServer");
-      logLineItem("CMServer", "Web Console:");
-      logLineItemDetail("CMServer", "http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
-          + getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
-      logLineItem("CMServer", "Web Console User/Password (change these!):");
-      logLineItemDetail("CMServer", CM_USER + "/" + CM_PASSWORD);
-
-      logFooter();
-
+    } catch (Exception e) {
+      logException(operation, "Failed to execute (see above), log into the web console to resolve", e);
+    } finally {
+      CmServerClusterInstance.getCluster(true);
     }
+  }
 
+  private CmServerCluster getCluster(ClusterActionEvent event, CmServerServiceStatus status) throws CmServerException,
+      IOException {
+    CmServerCluster clusterStale = CmServerClusterInstance.getCluster();
+    CmServerCluster cluster, clusterCurrent = cluster = CmServerClusterInstance.getCluster(event.getClusterSpec(),
+        event.getCluster().getInstances(), getDataMounts(event));
+    if (status != null) {
+      CmServerCluster clusterFiltered = CmServerClusterInstance.getCluster(clusterCurrent);
+      for (CmServerServiceType type : clusterStale.getServiceTypes()) {
+        boolean typeFiltered = true;
+        for (CmServerService service : clusterStale.getServices(type)) {
+          if (!service.getStatus().equals(status)) {
+            typeFiltered = false;
+            break;
+          }
+        }
+        if (typeFiltered) {
+          for (CmServerService service : clusterCurrent.getServices(type)) {
+            clusterFiltered.addService(service);
+          }
+        }
+      }
+      cluster = clusterFiltered;
+    }
+    CmServerClusterInstance.getCluster(true);
+    return cluster;
   }
 
   private Set<String> getDataMounts(ClusterActionEvent event) throws IOException {
-
     Set<String> mounts = new HashSet<String>();
     String overirdeMounts = getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT);
     if (overirdeMounts != null) {
@@ -221,8 +236,12 @@ public class CmServerHandler extends BaseHandlerCm {
     } else {
       mounts.add(getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_DEFAULT));
     }
-
     return mounts;
+  }
+
+  public static abstract class ServerCommand {
+    public abstract CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
+        throws Exception;
   }
 
 }

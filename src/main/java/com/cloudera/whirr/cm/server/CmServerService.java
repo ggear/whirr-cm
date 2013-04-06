@@ -49,6 +49,10 @@ public class CmServerService implements Comparable<CmServerService> {
     this(type, tag, NAME_QUALIFIER_DEFAULT, null, null, null);
   }
 
+  public CmServerService(CmServerServiceType type, String tag, CmServerServiceStatus status) {
+    this(type, tag, NAME_QUALIFIER_DEFAULT, null, null, null, status);
+  }
+  
   public CmServerService(String host, String ip) {
     this(CmServerServiceType.CLUSTER, NAME_TAG_DEFAULT, NAME_QUALIFIER_DEFAULT, host, ip, null);
   }

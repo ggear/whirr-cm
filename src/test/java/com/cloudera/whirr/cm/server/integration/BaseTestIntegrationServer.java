@@ -22,7 +22,6 @@ import org.junit.BeforeClass;
 
 import com.cloudera.whirr.cm.BaseTestIntegration;
 import com.cloudera.whirr.cm.CmConstants;
-import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;

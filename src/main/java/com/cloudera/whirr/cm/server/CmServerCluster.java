@@ -78,7 +78,7 @@ public class CmServerCluster {
     return true;
   }
 
-  public synchronized boolean addServer(String server) throws CmServerException {
+  public synchronized boolean setServer(String server) throws CmServerException {
     if (this.server != null) {
       throw new CmServerException("Invalid cluster topology: Attempt to add multiple servers");
     }

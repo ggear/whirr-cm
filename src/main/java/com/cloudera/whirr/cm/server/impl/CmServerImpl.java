@@ -153,7 +153,6 @@ public class CmServerImpl implements CmServer {
   @Override
   public List<CmServerService> getServiceHosts() throws CmServerException {
 
-    // TODO populate agents rather than hosts, return cluster instead
     final List<CmServerService> services = new ArrayList<CmServerService>();
     try {
 
@@ -212,9 +211,13 @@ public class CmServerImpl implements CmServer {
   @CmServerCommandMethod(name = "services")
   public CmServerCluster getServices(final CmServerCluster cluster) throws CmServerException {
 
-    // TODO Populate server, agents, nodes
     final CmServerCluster clusterView = new CmServerCluster();
+    clusterView.setServer(cluster.getServer());
     try {
+
+      for (CmServerService service : getServiceHosts()) {
+        cluster.addAgent(service.getIp());
+      }
 
       logger.logOperation("GetServices", new CmServerLogSyncCommand() {
         @Override

@@ -59,25 +59,25 @@ public class CmServerClusterInstance implements CmConstants {
     return clear ? (cluster = new CmServerCluster()) : (cluster == null ? (cluster = new CmServerCluster()) : cluster);
   }
 
-  public static synchronized CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances)
+  public static synchronized CmServerCluster getCluster(ClusterSpec specification, Set<Instance> instances)
       throws CmServerException, IOException {
-    return getCluster(clusterSpec, instances, Collections.<String> emptySet(), Collections.<String> emptySet());
+    return getCluster(specification, instances, Collections.<String> emptySet(), Collections.<String> emptySet());
   }
 
-  public static synchronized CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances,
+  public static synchronized CmServerCluster getCluster(ClusterSpec specification, Set<Instance> instances,
       Set<String> mounts) throws CmServerException, IOException {
-    return getCluster(clusterSpec, instances, mounts, Collections.<String> emptySet());
+    return getCluster(specification, instances, mounts, Collections.<String> emptySet());
   }
 
-  public static synchronized CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances,
+  public static synchronized CmServerCluster getCluster(ClusterSpec specification, Set<Instance> instances,
       Set<String> mounts, Set<String> roles) throws CmServerException, IOException {
     cluster = new CmServerCluster();
-    cluster.setIsParcel(!clusterSpec.getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false));
+    cluster.setIsParcel(!specification.getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false));
     cluster.setMounts(mounts);
     for (Instance instance : instances) {
       for (String role : instance.getRoles()) {
         if (role.equals(CmServerHandler.ROLE)) {
-          cluster.addServer(instance.getPublicIp());
+          cluster.setServer(instance.getPublicIp());
         } else if (role.equals(CmAgentHandler.ROLE)) {
           cluster.addAgent(instance.getPublicIp());
         } else if (role.equals(CmNodeHandler.ROLE)) {
@@ -85,15 +85,31 @@ public class CmServerClusterInstance implements CmConstants {
         } else {
           CmServerServiceType type = BaseHandlerCmCdh.getRoleToTypeGlobal().get(role);
           if (type != null && (roles == null || roles.isEmpty() || roles.contains(role))) {
-            CmServerService service = new CmServerService(type, clusterSpec.getConfiguration().getString(
-                CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT), "" + (cluster.getServices(type).size() + 1),
-                instance.getPublicHostName(), instance.getPublicIp(), instance.getPrivateIp());
-            cluster.addService(service);
+            cluster.addService(getClusterService(specification, instance, type));
           }
         }
       }
     }
     return cluster;
+  }
+
+  public static CmServerService getClusterService(ClusterSpec specification, Instance instance, CmServerServiceType type)
+      throws CmServerException, IOException {
+    return new CmServerService(type, specification.getConfiguration().getString(CONFIG_WHIRR_NAME,
+        CONFIG_WHIRR_NAME_DEFAULT), "" + (cluster.getServices(type).size() + 1), instance.getPublicHostName(),
+        instance.getPublicIp(), instance.getPrivateIp());
+  }
+
+  public static CmServerCluster getCluster(CmServerCluster cluster) throws CmServerException {
+    CmServerCluster clusterTo = new CmServerCluster();
+    clusterTo.setServer(cluster.getServer());
+    for (String agent : cluster.getAgents()) {
+      clusterTo.addAgent(agent);
+    }
+    for (String node : cluster.getNodes()) {
+      clusterTo.addAgent(node);
+    }
+    return clusterTo;
   }
 
   public static boolean logCluster(CmServerLog logger, String label, ClusterSpec specification, CmServerCluster cluster) {

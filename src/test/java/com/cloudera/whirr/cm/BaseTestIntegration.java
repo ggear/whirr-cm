@@ -26,7 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
@@ -69,7 +68,7 @@ public class BaseTestIntegration implements BaseTest {
     hosts.remove(CM_HOST);
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
     cluster = new CmServerCluster();
-    cluster.addServer(CM_HOST);
+    cluster.setServer(CM_HOST);
     for (String agent : hosts) {
       cluster.addAgent(agent);
     }
