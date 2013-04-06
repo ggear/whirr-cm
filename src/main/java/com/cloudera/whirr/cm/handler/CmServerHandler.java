@@ -126,7 +126,7 @@ public class CmServerHandler extends BaseHandlerCm {
         }
         return clusterInput;
       }
-    });
+    }, false);
   }
 
   @Override
@@ -147,7 +147,7 @@ public class CmServerHandler extends BaseHandlerCm {
         }
         return clusterOutput;
       }
-    });
+    }, true);
   }
 
   @Override
@@ -168,34 +168,39 @@ public class CmServerHandler extends BaseHandlerCm {
         }
         return clusterOutput;
       }
-    });
+    }, true);
   }
 
   private void executeServer(String operation, ClusterActionEvent event, CmServerServiceStatus status,
-      ServerCommand command) throws IOException, InterruptedException {
+      ServerCommand command, boolean footer) throws IOException, InterruptedException {
     super.afterStart(event);
     try {
-      logHeader(operation);
+      CmServerClusterInstance.logHeader(logger, operation);
       CmServerCluster cluster = getCluster(event, status);
       if (!cluster.isEmpty()) {
         if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
-          logLineItem(operation, "Warning, services found, but whirr");
-          logLineItemDetail(operation, "property [" + CONFIG_WHIRR_AUTO_VARIABLE + "]");
-          logLineItemDetail(operation, "set to false so not executing.");
+          CmServerClusterInstance.logLineItemDetail(logger, operation, "Warning, services found, but whirr property ["
+              + CONFIG_WHIRR_AUTO_VARIABLE + "] set to false so not executing.");
         } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
-          logLineItem(operation, "Execute:");
+          CmServerClusterInstance.logLineItem(logger, operation);
           CmServer server = CmServerClusterInstance.getFactory().getCmServer(
               event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
               new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
           cluster = command.execute(event, server, cluster);
-          logLineItem(operation, "Cluster:");
+          CmServerClusterInstance.logLineItemFooter(logger, operation);
+          CmServerClusterInstance.logLineItem(logger, operation);
           CmServerClusterInstance.logCluster(logger, operation, event.getClusterSpec(), cluster);
+          CmServerClusterInstance.logLineItemFooter(logger, operation);
         }
       }
     } catch (Exception e) {
-      logException(operation, "Failed to execute (see above), log into the web console to resolve", e);
+      CmServerClusterInstance.logException(logger, operation,
+          "Failed to execute (see above), log into the web console to resolve", e);
     } finally {
       CmServerClusterInstance.getCluster(true);
+    }
+    if (footer) {
+      CmServerClusterInstance.logLineItemFooterFinal(logger);
     }
   }
 

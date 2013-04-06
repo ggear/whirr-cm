@@ -27,6 +27,7 @@ import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.hadoop.VolumeManager;
 
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.collect.Iterables;
 
@@ -45,21 +46,23 @@ public abstract class BaseHandlerCm extends BaseHandler {
 
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
-    logHeaderHandlerLifecycle("HostBeforeBootstrap");
+    logHeaderHandler("HostPreBootstrap");
     super.beforeBootstrap(event);
     addStatement(event, call("configure_hostnames"));
     addStatement(event, call("retry_helpers"));
+    logFooterHandler("HostPreBootstrap");
   }
 
   @Override
   protected void afterBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
-    logHeaderHandlerLifecycle("HostAfterBootstrap");
+    logHeaderHandler("HostPostBootstrap");
     super.afterBootstrap(event);
+    logFooterHandler("HostPostBootstrap");
   }
 
   @Override
   protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
-    logHeaderHandlerLifecycle("HostBeforeConfigure");
+    logHeaderHandler("HostConfigure");
     super.beforeConfigure(event);
     addStatement(event, call("retry_helpers"));
     if (getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT) == null) {
@@ -67,7 +70,7 @@ public abstract class BaseHandlerCm extends BaseHandler {
       String devMappings = VolumeManager.asString(deviceMappings);
       addStatement(event, call("prepare_all_disks", "'" + devMappings + "'"));
     }
-    logHeaderHandlerLifecycle("HostPostConfigure");
+    logFooterHandler("HostConfigure");
   }
 
   public Map<String, String> getDeviceMappings(ClusterActionEvent event) {
@@ -83,37 +86,14 @@ public abstract class BaseHandlerCm extends BaseHandler {
     return deviceMappings;
   }
 
-  private void logHeaderHandlerLifecycle(String operation) {
-    logHeader(operation);
-    logLineItem(operation, "Role:");
-    logLineItemDetail(operation, getRole());
+  private void logHeaderHandler(String operation) {
+    CmServerClusterInstance.logHeader(logger, operation);
+    CmServerClusterInstance.logLineItem(logger, operation);
+    CmServerClusterInstance.logLineItemDetail(logger, operation, "Role " + getRole());
   }
 
-  public void logHeader(String operation) {
-    logger.logSpacer();
-    logger.logSpacerDashed();
-    logger.logOperation(operation, "");
-    logger.logSpacerDashed();
+  private void logFooterHandler(String operation) {
+    CmServerClusterInstance.logLineItemFooter(logger, operation);
   }
 
-  public void logFooter() {
-    logger.logSpacer();
-    logger.logSpacerDashed();
-  }
-
-  public void logLineItem(String operation, String detail) {
-    logger.logSpacer();
-    logger.logOperationInProgressSync(operation, detail);
-  }
-
-  public void logLineItemDetail(String operation, String detail) {
-    logger.logOperationInProgressSync(operation, detail);
-  }
-
-  public void logException(String operation, String message, Throwable throwable) {
-    logger.logOperationInProgressSync(operation, "Failed");
-    logger.logOperationStackTrace(operation, throwable);
-    logger.logSpacer();
-    logger.logOperation(operation, message);
-  }
 }

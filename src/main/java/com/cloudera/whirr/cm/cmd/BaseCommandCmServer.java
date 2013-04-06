@@ -56,6 +56,11 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     return false;
   }
 
+  @Override
+  public String getLabel() {
+    return "CM" + super.getLabel();
+  }
+
   public abstract int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand)
       throws Exception;
 
@@ -66,7 +71,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
   public int run(OptionSet optionSet, ClusterSpec specification, ClusterStateStore clusterStateStore,
       ClusterController clusterController) throws Exception {
 
-    logger.logOperationStartedSync(getLabel());
+    CmServerClusterInstance.logHeader(logger, getLabel());
+    CmServerClusterInstance.logLineItem(logger, getLabel());
 
     Set<String> roles = new HashSet<String>();
     if (isRoleFilterable() && optionSet.hasArgument(rolesOption)) {
@@ -93,7 +99,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
 
     int returnInt = run(specification, cluster, command);
 
-    logger.logOperationFinishedSync(getLabel());
+    CmServerClusterInstance.logLineItemFooter(logger, getLabel());
+    CmServerClusterInstance.logLineItemFooterFinal(logger);
 
     return returnInt;
   }

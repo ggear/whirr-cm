@@ -213,11 +213,10 @@ public class CmServerImpl implements CmServer {
 
     final CmServerCluster clusterView = new CmServerCluster();
     clusterView.setServer(cluster.getServer());
+    for (CmServerService service : getServiceHosts()) {
+      clusterView.addAgent(service.getIp());
+    }
     try {
-
-      for (CmServerService service : getServiceHosts()) {
-        cluster.addAgent(service.getIp());
-      }
 
       logger.logOperation("GetServices", new CmServerLogSyncCommand() {
         @Override

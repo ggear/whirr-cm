@@ -113,7 +113,6 @@ public class CmServerClusterInstance implements CmConstants {
   }
 
   public static boolean logCluster(CmServerLog logger, String label, ClusterSpec specification, CmServerCluster cluster) {
-
     logger.logOperationInProgressSync(label, "CM SERVER");
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(label, "  http://" + cluster.getServer() + ":7180");
@@ -122,7 +121,6 @@ public class CmServerClusterInstance implements CmConstants {
     } else {
       logger.logOperationInProgressSync(label, "NO CM SERVER");
     }
-
     if (!cluster.getAgents().isEmpty()) {
       logger.logOperationInProgressSync(label, "CM AGENTS");
     }
@@ -130,7 +128,6 @@ public class CmServerClusterInstance implements CmConstants {
       logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
           + "@" + cmAgent);
     }
-
     if (!cluster.getNodes().isEmpty()) {
       logger.logOperationInProgressSync(label, "CM NODES");
     }
@@ -138,7 +135,6 @@ public class CmServerClusterInstance implements CmConstants {
       logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
           + "@" + cmNode);
     }
-
     if (cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
       logger.logOperationInProgressSync(label, "NO CDH SERVICES");
     } else {
@@ -150,9 +146,39 @@ public class CmServerClusterInstance implements CmConstants {
         }
       }
     }
-
     return !cluster.isEmpty();
+  }
 
+  public static void logHeader(CmServerLog logger, String operation) {
+    logger.logSpacer();
+    logger.logSpacerDashed();
+    logger.logOperation(operation, "");
+    logger.logSpacerDashed();
+  }
+
+  public static void logLineItem(CmServerLog logger, String operation) {
+    logger.logSpacer();
+    logger.logOperationStartedSync(operation);
+  }
+
+  public static void logLineItemDetail(CmServerLog logger, String operation, String detail) {
+    logger.logOperationInProgressSync(operation, detail);
+  }
+
+  public static void logLineItemFooter(CmServerLog logger, String operation) {
+    logger.logOperationFinishedSync(operation);
+  }
+
+  public static void logLineItemFooterFinal(CmServerLog logger) {
+    logger.logSpacer();
+    logger.logSpacerDashed();
+  }
+
+  public static void logException(CmServerLog logger, String operation, String message, Throwable throwable) {
+    logger.logOperationInProgressSync(operation, "Failed");
+    logger.logOperationStackTrace(operation, throwable);
+    logger.logSpacer();
+    logger.logOperation(operation, message);
   }
 
 }

@@ -46,9 +46,10 @@ public class CmServerListServicesCommand extends BaseCommandCmServer {
 
   @Override
   public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
-    CmServerClusterInstance.logCluster(logger, getLabel(), specification, serverCommand.command("services")
-        .executeCluster());
+    CmServerCluster clusterOutput = serverCommand.command("services").executeCluster();
+    CmServerClusterInstance.logLineItemFooter(logger, getLabel());
+    CmServerClusterInstance.logLineItem(logger, getLabel());
+    CmServerClusterInstance.logCluster(logger, getLabel(), specification, clusterOutput);
     return 0;
   }
-
 }
