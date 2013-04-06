@@ -22,12 +22,11 @@ import com.cloudera.whirr.cm.server.CmServerConstants;
 
 public class CmServerFactory implements CmServerConstants {
 
-  public static CmServer getCmServer(String ip, int port, String user, String password) {
-    return new CmServerImpl(ip, port, user, password, new CmServerLog.CmServerLogSlf4j(
-        LOG_TAG_CM_SERVER_API, false));
+  public CmServer getCmServer(String ip, int port, String user, String password) {
+    return new CmServerImpl(ip, port, user, password, new CmServerLog.CmServerLogSlf4j(LOG_TAG_CM_SERVER_API, false));
   }
 
-  public static CmServer getCmServer(String ip, int port, String user, String password, CmServerLog logger) {
+  public CmServer getCmServer(String ip, int port, String user, String password, CmServerLog logger) {
     return new CmServerImpl(ip, port, user, password, logger);
   }
 

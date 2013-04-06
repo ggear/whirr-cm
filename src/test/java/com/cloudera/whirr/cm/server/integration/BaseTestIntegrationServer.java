@@ -33,7 +33,7 @@ public class BaseTestIntegrationServer extends BaseTestIntegration {
 
   @BeforeClass
   public static void initialiseServer() throws CmServerException {
-    Assert.assertNotNull(server = CmServerFactory.getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
+    Assert.assertNotNull(server = new CmServerFactory().getCmServer(CM_HOST, CM_PORT, CmServerHandler.CM_USER,
         CmServerHandler.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
   }
 

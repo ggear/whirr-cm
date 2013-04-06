@@ -39,6 +39,10 @@ public abstract class BaseHandlerCm extends BaseHandler {
 
   protected Map<String, String> deviceMappings = new HashMap<String, String>();
 
+  protected String getInstanceId() {
+    return getRole() + "-instance-id";
+  }
+
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     logHeaderHandlerLifecycle("HostBeforeBootstrap");

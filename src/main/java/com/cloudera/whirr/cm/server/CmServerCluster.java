@@ -94,7 +94,7 @@ public class CmServerCluster {
 
   public synchronized boolean addNode(String node) throws CmServerException {
     if (!nodes.add(node)) {
-      throw new CmServerException("Invalid cluster topology: Attempt to add col-located nodes");
+      throw new CmServerException("Invalid cluster topology: Attempt to add co-located nodes");
     }
     return true;
   }

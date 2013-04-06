@@ -54,7 +54,7 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
       if (!event.getInstanceTemplate().getRoles().contains(CmAgentHandler.ROLE)) {
         throw new CmServerException("Role [" + getRole() + "] requires colocated role [" + CmAgentHandler.ROLE + "]");
       }
-      CmServerClusterInstance.getInstance().addService(new CmServerService(getType()));
+      CmServerClusterInstance.getCluster().addService(new CmServerService(getType()));
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }

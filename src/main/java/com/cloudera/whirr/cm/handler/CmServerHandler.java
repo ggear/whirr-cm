@@ -71,7 +71,7 @@ public class CmServerHandler extends BaseHandlerCm {
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     try {
-      CmServerClusterInstance.getInstance().addServer(CmServerHandler.ROLE);
+      CmServerClusterInstance.getCluster().addServer(getInstanceId());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
@@ -149,7 +149,7 @@ public class CmServerHandler extends BaseHandlerCm {
       }
     }
 
-    if (!CmServerClusterInstance.getInstance().isEmpty()) {
+    if (!CmServerClusterInstance.getCluster().isEmpty()) {
 
       logHeader("ClouderaManagerClusterProvision");
 
@@ -169,17 +169,17 @@ public class CmServerHandler extends BaseHandlerCm {
 
           logLineItem("ClouderaManagerClusterProvision", "Roles:");
 
-          CmServerClusterInstance.getInstance(event.getClusterSpec(), event.getCluster().getInstances());
+          CmServerClusterInstance.getCluster(event.getClusterSpec(), event.getCluster().getInstances());                   
 
           if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
-            CmServerClusterInstance.getInstance().setIsParcel(false);
+            CmServerClusterInstance.getCluster().setIsParcel(false);
           } else {
-            CmServerClusterInstance.getInstance().setIsParcel(true);
+            CmServerClusterInstance.getCluster().setIsParcel(true);
           }
 
-          CmServerClusterInstance.getInstance().setMounts(getDataMounts(event));
+          CmServerClusterInstance.getCluster().setMounts(getDataMounts(event));
 
-          for (CmServerService service : CmServerClusterInstance.getInstance().getServices(CmServerServiceType.CLUSTER)) {
+          for (CmServerService service : CmServerClusterInstance.getCluster().getServices(CmServerServiceType.CLUSTER)) {
             logLineItemDetail("ClouderaManagerClusterProvision", service.getName() + "@" + service.getIp());
           }
 
@@ -195,13 +195,13 @@ public class CmServerHandler extends BaseHandlerCm {
             }
           }
 
-          CmServer server = CmServerFactory.getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
+          CmServer server = CmServerClusterInstance.getFactory().getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
               .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API,
               false));
           server.initialise(config);
-          server.provision(CmServerClusterInstance.getInstance());
-          server.configure(CmServerClusterInstance.getInstance());
-          server.getServiceConfigs(CmServerClusterInstance.getInstance(), event.getClusterSpec().getClusterDirectory());
+          server.provision(CmServerClusterInstance.getCluster());
+          server.configure(CmServerClusterInstance.getCluster());
+          server.getServiceConfigs(CmServerClusterInstance.getCluster(), event.getClusterSpec().getClusterDirectory());
 
         } catch (Exception e) {
 
@@ -223,7 +223,7 @@ public class CmServerHandler extends BaseHandlerCm {
   protected void afterStart(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterStart(event);
 
-    if (!CmServerClusterInstance.getInstance().isEmpty()) {
+    if (!CmServerClusterInstance.getCluster().isEmpty()) {
 
       logHeader("ClouderaManagerClusterStart");
 
@@ -243,15 +243,15 @@ public class CmServerHandler extends BaseHandlerCm {
         try {
 
           logLineItem("ClouderaManagerClusterStart", "Services:");
-          for (CmServerServiceType type : CmServerClusterInstance.getInstance().getServiceTypes()) {
+          for (CmServerServiceType type : CmServerClusterInstance.getCluster().getServiceTypes()) {
             logLineItemDetail("ClouderaManagerClusterStart", type.toString());
           }
 
           logLineItem("ClouderaManagerClusterStart", "Start:");
-          CmServer server = CmServerFactory.getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
+          CmServer server = CmServerClusterInstance.getFactory().getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
               .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API,
               false));
-          server.start(CmServerClusterInstance.getInstance());
+          server.start(CmServerClusterInstance.getCluster());
 
         } catch (Exception e) {
 

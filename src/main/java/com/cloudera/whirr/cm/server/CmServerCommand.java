@@ -59,6 +59,8 @@ public class CmServerCommand implements CmServerConstants {
 
   private CmServerCluster cluster;
 
+  private CmServerFactory factory = new CmServerFactory();
+
   private CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_CMD, false);
 
   private CmServer server;
@@ -224,8 +226,8 @@ public class CmServerCommand implements CmServerConstants {
       throw new CmServerException("Required paramater [command] not set");
     }
     if (server == null) {
-      server = CmServerFactory.getCmServer(host, port, user, password, new CmServerLog.CmServerLogSysOut(
-          LOG_TAG_CM_SERVER_API, false));
+      server = factory.getCmServer(host, port, user, password, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API,
+          false));
     }
     List<Object> paramaters = new ArrayList<Object>();
     for (Class<?> clazz : COMMANDS.get(command).getParameterTypes()) {

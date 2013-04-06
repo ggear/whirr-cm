@@ -36,7 +36,7 @@ public abstract class BaseTestIntegrationCommand extends BaseTestIntegration {
     super.provisionCluster();
     command = CmServerCommand.get().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath());
     Configuration configuration = new PropertiesConfiguration();
-    configuration.setProperty("whirr.cluster-user", "whirr");
+    configuration.setProperty(CONFIG_WHIRR_USER, CLUSTER_USER);
     specification = new ClusterSpec(configuration);
   }
 

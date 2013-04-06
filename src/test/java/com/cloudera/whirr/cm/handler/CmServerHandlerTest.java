@@ -99,8 +99,29 @@ public class CmServerHandlerTest extends BaseTestHandler {
                     + CmCdhFlumeAgentHandler.ROLE,
                 CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
                 "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/\\,http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"))));
-    Assert.assertEquals(9, CmServerClusterInstance.getInstance().getServiceTypes().size());
-    Assert.assertEquals(15, CmServerClusterInstance.getInstance().getServices(CmServerServiceType.CLUSTER).size());
+    Assert.assertEquals(9, CmServerClusterInstance.getCluster().getServiceTypes().size());
+    Assert.assertEquals(27, CmServerClusterInstance.getCluster().getServices(CmServerServiceType.CLUSTER).size());
+  }
+
+  @Test
+  public void testNodesAndAgentsAndClusterNotAuto() throws Exception {
+    Assert
+        .assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap
+            .of("whirr.instance-templates",
+                "1 " + CmServerHandler.ROLE + "+" + CmAgentHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
+                    + CmCdhHdfsNameNodeHandler.ROLE + "+" + CmCdhHdfsSecondaryNameNodeHandler.ROLE + "+"
+                    + CmCdhHueServerHandler.ROLE + "+" + CmCdhHueBeeswaxServerHandler.ROLE + "+"
+                    + CmCdhMapReduceJobTrackerHandler.ROLE + "+" + CmCdhHBaseMasterHandler.ROLE + "+"
+                    + CmCdhHiveMetaStoreHandler.ROLE + "+" + CmCdhImpalaStateStoreHandler.ROLE + "+"
+                    + CmCdhOozieServerHandler.ROLE + ",3 " + CmAgentHandler.ROLE + "+" + CmCdhHdfsDataNodeHandler.ROLE
+                    + "+" + CmCdhMapReduceTaskTrackerHandler.ROLE + "+" + CmCdhZookeeperServerHandler.ROLE + "+"
+                    + CmCdhHBaseRegionServerHandler.ROLE + "+" + CmCdhImpalaDaemonHandler.ROLE + "+"
+                    + CmCdhFlumeAgentHandler.ROLE,
+                CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
+                "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/\\,http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/",
+                CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()))));
+    Assert.assertEquals(9, CmServerClusterInstance.getCluster().getServiceTypes().size());
+    Assert.assertEquals(15, CmServerClusterInstance.getCluster().getServices(CmServerServiceType.CLUSTER).size());
   }
 
   @Test

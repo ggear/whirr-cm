@@ -73,7 +73,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
       }
     }
 
-    CmServerCluster cluster = CmServerClusterInstance.getInstance(specification,
+    CmServerCluster cluster = CmServerClusterInstance.getCluster(specification,
         clusterController.getInstances(specification, clusterStateStore), roles);
 
     if (cluster.getServer() == null) {

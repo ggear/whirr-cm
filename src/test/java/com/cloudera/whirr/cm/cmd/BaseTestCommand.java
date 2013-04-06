@@ -44,9 +44,9 @@ import com.google.common.collect.Sets;
 
 public abstract class BaseTestCommand implements BaseTest {
 
-  protected ClusterController controller = mock(ClusterController.class);
-  protected ClusterControllerFactory factory = mock(ClusterControllerFactory.class);
-  protected ClusterStateStoreFactory stateStoreFactory = mock(ClusterStateStoreFactory.class);
+  protected ClusterController controller;
+  protected ClusterControllerFactory factory;
+  protected ClusterStateStoreFactory stateStoreFactory;
 
   @SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
   public int initialiseCluster(String[][] roles) throws IOException, InterruptedException {
@@ -60,6 +60,8 @@ public abstract class BaseTestCommand implements BaseTest {
       }
     }
 
+    factory = mock(ClusterControllerFactory.class);
+    controller = mock(ClusterController.class);
     when(factory.create((String) any())).thenReturn(controller);
 
     NodeMetadata[] nodes = new NodeMetadata[roles.length];
@@ -75,6 +77,7 @@ public abstract class BaseTestCommand implements BaseTest {
     when(controller.getNodes((ClusterSpec) any())).thenReturn((Set) Sets.newLinkedHashSet(Lists.newArrayList(nodes)));
     when(controller.getInstances((ClusterSpec) any(), (ClusterStateStore) any())).thenCallRealMethod();
 
+    stateStoreFactory = mock(ClusterStateStoreFactory.class);
     Credentials credentials = new Credentials("dummy", "dummy");
     Set<Cluster.Instance> instances = Sets.newHashSet();
     for (int i = 0; i < roles.length; i++) {

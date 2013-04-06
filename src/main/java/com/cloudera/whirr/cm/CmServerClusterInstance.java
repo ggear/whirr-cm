@@ -32,28 +32,38 @@ import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
+import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 
 public class CmServerClusterInstance implements CmConstants {
 
+  private static CmServerFactory factory;
   private static CmServerCluster cluster;
 
   private CmServerClusterInstance() {
   }
 
-  public static synchronized CmServerCluster getInstance() {
-    return getInstance(false);
+  public static synchronized CmServerFactory getFactory() {
+    return factory == null ? (factory = new CmServerFactory()) : factory;
   }
 
-  public static synchronized CmServerCluster getInstance(boolean clear) {
+  public static synchronized CmServerFactory getFactory(CmServerFactory factory) {
+    return CmServerClusterInstance.factory = factory;
+  }
+
+  public static synchronized CmServerCluster getCluster() {
+    return getCluster(false);
+  }
+
+  public static synchronized CmServerCluster getCluster(boolean clear) {
     return clear ? (cluster = new CmServerCluster()) : (cluster == null ? (cluster = new CmServerCluster()) : cluster);
   }
 
-  public static CmServerCluster getInstance(ClusterSpec clusterSpec, Set<Instance> instances) throws CmServerException,
+  public static CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances) throws CmServerException,
       IOException {
-    return getInstance(clusterSpec, instances, Collections.<String> emptySet());
+    return getCluster(clusterSpec, instances, Collections.<String> emptySet());
   }
 
-  public static CmServerCluster getInstance(ClusterSpec clusterSpec, Set<Instance> instances, Set<String> roles)
+  public static CmServerCluster getCluster(ClusterSpec clusterSpec, Set<Instance> instances, Set<String> roles)
       throws CmServerException, IOException {
     cluster = new CmServerCluster();
     for (Instance instance : instances) {
