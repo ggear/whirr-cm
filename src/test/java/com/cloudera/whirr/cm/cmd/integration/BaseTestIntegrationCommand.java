@@ -17,30 +17,27 @@
  */
 package com.cloudera.whirr.cm.cmd.integration;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.whirr.ClusterSpec;
 import org.junit.Before;
 
 import com.cloudera.whirr.cm.BaseTestIntegration;
 import com.cloudera.whirr.cm.server.CmServerCommand;
-import com.cloudera.whirr.cm.server.CmServerException;
 
 public abstract class BaseTestIntegrationCommand extends BaseTestIntegration {
 
   protected CmServerCommand command;
-  protected String user = "whirr";
-  protected String server = null;
-  protected List<String> agents = new ArrayList<String>();
-  protected List<String> nodes = new ArrayList<String>();
+  protected ClusterSpec specification;
 
   @Override
   @Before
-  public void provisionCluster() throws CmServerException {
+  public void provisionCluster() throws Exception {
     super.provisionCluster();
     command = CmServerCommand.get().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath());
-    server = CM_HOST;
-    agents.addAll(hosts);
+    Configuration configuration = new PropertiesConfiguration();
+    configuration.setProperty("whirr.cluster-user", "whirr");
+    specification = new ClusterSpec(configuration);
   }
 
 }

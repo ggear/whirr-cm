@@ -34,8 +34,10 @@ import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.FirewallManager.Rule;
 
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.server.CmServer;
+import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
@@ -68,6 +70,11 @@ public class CmServerHandler extends BaseHandlerCm {
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
+    try {
+      CmServerClusterInstance.getInstance().addServer(CmServerHandler.ROLE);
+    } catch (CmServerException e) {
+      throw new IOException("Unexpected error building cluster", e);
+    }
     addStatement(event, call("install_cm"));
     addStatement(event, call("install_cm_server"));
   }
@@ -142,7 +149,7 @@ public class CmServerHandler extends BaseHandlerCm {
       }
     }
 
-    if (!BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().isEmpty()) {
+    if (!CmServerClusterInstance.getInstance().isEmpty()) {
 
       logHeader("ClouderaManagerClusterProvision");
 
@@ -160,32 +167,19 @@ public class CmServerHandler extends BaseHandlerCm {
 
         try {
 
-          if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
-            BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().setIsParcel(false);
-          } else {
-            BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().setIsParcel(true);
-          }
-
-          BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().setDataMounts(getDataMounts(event));
-
           logLineItem("ClouderaManagerClusterProvision", "Roles:");
-          BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clearServices();
 
-          for (Instance instance : event.getCluster().getInstances()) {
-            for (String role : instance.getRoles()) {
-              CmServerServiceType type = BaseHandlerCmCdh.getRoleToTypeGlobal().get(role);
-              if (type != null) {
-                CmServerService service = new CmServerService(type, event.getClusterSpec().getConfiguration()
-                    .getString(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT), ""
-                    + (BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(type).size() + 1),
-                    instance.getPublicHostName(), instance.getPublicIp(), instance.getPrivateIp());
-                BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().add(service);
-              }
-            }
+          CmServerClusterInstance.getInstance(event.getClusterSpec(), event.getCluster().getInstances());
+
+          if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
+            CmServerClusterInstance.getInstance().setIsParcel(false);
+          } else {
+            CmServerClusterInstance.getInstance().setIsParcel(true);
           }
 
-          for (CmServerService service : BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(
-              CmServerServiceType.CLUSTER)) {
+          CmServerClusterInstance.getInstance().setMounts(getDataMounts(event));
+
+          for (CmServerService service : CmServerClusterInstance.getInstance().getServices(CmServerServiceType.CLUSTER)) {
             logLineItemDetail("ClouderaManagerClusterProvision", service.getName() + "@" + service.getIp());
           }
 
@@ -205,10 +199,9 @@ public class CmServerHandler extends BaseHandlerCm {
               .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API,
               false));
           server.initialise(config);
-          server.provision(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
-          server.configure(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
-          server.getServiceConfigs(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance(), event.getClusterSpec()
-              .getClusterDirectory());
+          server.provision(CmServerClusterInstance.getInstance());
+          server.configure(CmServerClusterInstance.getInstance());
+          server.getServiceConfigs(CmServerClusterInstance.getInstance(), event.getClusterSpec().getClusterDirectory());
 
         } catch (Exception e) {
 
@@ -230,7 +223,7 @@ public class CmServerHandler extends BaseHandlerCm {
   protected void afterStart(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterStart(event);
 
-    if (!BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().isEmpty()) {
+    if (!CmServerClusterInstance.getInstance().isEmpty()) {
 
       logHeader("ClouderaManagerClusterStart");
 
@@ -250,7 +243,7 @@ public class CmServerHandler extends BaseHandlerCm {
         try {
 
           logLineItem("ClouderaManagerClusterStart", "Services:");
-          for (CmServerServiceType type : BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes()) {
+          for (CmServerServiceType type : CmServerClusterInstance.getInstance().getServiceTypes()) {
             logLineItemDetail("ClouderaManagerClusterStart", type.toString());
           }
 
@@ -258,7 +251,7 @@ public class CmServerHandler extends BaseHandlerCm {
           CmServer server = CmServerFactory.getCmServer(event.getCluster().getInstanceMatching(role(ROLE))
               .getPublicIp(), 7180, CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API,
               false));
-          server.start(BaseHandlerCmCdh.CmServerClusterSingleton.getInstance());
+          server.start(CmServerClusterInstance.getInstance());
 
         } catch (Exception e) {
 

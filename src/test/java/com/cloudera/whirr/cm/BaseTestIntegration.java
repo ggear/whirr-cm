@@ -69,30 +69,38 @@ public class BaseTestIntegration implements BaseTest {
     hosts.remove(CM_HOST);
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
     cluster = new CmServerCluster();
-    cluster.setDataMounts(ImmutableSet.<String> builder().add("/data/" + CLUSTER_TAG).build());
-    cluster.add(new CmServerService(CmServerServiceType.HIVE_METASTORE, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HUE_SERVER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HUE_BEESWAX_SERVER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.OOZIE_SERVER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.add(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addServer(CM_HOST);
+    for (String agent : hosts) {
+      cluster.addAgent(agent);
+    }
+    cluster.setMounts(ImmutableSet.<String> builder().add("/data/" + CLUSTER_TAG).build());
+    cluster.addService(new CmServerService(CmServerServiceType.HIVE_METASTORE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.HUE_SERVER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.HUE_BEESWAX_SERVER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.OOZIE_SERVER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CM_HOST));
     for (int i = 0; i < hostSlaves.length; i++) {
-      cluster
-          .add(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
-      cluster.add(new CmServerService(CmServerServiceType.MAPREDUCE_TASK_TRACKER, CLUSTER_TAG, "" + (i + 1),
+      cluster.addService(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "" + (i + 1),
           hostSlaves[i]));
-      cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
-      cluster.add(new CmServerService(CmServerServiceType.ZOOKEEPER_SERVER, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
-      cluster.add(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
-      cluster.add(new CmServerService(CmServerServiceType.FLUME_AGENT, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
+      cluster.addService(new CmServerService(CmServerServiceType.MAPREDUCE_TASK_TRACKER, CLUSTER_TAG, "" + (i + 1),
+          hostSlaves[i]));
+      cluster.addService(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "" + (i + 1),
+          hostSlaves[i]));
+      cluster.addService(new CmServerService(CmServerServiceType.ZOOKEEPER_SERVER, CLUSTER_TAG, "" + (i + 1),
+          hostSlaves[i]));
+      cluster.addService(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "" + (i + 1),
+          hostSlaves[i]));
+      cluster
+          .addService(new CmServerService(CmServerServiceType.FLUME_AGENT, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
     }
   }
 
   @Before
-  public void provisionCluster() throws CmServerException {
+  public void provisionCluster() throws Exception {
     try {
       serverBootstrap.unconfigure(cluster);
     } catch (Exception e) {

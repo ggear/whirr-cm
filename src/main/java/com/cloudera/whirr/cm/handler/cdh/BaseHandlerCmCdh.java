@@ -33,11 +33,11 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandler;
 
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.handler.BaseHandler;
 import com.cloudera.whirr.cm.handler.CmAgentHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.server.CmServerException;
-import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 
@@ -50,16 +50,15 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
-    if (!event.getInstanceTemplate().getRoles().contains(CmAgentHandler.ROLE)) {
-      throw new IOException("Role [" + getRole() + "] requires colocated role [" + CmAgentHandler.ROLE + "]");
-    }
     try {
-      CmServerClusterSingleton.getInstance().add(new CmServerService(getType()));
+      if (!event.getInstanceTemplate().getRoles().contains(CmAgentHandler.ROLE)) {
+        throw new CmServerException("Role [" + getRole() + "] requires colocated role [" + CmAgentHandler.ROLE + "]");
+      }
+      CmServerClusterInstance.getInstance().addService(new CmServerService(getType()));
     } catch (CmServerException e) {
-      throw new IOException(e);
+      throw new IOException("Unexpected error building cluster", e);
     }
     roleToType.putIfAbsent(getRole(), getType());
-
     if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
       addStatement(event, call("register_cdh_repo"));
       addStatement(event, call("install_cdh_packages"));
@@ -95,19 +94,6 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
 
   public static Set<String> getRoles() {
     return new HashSet<String>(roleToType.keySet());
-  }
-
-  public static class CmServerClusterSingleton {
-
-    private static CmServerCluster _instance;
-
-    private CmServerClusterSingleton() {
-    }
-
-    public static synchronized CmServerCluster getInstance() {
-      return _instance == null ? (_instance = new CmServerCluster()) : _instance;
-    }
-
   }
 
 }

@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.command.Command;
 import org.apache.whirr.util.KeyPair;
 import org.junit.Assert;
@@ -72,8 +73,7 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
-          CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
         return 0;
       }
     };
@@ -95,12 +95,11 @@ public class CmServerCommandTest extends BaseTestCommand {
   public void testBaseCommandCmServerNoCmCdhRoles() throws Exception {
 
     final int rolesNumberCmCdh = initialiseCluster(new String[][] { { CmServerHandler.ROLE, CmAgentHandler.ROLE },
-        { CmServerHandler.ROLE, CmAgentHandler.ROLE } });
+        { CmAgentHandler.ROLE } });
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
-          CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(rolesNumberCmCdh));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -126,13 +125,11 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     final int rolesNumberCmCdh = initialiseCluster(new String[][] {
         { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsNameNodeHandler.ROLE,
-            CmCdhHdfsSecondaryNameNodeHandler.ROLE },
-        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
+            CmCdhHdfsSecondaryNameNodeHandler.ROLE }, { CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
-          CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(rolesNumberCmCdh));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -150,12 +147,40 @@ public class CmServerCommandTest extends BaseTestCommand {
   }
 
   @Test
+  public void testBaseCommandCmServerHdfsRolesFilteredEroneous() throws Exception {
+
+    initialiseCluster(new String[][] {
+        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsNameNodeHandler.ROLE,
+            CmCdhHdfsSecondaryNameNodeHandler.ROLE }, { CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
+
+    BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
+      @Override
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
+        assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
+        assertThat(true, is(serverCommand != null));
+        return 0;
+      }
+    };
+
+    ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
+    PrintStream err = new PrintStream(errBytes);
+
+    Map<String, File> keys = KeyPair.generateTemporaryFiles();
+    int rc = clusterCommand.run(null, System.out, err, Lists.newArrayList("--instance-templates", "1 noop",
+        "--service-name", "test-service", "--cluster-name", "test-cluster", "--identity", "myusername", "--roles",
+        "some-fake-role", "--quiet", "--private-key-file", keys.get("private").getAbsolutePath()));
+
+    assertThat(rc, is(-1));
+    assertThat(errBytes.toString(), containsString("'roles' is not a recognized option"));
+
+  }
+
+  @Test
   public void testBaseCommandCmServerHdfsRolesFiltered() throws Exception {
 
     initialiseCluster(new String[][] {
         { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsNameNodeHandler.ROLE,
-            CmCdhHdfsSecondaryNameNodeHandler.ROLE },
-        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
+            CmCdhHdfsSecondaryNameNodeHandler.ROLE }, { CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
@@ -164,8 +189,7 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
 
       @Override
-      public int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
-          CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -183,12 +207,11 @@ public class CmServerCommandTest extends BaseTestCommand {
   }
 
   @Test
-  public void testBaseCommandCmServerHdfsRolesFilteredEroneous() throws Exception {
+  public void testBaseCommandCmServerHdfsRolesFilteredOut() throws Exception {
 
     initialiseCluster(new String[][] {
         { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsNameNodeHandler.ROLE,
-            CmCdhHdfsSecondaryNameNodeHandler.ROLE },
-        { CmServerHandler.ROLE, CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
+            CmCdhHdfsSecondaryNameNodeHandler.ROLE }, { CmAgentHandler.ROLE, CmCdhHdfsDataNodeHandler.ROLE } });
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
@@ -197,8 +220,7 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
 
       @Override
-      public int run(String user, String cmServer, List<String> cmAgents, List<String> cmNodes, CmServerCluster cluster,
-          CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
         assertThat(true, is(serverCommand != null));
         return 0;

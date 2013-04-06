@@ -47,7 +47,7 @@ public abstract class BaseCommand extends AbstractClusterCommand implements CmCo
     super(name, description, factory);
   }
 
-  public abstract int run(OptionSet optionSet, ClusterSpec clusterSpec, ClusterStateStore clusterStateStore,
+  public abstract int run(OptionSet optionSet, ClusterSpec specification, ClusterStateStore clusterStateStore,
       ClusterController clusterController) throws Exception;
 
   public String getLabel() {
@@ -57,17 +57,20 @@ public abstract class BaseCommand extends AbstractClusterCommand implements CmCo
   @Override
   public int run(InputStream in, PrintStream out, PrintStream err, List<String> args) throws Exception {
 
-    OptionSet optionSet = parser.parse(args.toArray(new String[args.size()]));
-    if (!optionSet.nonOptionArguments().isEmpty()) {
-      printUsage(err);
-      return -1;
-    }
-
     try {
-      ClusterSpec clusterSpec = getClusterSpec(optionSet);
-      printProviderInfo(out, err, clusterSpec, optionSet);
-      return run(optionSet, clusterSpec, createClusterStateStore(clusterSpec),
-          createClusterController(clusterSpec.getServiceName()));
+
+      OptionSet optionSet = parser.parse(args.toArray(new String[args.size()]));
+      if (!optionSet.nonOptionArguments().isEmpty()) {
+        printUsage(err);
+        return -1;
+      }
+
+      ClusterSpec specification = getClusterSpec(optionSet);
+      printProviderInfo(out, err, specification, optionSet);
+
+      return run(optionSet, specification, createClusterStateStore(specification),
+          createClusterController(specification.getServiceName()));
+
     } catch (Exception e) {
       printErrorAndHelpHint(err, e);
       return -1;

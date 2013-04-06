@@ -26,7 +26,7 @@ import org.apache.whirr.service.BaseServiceDryRunTest;
 import org.junit.Before;
 
 import com.cloudera.whirr.cm.BaseTest;
-import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.google.common.collect.ImmutableMap;
 import com.jcraft.jsch.JSchException;
 
@@ -36,8 +36,7 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   public ClusterSpec newClusterSpecForProperties(Map<String, String> properties) throws IOException,
       ConfigurationException, JSchException {
     ClusterSpec clusterSpec = super.newClusterSpecForProperties(ImmutableMap.<String, String> builder()
-        .putAll(properties).put("whirr.cluster-user", CLUSTER_USER)
-        .put(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT)
+        .putAll(properties).put("whirr.cluster-user", CLUSTER_USER).put(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT)
         .put(CONFIG_WHIRR_AUTO_VARIABLE, Boolean.FALSE.toString()).build());
     clusterSpec.setPrivateKey(FILE_KEY_PRIVATE);
     clusterSpec.setPublicKey(FILE_KEY_PUBLIC);
@@ -46,9 +45,7 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
 
   @Before
   public void clearClusterSingleton() {
-    BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().clear();
+    CmServerClusterInstance.getInstance(true);
   }
-
-
 
 }

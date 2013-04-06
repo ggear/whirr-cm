@@ -32,14 +32,16 @@ public class CmServerClusterTest extends BaseTestServer {
   @Before
   public void setupCluster() throws CmServerException {
     cluster = new CmServerCluster();
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "2", "host-2"));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", "host-1"));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "1", "host-1"));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", "host-1"));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "3", "host-3"));
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "4", "host-4"));
-    cluster.add(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "1", "host-4"));
-    cluster.add(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "1", "host-4"));
+    cluster.addServer("some-host");
+    cluster.addAgent("some-host");
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "2", "host-2"));
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", "host-1"));
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "1", "host-1"));
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", "host-1"));
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "3", "host-3"));
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "4", "host-4"));
+    cluster.addService(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "1", "host-4"));
+    cluster.addService(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "1", "host-4"));
   }
 
   @Test
@@ -80,65 +82,56 @@ public class CmServerClusterTest extends BaseTestServer {
 
   @Test
   public void testIsEmpty() throws CmServerException {
-    Assert.assertFalse(cluster.isEmpty());
-    Assert.assertFalse(cluster.isEmptyServices());
-    cluster.clear();
+    CmServerCluster cluster = new CmServerCluster();
     Assert.assertTrue(cluster.isEmpty());
-    Assert.assertTrue(cluster.isEmptyServices());
-    cluster.add(CmServerServiceType.HDFS_NAMENODE);
-    Assert.assertFalse(cluster.isEmpty());
-    Assert.assertTrue(cluster.isEmptyServices());
-    cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", "host-1"));
-    Assert.assertFalse(cluster.isEmpty());
-    Assert.assertFalse(cluster.isEmptyServices());
-    cluster.clearServices();
-    Assert.assertFalse(cluster.isEmpty());
-    Assert.assertTrue(cluster.isEmptyServices());
-    cluster.clear();
+    cluster.addService(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", "host-1"));
     Assert.assertTrue(cluster.isEmpty());
-    Assert.assertTrue(cluster.isEmptyServices());
+    cluster.addServer("some-host");
+    Assert.assertTrue(cluster.isEmpty());
+    cluster.addAgent("some-host");
+    Assert.assertFalse(cluster.isEmpty());
   }
 
   @Test
   public void testAdd() throws CmServerException {
     boolean caught = false;
     try {
-      cluster.add(CmServerServiceType.CLUSTER);
+      cluster.addServiceType(CmServerServiceType.CLUSTER);
     } catch (CmServerException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
-      cluster.add(CmServerServiceType.HDFS);
+      cluster.addServiceType(CmServerServiceType.HDFS);
     } catch (CmServerException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
-      cluster.add(new CmServerService(CmServerServiceType.CLUSTER, CLUSTER_TAG));
+      cluster.addService(new CmServerService(CmServerServiceType.CLUSTER, CLUSTER_TAG));
     } catch (CmServerException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
-      cluster.add(new CmServerService(CmServerServiceType.HDFS, CLUSTER_TAG));
+      cluster.addService(new CmServerService(CmServerServiceType.HDFS, CLUSTER_TAG));
     } catch (CmServerException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
-      cluster.add(CmServerServiceType.HDFS_NAMENODE);
+      cluster.addServiceType(CmServerServiceType.HDFS_NAMENODE);
     } catch (CmServerException e) {
       caught = true;
     }
     Assert.assertTrue(caught);
     caught = false;
     try {
-      cluster.add(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG));
+      cluster.addService(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG));
     } catch (CmServerException e) {
       caught = true;
     }

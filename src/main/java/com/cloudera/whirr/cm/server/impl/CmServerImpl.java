@@ -153,6 +153,7 @@ public class CmServerImpl implements CmServer {
   @Override
   public List<CmServerService> getServiceHosts() throws CmServerException {
 
+    // TODO populate agents rather than hosts, return cluster instead
     final List<CmServerService> services = new ArrayList<CmServerService>();
     try {
 
@@ -211,6 +212,7 @@ public class CmServerImpl implements CmServer {
   @CmServerCommandMethod(name = "services")
   public CmServerCluster getServices(final CmServerCluster cluster) throws CmServerException {
 
+    // TODO Populate server, agents, nodes
     final CmServerCluster clusterView = new CmServerCluster();
     try {
 
@@ -221,7 +223,7 @@ public class CmServerImpl implements CmServer {
               .readServices(DataView.SUMMARY)) {
             for (ApiRole apiRole : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                 .getRolesResource(apiService.getName()).readRoles()) {
-              clusterView.add(new CmServerService(apiRole.getName(), apiRole.getHostRef().getHostId(),
+              clusterView.addService(new CmServerService(apiRole.getName(), apiRole.getHostRef().getHostId(),
                   CmServerServiceStatus.valueOf(apiRole.getRoleState().toString())));
             }
           }
@@ -259,7 +261,7 @@ public class CmServerImpl implements CmServer {
       for (CmServerService service : getServices(cluster).getServices(CmServerServiceType.CLUSTER)) {
         if (type.equals(CmServerServiceType.CLUSTER) || type.equals(service.getType().getParent())
             || type.equals(service.getType())) {
-          clusterView.add(service);
+          clusterView.addService(service);
         }
       }
 

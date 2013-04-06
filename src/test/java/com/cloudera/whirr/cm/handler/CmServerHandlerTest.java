@@ -26,7 +26,7 @@ import org.apache.whirr.ClusterSpec;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhFlumeAgentHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseMasterHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseRegionServerHandler;
@@ -99,9 +99,8 @@ public class CmServerHandlerTest extends BaseTestHandler {
                     + CmCdhFlumeAgentHandler.ROLE,
                 CONFIG_WHIRR_CM_PREFIX + "REMOTE_PARCEL_REPO_URLS",
                 "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/\\,http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"))));
-    Assert.assertEquals(9, BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServiceTypes().size());
-    Assert.assertEquals(15,
-        BaseHandlerCmCdh.CmServerClusterSingleton.getInstance().getServices(CmServerServiceType.CLUSTER).size());
+    Assert.assertEquals(9, CmServerClusterInstance.getInstance().getServiceTypes().size());
+    Assert.assertEquals(15, CmServerClusterInstance.getInstance().getServices(CmServerServiceType.CLUSTER).size());
   }
 
   @Test
@@ -109,8 +108,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
     boolean caught = false;
     try {
       Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
-          "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmCdhHdfsNameNodeHandler.ROLE,
-          CONFIG_WHIRR_AUTO_VARIABLE, Boolean.TRUE.toString()))));
+          "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmCdhHdfsNameNodeHandler.ROLE))));
     } catch (Exception e) {
       caught = true;
     }
@@ -131,6 +129,18 @@ public class CmServerHandlerTest extends BaseTestHandler {
   }
 
   @Test
+  public void testMultipleCmServers() throws Exception {
+    boolean caught = false;
+    try {
+      Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
+          "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",1 " + CmServerHandler.ROLE))));
+    } catch (Exception e) {
+      caught = true;
+    }
+    Assert.assertTrue(caught);
+  }
+
+  @Test
   public void testInValidClusterName() throws Exception {
     boolean caught = false;
     try {
@@ -144,4 +154,5 @@ public class CmServerHandlerTest extends BaseTestHandler {
     }
     Assert.assertTrue(caught);
   }
+
 }

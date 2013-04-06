@@ -54,8 +54,6 @@ public class CmAgentHandler extends CmNodeHandler {
           call("configure_cm_agent", "-h", event.getCluster().getInstanceMatching(role(CmServerHandler.ROLE))
               .getPublicIp(), "-p",
               getConfiguration(event.getClusterSpec()).getString(CmServerHandler.PROPERTY_PORT_COMMS)));
-    } else {
-      logLineItem("CmAgentPreConfigure", "Warning, not configuring agent, because failed to find CM server");
     }
   }
 
