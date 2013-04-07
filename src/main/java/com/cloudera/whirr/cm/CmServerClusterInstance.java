@@ -142,7 +142,8 @@ public class CmServerClusterInstance implements CmConstants {
         logger.logOperationInProgressSync(label, type.toString());
         for (CmServerService service : cluster.getServices(type)) {
           logger.logOperationInProgressSync(label,
-              "  " + service.getName() + "@" + service.getIp() + "=" + service.getStatus());
+              "  " + service.getName() + "@" + (service.getIp() == null ? service.getHost() : service.getIp()) + "="
+                  + service.getStatus());
         }
       }
     }
@@ -172,6 +173,7 @@ public class CmServerClusterInstance implements CmConstants {
   public static void logLineItemFooterFinal(CmServerLog logger) {
     logger.logSpacer();
     logger.logSpacerDashed();
+    logger.logSpacer();
   }
 
   public static void logException(CmServerLog logger, String operation, String message, Throwable throwable) {
