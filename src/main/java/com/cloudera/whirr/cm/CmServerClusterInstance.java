@@ -113,13 +113,17 @@ public class CmServerClusterInstance implements CmConstants {
   }
 
   public static boolean logCluster(CmServerLog logger, String label, ClusterSpec specification, CmServerCluster cluster) {
-    logger.logOperationInProgressSync(label, "CM SERVER");
-    if (cluster.getServer() != null) {
-      logger.logOperationInProgressSync(label, "  http://" + cluster.getServer() + ":7180");
-      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
-          + "@" + cluster.getServer());
+    if (cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
+      logger.logOperationInProgressSync(label, "NO CDH SERVICES");
     } else {
-      logger.logOperationInProgressSync(label, "NO CM SERVER");
+      for (CmServerServiceType type : cluster.getServiceTypes()) {
+        logger.logOperationInProgressSync(label, "CDH " + type.toString() + " SERVICE");
+        for (CmServerService service : cluster.getServices(type)) {
+          logger.logOperationInProgressSync(label,
+              "  " + service.getName() + "@" + (service.getIp() == null ? service.getHost() : service.getIp()) + "="
+                  + service.getStatus());
+        }
+      }
     }
     if (!cluster.getAgents().isEmpty()) {
       logger.logOperationInProgressSync(label, "CM AGENTS");
@@ -135,17 +139,13 @@ public class CmServerClusterInstance implements CmConstants {
       logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
           + "@" + cmNode);
     }
-    if (cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
-      logger.logOperationInProgressSync(label, "NO CDH SERVICES");
+    logger.logOperationInProgressSync(label, "CM SERVER");
+    if (cluster.getServer() != null) {
+      logger.logOperationInProgressSync(label, "  http://" + cluster.getServer() + ":7180");
+      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
+          + "@" + cluster.getServer());
     } else {
-      for (CmServerServiceType type : cluster.getServiceTypes()) {
-        logger.logOperationInProgressSync(label, type.toString());
-        for (CmServerService service : cluster.getServices(type)) {
-          logger.logOperationInProgressSync(label,
-              "  " + service.getName() + "@" + (service.getIp() == null ? service.getHost() : service.getIp()) + "="
-                  + service.getStatus());
-        }
-      }
+      logger.logOperationInProgressSync(label, "NO CM SERVER");
     }
     return !cluster.isEmpty();
   }
@@ -160,6 +160,11 @@ public class CmServerClusterInstance implements CmConstants {
   public static void logLineItem(CmServerLog logger, String operation) {
     logger.logSpacer();
     logger.logOperationStartedSync(operation);
+  }
+
+  public static void logLineItem(CmServerLog logger, String operation, String detail) {
+    logger.logSpacer();
+    logger.logOperationInProgressSync(operation, detail);
   }
 
   public static void logLineItemDetail(CmServerLog logger, String operation, String detail) {

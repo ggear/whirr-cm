@@ -183,8 +183,9 @@ public class CmServerHandler extends BaseHandlerCm {
       CmServerCluster cluster = getCluster(event, status);
       if (!cluster.isEmpty()) {
         if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
-          CmServerClusterInstance.logLineItemDetail(logger, operation, "Warning, services found, but whirr property ["
-              + CONFIG_WHIRR_AUTO_VARIABLE + "] set to false so not executing.");
+          CmServerClusterInstance.logLineItem(logger, operation, "Warning, services found, but whirr property");
+          CmServerClusterInstance.logLineItemDetail(logger, operation, "[" + CONFIG_WHIRR_AUTO_VARIABLE
+              + "] is false so not executing");
         } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
           CmServerClusterInstance.logLineItem(logger, operation);
           CmServer server = CmServerClusterInstance.getFactory().getCmServer(
