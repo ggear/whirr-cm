@@ -80,7 +80,8 @@ public class CmServerImpl implements CmServer {
   private static final String CM_PARCEL_STAGE_DISTRIBUTED = "DISTRIBUTED";
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
 
-  private static int API_POLL_PERIOD_MS = 1000;
+  private static int API_POLL_PERIOD_MS = 500;
+  private static int API_POLL_PERIOD_BACKOFF_NUMBER = 5;
 
   private CmServerLog logger;
   final private RootResourceV3 apiResourceRoot;
@@ -965,32 +966,31 @@ public class CmServerImpl implements CmServer {
 
   private ApiCommand execute(String label, ApiCommand command, Callback callback, boolean checkReturn)
       throws InterruptedException {
-
     label = WordUtils.capitalize(label.replace("-", " ").replace("_", " ")).replace(" ", "");
-
     logger.logOperationStartedAsync(label);
-
     ApiCommand commandReturn = null;
+    int apiPollPeriods = 1;
+    int apiPollPeriodLog = 1;
+    int apiPollPeriodBackoffNumber = API_POLL_PERIOD_BACKOFF_NUMBER;
     while (true) {
-
-      logger.logOperationInProgressAsync(label);
-
+      if (apiPollPeriods++ % apiPollPeriodLog == 0) {
+        logger.logOperationInProgressAsync(label);
+      }
       if (callback.poll()) {
         if (checkReturn && command != null
             && !(commandReturn = apiResourceRoot.getCommandsResource().readCommand(command.getId())).getSuccess()) {
-
           logger.logOperationFailedAsync(label);
-
           throw new RuntimeException("Command [" + command + "] failed [" + commandReturn + "]");
         }
-
         logger.logOperationFinishedAsync(label);
-
         return commandReturn;
+      }
+      if (apiPollPeriodBackoffNumber-- == 0) {
+        apiPollPeriodLog++;
+        apiPollPeriodBackoffNumber = API_POLL_PERIOD_BACKOFF_NUMBER;
       }
       Thread.sleep(API_POLL_PERIOD_MS);
     }
-
   }
 
   private static abstract class Callback {

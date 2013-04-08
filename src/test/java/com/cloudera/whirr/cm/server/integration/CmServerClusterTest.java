@@ -178,4 +178,9 @@ public class CmServerClusterTest extends BaseTestIntegrationServer {
     Assert.assertTrue(server.isStopped(cluster));
   }
 
+  @Test
+  public void testUnprovision() throws CmServerException {
+    Assert.assertTrue(server.unprovision(cluster));
+  }
+
 }
