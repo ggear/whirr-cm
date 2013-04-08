@@ -122,8 +122,7 @@ public class CmServerClusterInstance implements CmConstants {
         logger.logOperationInProgressSync(label, "CDH " + type.toString() + " SERVICE");
         for (CmServerService service : cluster.getServices(type)) {
           logger.logOperationInProgressSync(label,
-              "  " + service.getName() + "@" + (service.getIp() == null ? service.getHost() : service.getIp()) + "="
-                  + service.getStatus());
+              "  " + service.getName() + "@" + service.getIp() + "=" + service.getStatus());
         }
       }
     }

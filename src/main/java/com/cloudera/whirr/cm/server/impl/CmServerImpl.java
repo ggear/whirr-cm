@@ -224,12 +224,17 @@ public class CmServerImpl implements CmServer {
       logger.logOperation("GetServices", new CmServerLogSyncCommand() {
         @Override
         public void execute() throws IOException, CmServerException {
+          Map<String, String> hosts = new HashMap<String, String>();
           for (ApiService apiService : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
               .readServices(DataView.SUMMARY)) {
             for (ApiRole apiRole : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                 .getRolesResource(apiService.getName()).readRoles()) {
+              if (!hosts.containsKey(apiRole.getHostRef().getHostId())) {
+                hosts.put(apiRole.getHostRef().getHostId(),
+                    apiResourceRoot.getHostsResource().readHost(apiRole.getHostRef().getHostId()).getIpAddress());
+              }
               clusterView.addService(new CmServerServiceBuilder().name(apiRole.getName())
-                  .host(apiRole.getHostRef().getHostId())
+                  .host(apiRole.getHostRef().getHostId()).ip(hosts.get(apiRole.getHostRef().getHostId()))
                   .status(CmServerServiceStatus.valueOf(apiRole.getRoleState().toString())).build());
             }
           }
