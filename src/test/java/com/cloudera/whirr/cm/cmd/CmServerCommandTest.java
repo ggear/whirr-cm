@@ -221,7 +221,7 @@ public class CmServerCommandTest extends BaseTestCommand {
 
       @Override
       public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
-        assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
+        assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(3));
         assertThat(true, is(serverCommand != null));
         return 0;
       }

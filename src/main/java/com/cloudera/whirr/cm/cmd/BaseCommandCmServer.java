@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import joptsimple.OptionSet;
@@ -36,9 +37,11 @@ import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.handler.CmAgentHandler;
 import com.cloudera.whirr.cm.handler.CmNodeHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
+import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerCommand;
 import com.cloudera.whirr.cm.server.CmServerException;
+import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.google.common.base.Splitter;
 
 public abstract class BaseCommandCmServer extends BaseCommand {
@@ -76,8 +79,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
 
     Set<String> roles = new HashSet<String>();
     if (isRoleFilterable() && optionSet.hasArgument(rolesOption)) {
-      for (String role : Splitter.on(",").split(optionSet.valueOf(rolesOption))) {
-        roles.add(role);
+      if ((roles = filterRoles(optionSet.valueOf(rolesOption))).isEmpty()) {
+        throw new CmServerException("No appropriate roles found to target.");
       }
     }
 
@@ -116,4 +119,17 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     }
   }
 
+  public static Set<String> filterRoles(String rolesCsv) {
+    Set<String> roles = new HashSet<String>();
+    Map<String, CmServerServiceType> rolesToType = BaseHandlerCmCdh.getRolesToType();
+    for (String role : Splitter.on(",").split(rolesCsv)) {
+      if (rolesToType.containsKey(role)) {
+        roles.add(role);
+      }
+    }
+    if (!roles.isEmpty()) {
+      roles.add(CmServerHandler.ROLE);
+    }
+    return roles;
+  }
 }

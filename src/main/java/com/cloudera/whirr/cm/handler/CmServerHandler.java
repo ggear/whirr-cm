@@ -116,13 +116,17 @@ public class CmServerHandler extends BaseHandlerCm {
                 .getString(key));
           }
         }
+        boolean success = false;
         server.initialise(config);
-        if (server.configure(clusterInput)) {
-          if (!server.getServiceConfigs(clusterInput, event.getClusterSpec().getClusterDirectory())) {
-            throw new CmServerException("Unexepcted error attempting to download cluster config");
+        if (server.provision(clusterInput)) {
+          if (server.configure(clusterInput)) {
+            if (server.getServiceConfigs(clusterInput, event.getClusterSpec().getClusterDirectory())) {
+              success = true;
+            }
           }
-        } else {
-          throw new CmServerException("Unexepcted error attempting to configure cluster");
+        }
+        if (!success) {
+          throw new CmServerException("Unexepcted error attempting to provision cluster");
         }
         return clusterInput;
       }

@@ -83,7 +83,7 @@ public class CmServerClusterInstance implements CmConstants {
         } else if (role.equals(CmNodeHandler.ROLE)) {
           cluster.addNode(instance.getPublicIp());
         } else {
-          CmServerServiceType type = BaseHandlerCmCdh.getRoleToTypeGlobal().get(role);
+          CmServerServiceType type = BaseHandlerCmCdh.getRolesToType().get(role);
           if (type != null && (roles == null || roles.isEmpty() || roles.contains(role))) {
             cluster.addService(getClusterService(specification, instance, type));
           }

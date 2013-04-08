@@ -26,8 +26,6 @@ import org.apache.whirr.service.DryRunModule.DryRun;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.cloudera.whirr.cm.handler.CmAgentHandler;
-import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsNameNodeHandler;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
@@ -52,7 +50,7 @@ public class CmAgentHandlerTest extends BaseTestHandler {
 
   @Test
   public void testNoCmServer() throws Exception {
-    DryRun dryRun = launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
+    DryRun dryRun = launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
         + CmAgentHandler.ROLE)));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
@@ -61,7 +59,7 @@ public class CmAgentHandlerTest extends BaseTestHandler {
   public void testNoCmServerCluster() throws Exception {
     boolean caught = false;
     try {
-      launchAndDestroy(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
+      launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
           + CmAgentHandler.ROLE + "+" + CmCdhHdfsNameNodeHandler.ROLE)));
     } catch (Exception e) {
       caught = true;

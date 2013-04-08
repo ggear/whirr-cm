@@ -101,16 +101,16 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
     }
   }
 
-  public static Map<String, CmServerServiceType> getRoleToTypeGlobal() {
-    Map<String, CmServerServiceType> roleToTypeGlobal = new HashMap<String, CmServerServiceType>();
+  public static Map<String, CmServerServiceType> getRolesToType() {
+    Map<String, CmServerServiceType> roleToType = new HashMap<String, CmServerServiceType>();
     // It is OK to do this every time, since ServiceLoader creates a cache, which must be weakly
     // referenced since I had issues with this when caching this under memory pressure (eg maven tests)
     for (ClusterActionHandler handler : ServiceLoader.load(ClusterActionHandler.class)) {
       if (handler instanceof BaseHandlerCmCdh) {
-        roleToTypeGlobal.put(handler.getRole(), ((BaseHandlerCmCdh) handler).getType());
+        roleToType.put(handler.getRole(), ((BaseHandlerCmCdh) handler).getType());
       }
     }
-    return roleToTypeGlobal;
+    return roleToType;
   }
 
 }
