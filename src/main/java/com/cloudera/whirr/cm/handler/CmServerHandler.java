@@ -141,8 +141,8 @@ public class CmServerHandler extends BaseHandlerCm {
       public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
           throws Exception {
         CmServerCluster clusterOutput = new CmServerCluster();
-        if (server.isConfigured(clusterInput)) {
-          server.start(clusterInput);
+        server.start(clusterInput);
+        if (server.isStarted(clusterInput)) {
           if ((clusterOutput = server.getServices(clusterInput)).isEmpty()) {
             throw new CmServerException("Unexpected error, empty cluster returned");
           }
@@ -168,7 +168,7 @@ public class CmServerHandler extends BaseHandlerCm {
             throw new CmServerException("Unexpected error, empty cluster returned");
           }
         } else {
-          throw new CmServerException("Unexpected error starting cluster, not correctly provisioned");
+          throw new CmServerException("Unexpected error stopping cluster, not correctly provisioned");
         }
         return clusterOutput;
       }

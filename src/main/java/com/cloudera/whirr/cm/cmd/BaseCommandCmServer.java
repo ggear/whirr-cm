@@ -80,7 +80,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     Set<String> roles = new HashSet<String>();
     if (isRoleFilterable() && optionSet.hasArgument(rolesOption)) {
       if ((roles = filterRoles(optionSet.valueOf(rolesOption))).isEmpty()) {
-        throw new CmServerException("No appropriate roles found to target.");
+        throw new CmServerException("Role filter does not include any appropriate roles.");
       }
     }
 
@@ -94,7 +94,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
       throw new CmServerException("Could not find any " + CmAgentHandler.ROLE + "'s or " + CmNodeHandler.ROLE + "'s.");
     }
     if (cluster.isEmpty()) {
-      throw new CmServerException("No appropriate roles found to target.");
+      throw new CmServerException("Could not find any appropriate roles to target.");
     }
 
     CmServerBuilder command = new CmServerBuilder().host(cluster.getServer()).cluster(cluster)
