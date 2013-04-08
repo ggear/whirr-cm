@@ -42,7 +42,7 @@ import com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsDataNodeHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsNameNodeHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsSecondaryNameNodeHandler;
 import com.cloudera.whirr.cm.server.CmServerCluster;
-import com.cloudera.whirr.cm.server.CmServerCommand;
+import com.cloudera.whirr.cm.server.CmServerBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -73,7 +73,7 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand) throws Exception {
         return 0;
       }
     };
@@ -99,7 +99,7 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(rolesNumberCmCdh));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -129,7 +129,7 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(rolesNumberCmCdh));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -155,7 +155,7 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -189,7 +189,7 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
 
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -220,7 +220,7 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
 
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand) throws Exception {
+      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(3));
         assertThat(true, is(serverCommand != null));
         return 0;

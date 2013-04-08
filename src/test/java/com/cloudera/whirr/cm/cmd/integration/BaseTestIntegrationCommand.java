@@ -23,18 +23,18 @@ import org.apache.whirr.ClusterSpec;
 import org.junit.Before;
 
 import com.cloudera.whirr.cm.BaseTestIntegration;
-import com.cloudera.whirr.cm.server.CmServerCommand;
+import com.cloudera.whirr.cm.server.CmServerBuilder;
 
 public abstract class BaseTestIntegrationCommand extends BaseTestIntegration {
 
-  protected CmServerCommand command;
+  protected CmServerBuilder command;
   protected ClusterSpec specification;
 
   @Override
   @Before
   public void provisionCluster() throws Exception {
     super.provisionCluster();
-    command = CmServerCommand.get().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath());
+    command = new CmServerBuilder().host(CM_HOST).cluster(cluster).client(DIR_CLIENT_CONFIG.getAbsolutePath());
     Configuration configuration = new PropertiesConfiguration();
     configuration.setProperty(CONFIG_WHIRR_USER, CLUSTER_USER);
     configuration.setProperty(CONFIG_WHIRR_PRIV_KEY, FILE_KEY_PRIVATE.getAbsolutePath());

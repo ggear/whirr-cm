@@ -30,6 +30,7 @@ import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
+import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
@@ -73,28 +74,37 @@ public class BaseTestIntegration implements BaseTest {
       cluster.addAgent(agent);
     }
     cluster.setMounts(ImmutableSet.<String> builder().add("/data/" + CLUSTER_TAG).build());
-    cluster.addService(new CmServerService(CmServerServiceType.HIVE_METASTORE, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.HUE_SERVER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.HUE_BEESWAX_SERVER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.OOZIE_SERVER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.HBASE_MASTER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.HDFS_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.HDFS_SECONDARY_NAMENODE, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.MAPREDUCE_JOB_TRACKER, CLUSTER_TAG, "1", CM_HOST));
-    cluster.addService(new CmServerService(CmServerServiceType.IMPALA_STATE_STORE, CLUSTER_TAG, "1", CM_HOST));
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HIVE_METASTORE).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_SERVER).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_BEESWAX_SERVER).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.OOZIE_SERVER).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HBASE_MASTER).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_NAMENODE).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_SECONDARY_NAMENODE).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_JOB_TRACKER).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.IMPALA_STATE_STORE).tag(CLUSTER_TAG)
+        .qualifier("1").host(CM_HOST).build());
     for (int i = 0; i < hostSlaves.length; i++) {
-      cluster.addService(new CmServerService(CmServerServiceType.HBASE_REGIONSERVER, CLUSTER_TAG, "" + (i + 1),
-          hostSlaves[i]));
-      cluster.addService(new CmServerService(CmServerServiceType.MAPREDUCE_TASK_TRACKER, CLUSTER_TAG, "" + (i + 1),
-          hostSlaves[i]));
-      cluster.addService(new CmServerService(CmServerServiceType.HDFS_DATANODE, CLUSTER_TAG, "" + (i + 1),
-          hostSlaves[i]));
-      cluster.addService(new CmServerService(CmServerServiceType.ZOOKEEPER_SERVER, CLUSTER_TAG, "" + (i + 1),
-          hostSlaves[i]));
-      cluster.addService(new CmServerService(CmServerServiceType.IMPALA_DAEMON, CLUSTER_TAG, "" + (i + 1),
-          hostSlaves[i]));
-      cluster
-          .addService(new CmServerService(CmServerServiceType.FLUME_AGENT, CLUSTER_TAG, "" + (i + 1), hostSlaves[i]));
+      cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HBASE_REGIONSERVER).tag(CLUSTER_TAG)
+          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+      cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_TASK_TRACKER).tag(CLUSTER_TAG)
+          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+      cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
+          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+      cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.ZOOKEEPER_SERVER).tag(CLUSTER_TAG)
+          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+      cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.IMPALA_DAEMON).tag(CLUSTER_TAG)
+          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+      cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.FLUME_AGENT).tag(CLUSTER_TAG)
+          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
     }
   }
 

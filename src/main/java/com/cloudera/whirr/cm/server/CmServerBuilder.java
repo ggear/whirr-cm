@@ -39,7 +39,7 @@ import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerImpl;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 
-public class CmServerCommand implements CmServerConstants {
+public class CmServerBuilder implements CmServerConstants {
 
   public static final String ARGUMENT_PREFIX = "--";
 
@@ -76,29 +76,25 @@ public class CmServerCommand implements CmServerConstants {
 
   private static final Map<String, Method> CONFIG_COMMANDS = new HashMap<String, Method>();
   static {
-    for (Method method : CmServerCommand.class.getMethods()) {
+    for (Method method : CmServerBuilder.class.getMethods()) {
       if (method.isAnnotationPresent(CmServerCommandMethod.class)) {
         CONFIG_COMMANDS.put(method.getAnnotation(CmServerCommandMethod.class).name(), method);
       }
     }
   }
 
-  private CmServerCommand() throws CmServerException {
+  public CmServerBuilder() throws CmServerException {
   }
 
   public static Set<String> getCommands() {
     return new HashSet<String>(COMMANDS.keySet());
   }
 
-  public static CmServerCommand get() throws CmServerException {
-    return new CmServerCommand();
-  }
-
-  public CmServerCommand arguments(String[] arguments) throws CmServerException {
+  public CmServerBuilder arguments(String[] arguments) throws CmServerException {
     return arguments(argumentsPreProcess(arguments));
   }
 
-  public CmServerCommand arguments(Map<String, String> arguments) throws CmServerException {
+  public CmServerBuilder arguments(Map<String, String> arguments) throws CmServerException {
     for (String argument : arguments.keySet()) {
       if (CONFIG_COMMANDS.containsKey(argument)) {
         try {
@@ -112,7 +108,7 @@ public class CmServerCommand implements CmServerConstants {
   }
 
   @CmServerCommandMethod(name = "host")
-  public CmServerCommand host(String host) throws CmServerException {
+  public CmServerBuilder host(String host) throws CmServerException {
     if (host == null || host.equals("")) {
       throw new CmServerException("Illegal host argument passed [" + host + "]");
     }
@@ -122,7 +118,7 @@ public class CmServerCommand implements CmServerConstants {
   }
 
   @CmServerCommandMethod(name = "port")
-  public CmServerCommand port(String port) throws CmServerException {
+  public CmServerBuilder port(String port) throws CmServerException {
     if (port == null || port.equals("") || !StringUtils.isNumeric(port)) {
       throw new CmServerException("Illegal port argument passed [" + port + "]");
     }
@@ -132,7 +128,7 @@ public class CmServerCommand implements CmServerConstants {
   }
 
   @CmServerCommandMethod(name = "user")
-  public CmServerCommand user(String user) throws CmServerException {
+  public CmServerBuilder user(String user) throws CmServerException {
     if (user == null || user.equals("")) {
       throw new CmServerException("Illegal user argument passed [" + user + "]");
     }
@@ -142,7 +138,7 @@ public class CmServerCommand implements CmServerConstants {
   }
 
   @CmServerCommandMethod(name = "password")
-  public CmServerCommand password(String password) throws CmServerException {
+  public CmServerBuilder password(String password) throws CmServerException {
     if (password == null || password.equals("")) {
       throw new CmServerException("Illegal password argument passed [" + password + "]");
     }
@@ -152,7 +148,7 @@ public class CmServerCommand implements CmServerConstants {
   }
 
   @CmServerCommandMethod(name = "client")
-  public CmServerCommand client(String client) throws CmServerException {
+  public CmServerBuilder client(String client) throws CmServerException {
     if (client == null) {
       throw new CmServerException("Illegal client argument passed [" + client + "]");
     }
@@ -161,7 +157,7 @@ public class CmServerCommand implements CmServerConstants {
   }
 
   @CmServerCommandMethod(name = "command")
-  public CmServerCommand command(String command) throws CmServerException {
+  public CmServerBuilder command(String command) throws CmServerException {
     if (command == null || !COMMANDS.containsKey(command)) {
       throw new CmServerException("Illegal command argument passed [" + command + "]");
     }
@@ -169,7 +165,7 @@ public class CmServerCommand implements CmServerConstants {
     return this;
   }
 
-  public CmServerCommand cluster(CmServerCluster cluster) throws CmServerException {
+  public CmServerBuilder cluster(CmServerCluster cluster) throws CmServerException {
     if (cluster == null || cluster.isEmpty()) {
       throw new CmServerException("Illegal cluster argument passed [" + cluster + "]");
     }
@@ -177,7 +173,7 @@ public class CmServerCommand implements CmServerConstants {
     return this;
   }
 
-  public CmServerCommand logger(CmServerLog logger) throws CmServerException {
+  public CmServerBuilder logger(CmServerLog logger) throws CmServerException {
     if (logger == null) {
       throw new CmServerException("Illegal logger argument passed [" + logger + "]");
     }
@@ -245,25 +241,15 @@ public class CmServerCommand implements CmServerConstants {
         throw new CmServerException("Unexpected paramater type [" + clazz.getName() + "]");
       }
     }
-
     String label = WordUtils.capitalize(command);
-
     try {
-
       logger.logOperationStartedSync(label);
-
       Object commandReturn = COMMANDS.get(command).invoke(server, paramaters.toArray());
-
       logger.logOperationFinishedSync(label);
-
       return commandReturn;
-
     } catch (Exception exception) {
-
       logger.logOperationFailedSync(label, exception);
-
       throw new CmServerException("Unexpected runtime exception executing CM Server command", exception);
-
     }
   }
 

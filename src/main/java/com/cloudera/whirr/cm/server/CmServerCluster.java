@@ -155,12 +155,12 @@ public class CmServerCluster {
       if (service.getType().equals(type)) {
         return service.getName();
       } else {
-        return new CmServerService(type, service.getTag()).getName();
+        return new CmServerServiceBuilder().type(type).tag(service.getTag()).build().getName();
       }
     } else {
       Set<CmServerService> servicesChild = null;
       if (!services.isEmpty() && !(servicesChild = services.get(getServiceTypes().iterator().next())).isEmpty()) {
-        return new CmServerService(type, servicesChild.iterator().next().getTag()).getName();
+        return new CmServerServiceBuilder().type(type).tag(servicesChild.iterator().next().getTag()).build().getName();
       }
     }
     throw new IOException("Cannot determine service name, cluster is empty");

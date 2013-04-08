@@ -61,11 +61,12 @@ import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.whirr.cm.server.CmServer;
+import com.cloudera.whirr.cm.server.CmServerBuilder.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerCluster;
-import com.cloudera.whirr.cm.server.CmServerCommand.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
+import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.CmServerServiceTypeRepo;
 import com.cloudera.whirr.cm.server.impl.CmServerLog.CmServerLogSyncCommand;
@@ -160,7 +161,8 @@ public class CmServerImpl implements CmServer {
         @Override
         public void execute() {
           for (ApiHost host : apiResourceRoot.getHostsResource().readHosts(DataView.SUMMARY).getHosts()) {
-            services.add(new CmServerService(host.getHostId(), host.getIpAddress(), null, CmServerServiceStatus.STARTED));
+            services.add(new CmServerServiceBuilder().host(host.getHostId()).ip(host.getIpAddress())
+                .status(CmServerServiceStatus.STARTED).build());
           }
         }
       });
@@ -225,8 +227,9 @@ public class CmServerImpl implements CmServer {
               .readServices(DataView.SUMMARY)) {
             for (ApiRole apiRole : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                 .getRolesResource(apiService.getName()).readRoles()) {
-              clusterView.addService(new CmServerService(apiRole.getName(), apiRole.getHostRef().getHostId(),
-                  CmServerServiceStatus.valueOf(apiRole.getRoleState().toString())));
+              clusterView.addService(new CmServerServiceBuilder().name(apiRole.getName())
+                  .host(apiRole.getHostRef().getHostId())
+                  .status(CmServerServiceStatus.valueOf(apiRole.getRoleState().toString())).build());
             }
           }
         }

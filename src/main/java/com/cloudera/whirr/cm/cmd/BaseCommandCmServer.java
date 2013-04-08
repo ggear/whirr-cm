@@ -39,7 +39,7 @@ import com.cloudera.whirr.cm.handler.CmNodeHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.server.CmServerCluster;
-import com.cloudera.whirr.cm.server.CmServerCommand;
+import com.cloudera.whirr.cm.server.CmServerBuilder;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.google.common.base.Splitter;
@@ -64,7 +64,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     return "CM" + super.getLabel();
   }
 
-  public abstract int run(ClusterSpec specification, CmServerCluster cluster, CmServerCommand serverCommand)
+  public abstract int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
       throws Exception;
 
   private OptionSpec<String> rolesOption = isRoleFilterable() ? parser.accepts("roles", "Cluster roles to target")
@@ -97,7 +97,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
       throw new CmServerException("No appropriate roles found to target.");
     }
 
-    CmServerCommand command = CmServerCommand.get().host(cluster.getServer()).cluster(cluster)
+    CmServerBuilder command = new CmServerBuilder().host(cluster.getServer()).cluster(cluster)
         .client(specification.getClusterDirectory().getAbsolutePath());
 
     int returnInt = run(specification, cluster, command);

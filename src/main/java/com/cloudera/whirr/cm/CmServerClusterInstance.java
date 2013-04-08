@@ -31,6 +31,7 @@ import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
+import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
@@ -95,9 +96,10 @@ public class CmServerClusterInstance implements CmConstants {
 
   public static CmServerService getClusterService(ClusterSpec specification, Instance instance, CmServerServiceType type)
       throws CmServerException, IOException {
-    return new CmServerService(type, specification.getConfiguration().getString(CONFIG_WHIRR_NAME,
-        CONFIG_WHIRR_NAME_DEFAULT), "" + (cluster.getServices(type).size() + 1), instance.getPublicHostName(),
-        instance.getPublicIp(), instance.getPrivateIp());
+    return new CmServerServiceBuilder().type(type)
+        .tag(specification.getConfiguration().getString(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT))
+        .qualifier("" + (cluster.getServices(type).size() + 1)).host(instance.getPublicHostName())
+        .ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp()).build();
   }
 
   public static CmServerCluster getCluster(CmServerCluster cluster) throws CmServerException {

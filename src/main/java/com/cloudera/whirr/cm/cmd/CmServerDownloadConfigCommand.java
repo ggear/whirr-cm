@@ -23,7 +23,7 @@ import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.state.ClusterStateStoreFactory;
 
 import com.cloudera.whirr.cm.server.CmServerCluster;
-import com.cloudera.whirr.cm.server.CmServerCommand;
+import com.cloudera.whirr.cm.server.CmServerBuilder;
 
 public class CmServerDownloadConfigCommand extends BaseCommandCmServer {
 
@@ -44,7 +44,7 @@ public class CmServerDownloadConfigCommand extends BaseCommandCmServer {
 
   @Override
   public int run(ClusterSpec specification,  CmServerCluster cluster,
-      CmServerCommand serverCommand) throws Exception {
+      CmServerBuilder serverCommand) throws Exception {
     return serverCommand.command("client").executeBoolean() ? 0 : -1;
   }
 
