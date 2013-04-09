@@ -191,11 +191,14 @@ public class CmServerHandler extends BaseHandlerCm {
           CmServer server = CmServerClusterInstance.getFactory().getCmServer(
               event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
               new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
-          cluster = command.execute(event, server, cluster);
-          CmServerClusterInstance.logLineItemFooter(logger, operation);
-          CmServerClusterInstance.logLineItem(logger, operation);
-          CmServerClusterInstance.logCluster(logger, operation, event.getClusterSpec(), cluster);
-          CmServerClusterInstance.logLineItemFooter(logger, operation);
+          try {
+            cluster = command.execute(event, server, cluster);
+          } finally {
+            CmServerClusterInstance.logLineItemFooter(logger, operation);
+            CmServerClusterInstance.logLineItem(logger, operation);
+            CmServerClusterInstance.logCluster(logger, operation, event.getClusterSpec(), cluster);
+            CmServerClusterInstance.logLineItemFooter(logger, operation);
+          }
         }
       }
     } catch (Exception e) {

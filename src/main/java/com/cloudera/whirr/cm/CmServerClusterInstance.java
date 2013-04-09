@@ -179,7 +179,7 @@ public class CmServerClusterInstance implements CmConstants {
   }
 
   public static void logException(CmServerLog logger, String operation, String message, Throwable throwable) {
-    logger.logOperationInProgressSync(operation, "Failed");
+    logger.logOperationInProgressSync(operation, "failed");
     logger.logOperationStackTrace(operation, throwable);
     logger.logSpacer();
     logger.logOperation(operation, message);
