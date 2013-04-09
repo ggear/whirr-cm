@@ -20,7 +20,7 @@ package com.cloudera.whirr.cm.server;
 public class CmServerService implements Comparable<CmServerService> {
 
   public enum CmServerServiceStatus {
-    STARTING, STARTED, STOPPING, STOPPED, UNKNOWN
+    STARTING, STARTED, STOPPING, STOPPED, BUSY, UNKNOWN
   }
 
   public static final String NAME_TOKEN_DELIM = "_";

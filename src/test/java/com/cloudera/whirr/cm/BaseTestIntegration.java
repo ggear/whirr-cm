@@ -40,7 +40,7 @@ import com.google.common.collect.ImmutableSet;
 public class BaseTestIntegration implements BaseTest {
 
   // The CM Server and database host/IP and port
-  protected static String CM_HOST_OR_IP = getSystemProperty("whirr.test.cm.host", "54.242.201.142");
+  protected static String CM_HOST_OR_IP = getSystemProperty("whirr.test.cm.host", "54.224.157.241");
   protected static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
 
   // The CM Server config to be uploaded

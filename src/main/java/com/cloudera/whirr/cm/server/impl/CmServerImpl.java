@@ -81,7 +81,7 @@ public class CmServerImpl implements CmServer {
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
 
   private static int API_POLL_PERIOD_MS = 500;
-  private static int API_POLL_PERIOD_BACKOFF_NUMBER = 5;
+  private static int API_POLL_PERIOD_BACKOFF_NUMBER = 4;
 
   private CmServerLog logger;
   final private RootResourceV3 apiResourceRoot;
@@ -232,9 +232,15 @@ public class CmServerImpl implements CmServer {
                   ips.put(apiRole.getHostRef().getHostId(),
                       apiResourceRoot.getHostsResource().readHost(apiRole.getHostRef().getHostId()).getIpAddress());
                 }
+                CmServerServiceStatus status = null;
+                try {
+                  status = CmServerServiceStatus.valueOf(apiRole.getRoleState().toString());
+                } catch (IllegalArgumentException exception) {
+                  status = CmServerServiceStatus.UNKNOWN;
+                }
                 clusterView.addService(new CmServerServiceBuilder().name(apiRole.getName())
                     .host(apiRole.getHostRef().getHostId()).ip(ips.get(apiRole.getHostRef().getHostId()))
-                    .status(CmServerServiceStatus.valueOf(apiRole.getRoleState().toString())).build());
+                    .status(status).build());
               }
             }
           }
