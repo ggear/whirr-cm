@@ -130,21 +130,22 @@ public class CmServerClusterInstance implements CmConstants {
       logger.logOperationInProgressSync(label, "CM AGENTS");
     }
     for (String cmAgent : cluster.getAgents()) {
-      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
-          + "@" + cmAgent);
+      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no -i "
+          + specification.getPrivateKeyFile().getAbsolutePath() + " " + specification.getClusterUser() + "@" + cmAgent);
     }
     if (!cluster.getNodes().isEmpty()) {
       logger.logOperationInProgressSync(label, "CM NODES");
     }
     for (String cmNode : cluster.getNodes()) {
-      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
-          + "@" + cmNode);
+      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no -i "
+          + specification.getPrivateKeyFile().getAbsolutePath() + " " + specification.getClusterUser() + "@" + cmNode);
     }
     logger.logOperationInProgressSync(label, "CM SERVER");
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(label, "  http://" + cluster.getServer() + ":7180");
-      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no " + specification.getClusterUser()
-          + "@" + cluster.getServer());
+      logger.logOperationInProgressSync(label,
+          "  ssh -o StrictHostKeyChecking=no -i " + specification.getPrivateKeyFile().getAbsolutePath() + " "
+              + specification.getClusterUser() + "@" + cluster.getServer());
     } else {
       logger.logOperationInProgressSync(label, "NO CM SERVER");
     }
