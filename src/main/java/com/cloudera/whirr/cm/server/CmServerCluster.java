@@ -33,8 +33,8 @@ public class CmServerCluster {
 
   private String server;
   private boolean isParcel = true;
-  private Set<String> agents = new TreeSet<String>();
-  private Set<String> nodes = new TreeSet<String>();
+  private Set<CmServerService> agents = new HashSet<CmServerService>();
+  private Set<CmServerService> nodes = new HashSet<CmServerService>();
   private Set<String> mounts = new HashSet<String>();
   private Map<CmServerServiceType, Set<CmServerService>> services = new HashMap<CmServerServiceType, Set<CmServerService>>();
 
@@ -85,14 +85,14 @@ public class CmServerCluster {
     return (this.server = server) != null;
   }
 
-  public synchronized boolean addAgent(String agent) throws CmServerException {
+  public synchronized boolean addAgent(CmServerService agent) throws CmServerException {
     if (!agents.add(agent)) {
       throw new CmServerException("Invalid cluster topology: Attempt to add col-located agents");
     }
     return true;
   }
 
-  public synchronized boolean addNode(String node) throws CmServerException {
+  public synchronized boolean addNode(CmServerService node) throws CmServerException {
     if (!nodes.add(node)) {
       throw new CmServerException("Invalid cluster topology: Attempt to add co-located nodes");
     }
@@ -170,12 +170,12 @@ public class CmServerCluster {
     return server;
   }
 
-  public synchronized Set<String> getAgents() {
-    return new TreeSet<String>(agents);
+  public synchronized Set<CmServerService> getAgents() {
+    return new HashSet<CmServerService>(agents);
   }
 
-  public synchronized Set<String> getNodes() {
-    return new TreeSet<String>(nodes);
+  public synchronized Set<CmServerService> getNodes() {
+    return new HashSet<CmServerService>(nodes);
   }
 
   public synchronized void setMounts(Set<String> mounts) {

@@ -40,7 +40,7 @@ import com.google.common.collect.ImmutableSet;
 public class BaseTestIntegration implements BaseTest {
 
   // The CM Server and database host/IP and port
-  protected static String CM_HOST_OR_IP = getSystemProperty("whirr.test.cm.host", "37.188.123.45");
+  protected static String CM_HOST_OR_IP = getSystemProperty("whirr.test.cm.host", "54.242.201.142");
   protected static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
 
   // The CM Server config to be uploaded
@@ -56,6 +56,7 @@ public class BaseTestIntegration implements BaseTest {
 
   @BeforeClass
   public static void initialiseCluster() throws CmServerException {
+    cluster = new CmServerCluster();
     Assert.assertNotNull(serverBootstrap = new CmServerFactory().getCmServer(CM_HOST_OR_IP, CM_PORT,
         CmConstants.CM_USER, CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST,
             false)));
@@ -63,6 +64,7 @@ public class BaseTestIntegration implements BaseTest {
     hosts = new HashSet<String>();
     for (CmServerService service : serverBootstrap.getServiceHosts()) {
       hosts.add(service.getHost());
+      cluster.addAgent(service);
     }
     Assert.assertFalse(hosts.isEmpty());
     Assert.assertTrue("Integration test cluster requires at least 4 nodes", hosts.size() >= 4);
@@ -71,11 +73,7 @@ public class BaseTestIntegration implements BaseTest {
       hosts.remove(hosts.iterator().next());
     }
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
-    cluster = new CmServerCluster();
     cluster.setServer(CM_HOST_OR_IP);
-    for (String agent : hosts) {
-      cluster.addAgent(agent);
-    }
     cluster.setMounts(ImmutableSet.<String> builder().add("/data/" + CLUSTER_TAG).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HIVE_METASTORE).tag(CLUSTER_TAG)
         .qualifier("1").host(CM_HOST_OR_IP).ip(CM_HOST_OR_IP).build());

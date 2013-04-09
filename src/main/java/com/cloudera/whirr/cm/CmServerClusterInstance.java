@@ -20,6 +20,8 @@ package com.cloudera.whirr.cm;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
@@ -80,9 +82,11 @@ public class CmServerClusterInstance implements CmConstants {
         if (role.equals(CmServerHandler.ROLE)) {
           cluster.setServer(instance.getPublicIp());
         } else if (role.equals(CmAgentHandler.ROLE)) {
-          cluster.addAgent(instance.getPublicIp());
+          cluster.addAgent(new CmServerServiceBuilder().ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp())
+              .build());
         } else if (role.equals(CmNodeHandler.ROLE)) {
-          cluster.addNode(instance.getPublicIp());
+          cluster.addNode(new CmServerServiceBuilder().ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp())
+              .build());
         } else {
           CmServerServiceType type = BaseHandlerCmCdh.getRolesToType().get(role);
           if (type != null && (roles == null || roles.isEmpty() || roles.contains(role))) {
@@ -100,10 +104,10 @@ public class CmServerClusterInstance implements CmConstants {
   public static CmServerCluster getCluster(CmServerCluster cluster) throws CmServerException {
     CmServerCluster clusterTo = new CmServerCluster();
     clusterTo.setServer(cluster.getServer());
-    for (String agent : cluster.getAgents()) {
+    for (CmServerService agent : cluster.getAgents()) {
       clusterTo.addAgent(agent);
     }
-    for (String node : cluster.getNodes()) {
+    for (CmServerService node : cluster.getNodes()) {
       clusterTo.addAgent(node);
     }
     return clusterTo;
@@ -124,16 +128,24 @@ public class CmServerClusterInstance implements CmConstants {
     if (!cluster.getAgents().isEmpty()) {
       logger.logOperationInProgressSync(label, "CM AGENTS");
     }
-    for (String cmAgent : cluster.getAgents()) {
-      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no -i "
-          + specification.getPrivateKeyFile().getAbsolutePath() + " " + specification.getClusterUser() + "@" + cmAgent);
+    SortedSet<String> cmAgentsSorted = new TreeSet<String>();
+    for (CmServerService cmAgent : cluster.getAgents()) {
+      cmAgentsSorted.add("  ssh -o StrictHostKeyChecking=no -i " + specification.getPrivateKeyFile().getAbsolutePath()
+          + " " + specification.getClusterUser() + "@" + cmAgent.getIp());
+    }
+    for (String cmAgentSorted : cmAgentsSorted) {
+      logger.logOperationInProgressSync(label, cmAgentSorted);
     }
     if (!cluster.getNodes().isEmpty()) {
       logger.logOperationInProgressSync(label, "CM NODES");
     }
-    for (String cmNode : cluster.getNodes()) {
-      logger.logOperationInProgressSync(label, "  ssh -o StrictHostKeyChecking=no -i "
-          + specification.getPrivateKeyFile().getAbsolutePath() + " " + specification.getClusterUser() + "@" + cmNode);
+    SortedSet<String> cmNodesSorted = new TreeSet<String>();
+    for (CmServerService cmNode : cluster.getNodes()) {
+      cmNodesSorted.add("  ssh -o StrictHostKeyChecking=no -i " + specification.getPrivateKeyFile().getAbsolutePath()
+          + " " + specification.getClusterUser() + "@" + cmNode.getIp());
+    }
+    for (String cmNodeSorted : cmNodesSorted) {
+      logger.logOperationInProgressSync(label, cmNodeSorted);
     }
     logger.logOperationInProgressSync(label, "CM SERVER");
     if (cluster.getServer() != null) {

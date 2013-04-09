@@ -202,12 +202,7 @@ public class CmServerImpl implements CmServer {
       throw new CmServerException("Failed to find service", e);
     }
 
-    if (serviceFound == null) {
-      throw new CmServerException("Failed to find service matching " + service);
-    } else {
-      return serviceFound;
-    }
-
+    return serviceFound;
   }
 
   @Override
@@ -215,32 +210,36 @@ public class CmServerImpl implements CmServer {
   public CmServerCluster getServices(final CmServerCluster cluster) throws CmServerException {
 
     final CmServerCluster clusterView = new CmServerCluster();
-    clusterView.setServer(cluster.getServer());
-    for (CmServerService service : getServiceHosts()) {
-      clusterView.addAgent(service.getIp());
-    }
     try {
 
+      clusterView.setServer(cluster.getServer());
+      List<CmServerService> services = getServiceHosts();
+      for (CmServerService server : cluster.getAgents()) {
+        if (getServiceHost(server, services) != null) {
+          clusterView.addAgent(server);
+        }
+      }
       if (isProvisioned(cluster)) {
         logger.logOperation("GetServices", new CmServerLogSyncCommand() {
           @Override
           public void execute() throws IOException, CmServerException {
-            Map<String, String> hosts = new HashMap<String, String>();
+            Map<String, String> ips = new HashMap<String, String>();
             for (ApiService apiService : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                 .readServices(DataView.SUMMARY)) {
               for (ApiRole apiRole : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                   .getRolesResource(apiService.getName()).readRoles()) {
-                if (!hosts.containsKey(apiRole.getHostRef().getHostId())) {
-                  hosts.put(apiRole.getHostRef().getHostId(),
+                if (!ips.containsKey(apiRole.getHostRef().getHostId())) {
+                  ips.put(apiRole.getHostRef().getHostId(),
                       apiResourceRoot.getHostsResource().readHost(apiRole.getHostRef().getHostId()).getIpAddress());
                 }
                 clusterView.addService(new CmServerServiceBuilder().name(apiRole.getName())
-                    .host(apiRole.getHostRef().getHostId()).ip(hosts.get(apiRole.getHostRef().getHostId()))
+                    .host(apiRole.getHostRef().getHostId()).ip(ips.get(apiRole.getHostRef().getHostId()))
                     .status(CmServerServiceStatus.valueOf(apiRole.getRoleState().toString())).build());
               }
             }
           }
         });
+
       }
 
     } catch (Exception e) {
