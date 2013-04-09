@@ -86,20 +86,15 @@ public class CmServerClusterInstance implements CmConstants {
         } else {
           CmServerServiceType type = BaseHandlerCmCdh.getRolesToType().get(role);
           if (type != null && (roles == null || roles.isEmpty() || roles.contains(role))) {
-            cluster.addService(getClusterService(specification, instance, type));
+            cluster.addService(new CmServerServiceBuilder().type(type)
+                .tag(specification.getConfiguration().getString(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT))
+                .qualifier("" + (cluster.getServices(type).size() + 1)).ip(instance.getPublicIp())
+                .ipInternal(instance.getPrivateIp()).build());
           }
         }
       }
     }
     return cluster;
-  }
-
-  public static CmServerService getClusterService(ClusterSpec specification, Instance instance, CmServerServiceType type)
-      throws CmServerException, IOException {
-    return new CmServerServiceBuilder().type(type)
-        .tag(specification.getConfiguration().getString(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT))
-        .qualifier("" + (cluster.getServices(type).size() + 1)).host(instance.getPublicHostName())
-        .ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp()).build();
   }
 
   public static CmServerCluster getCluster(CmServerCluster cluster) throws CmServerException {
