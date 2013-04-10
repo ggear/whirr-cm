@@ -43,8 +43,17 @@ public class CmServerClusterInstance implements CmConstants {
 
   private static CmServerFactory factory;
   private static CmServerCluster cluster;
+  private static boolean isStandaloneCommand = false;
 
   private CmServerClusterInstance() {
+  }
+
+  public static synchronized boolean isStandaloneCommand() {
+    return isStandaloneCommand;
+  }
+
+  public static synchronized void setIsStandaloneCommand(boolean isStandaloneCommand) {
+    CmServerClusterInstance.isStandaloneCommand = isStandaloneCommand;
   }
 
   public static synchronized CmServerFactory getFactory() {

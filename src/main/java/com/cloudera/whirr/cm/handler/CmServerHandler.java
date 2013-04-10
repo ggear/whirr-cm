@@ -67,6 +67,7 @@ public class CmServerHandler extends BaseHandlerCm {
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     try {
+      CmServerClusterInstance.setIsStandaloneCommand(false);
       CmServerClusterInstance.getCluster().setServer(getInstanceId());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
@@ -182,11 +183,12 @@ public class CmServerHandler extends BaseHandlerCm {
       CmServerClusterInstance.logHeader(logger, operation);
       CmServerCluster cluster = getCluster(event, status);
       if (!cluster.isEmpty()) {
-        if (!event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+        if (!CmServerClusterInstance.isStandaloneCommand()
+            && !event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
           CmServerClusterInstance.logLineItem(logger, operation, "Warning, services found, but whirr property");
           CmServerClusterInstance.logLineItemDetail(logger, operation, "[" + CONFIG_WHIRR_AUTO_VARIABLE
               + "] is false so not executing");
-        } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+        } else {
           CmServerClusterInstance.logLineItem(logger, operation,
               "follow live at http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
                   + getConfiguration(event.getClusterSpec()).getString(CmServerHandler.PROPERTY_PORT_WEB));
