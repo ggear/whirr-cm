@@ -117,27 +117,45 @@ public class CmServerHandler extends BaseHandlerCm {
                 .getString(key));
           }
         }
-        boolean success = false;
         server.initialise(config);
-        if (server.provision(clusterInput)) {
-          if (server.configure(clusterInput)) {
-            if (server.getServiceConfigs(clusterInput, event.getClusterSpec().getClusterDirectory())) {
-              success = true;
-            }
-          }
-        }
-        if (!success) {
+        if (!server.provision(clusterInput)) {
           throw new CmServerException("Unexepcted error attempting to provision cluster");
         }
         return clusterInput;
       }
-    }, false);
+    }, false, true);
+    executeServer("CMClusterConfigure", event, null, new ServerCommand() {
+      @Override
+      public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
+          throws Exception {
+        Map<String, String> config = new HashMap<String, String>();
+        @SuppressWarnings("unchecked")
+        Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
+        while (keys.hasNext()) {
+          String key = keys.next();
+          if (key.startsWith(CONFIG_WHIRR_CM_PREFIX)) {
+            config.put(key.replaceFirst(CONFIG_WHIRR_CM_PREFIX, ""), event.getClusterSpec().getConfiguration()
+                .getString(key));
+          }
+        }
+        boolean success = false;
+        if (server.configure(clusterInput)) {
+          if (server.getServiceConfigs(clusterInput, event.getClusterSpec().getClusterDirectory())) {
+            success = true;
+          }
+        }
+        if (!success) {
+          throw new CmServerException("Unexepcted error attempting to configure cluster");
+        }
+        return clusterInput;
+      }
+    }, false, false);
   }
 
   @Override
   protected void afterStart(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterStart(event);
-    executeServer("CMClusterStart", event, CmServerServiceStatus.STARTING, new ServerCommand() {
+    executeServer("CMClusterStarting", event, CmServerServiceStatus.STARTING, new ServerCommand() {
       @Override
       public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
           throws Exception {
@@ -152,13 +170,13 @@ public class CmServerHandler extends BaseHandlerCm {
         }
         return clusterOutput;
       }
-    }, true);
+    }, true, false);
   }
 
   @Override
   protected void afterStop(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterStop(event);
-    executeServer("CMClusterStop", event, CmServerServiceStatus.STOPPING, new ServerCommand() {
+    executeServer("CMClusterStopping", event, CmServerServiceStatus.STOPPING, new ServerCommand() {
       @Override
       public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
           throws Exception {
@@ -173,17 +191,17 @@ public class CmServerHandler extends BaseHandlerCm {
         }
         return clusterOutput;
       }
-    }, true);
+    }, true, false);
   }
 
   private void executeServer(String operation, ClusterActionEvent event, CmServerServiceStatus status,
-      ServerCommand command, boolean footer) throws IOException, InterruptedException {
+      ServerCommand command, boolean footer, boolean alwaysExecute) throws IOException, InterruptedException {
     super.afterStart(event);
     try {
       CmServerClusterInstance.logHeader(logger, operation);
       CmServerCluster cluster = getCluster(event, status);
       if (!cluster.isEmpty()) {
-        if (!CmServerClusterInstance.isStandaloneCommand()
+        if (!alwaysExecute && !CmServerClusterInstance.isStandaloneCommand()
             && !event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
           CmServerClusterInstance.logLineItem(logger, operation, "Warning, services found, but whirr property");
           CmServerClusterInstance.logLineItemDetail(logger, operation, "[" + CONFIG_WHIRR_AUTO_VARIABLE
