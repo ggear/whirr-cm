@@ -187,9 +187,13 @@ public class CmServerHandler extends BaseHandlerCm {
           CmServerClusterInstance.logLineItemDetail(logger, operation, "[" + CONFIG_WHIRR_AUTO_VARIABLE
               + "] is false so not executing");
         } else if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+          CmServerClusterInstance.logLineItem(logger, operation,
+              "follow live at http://" + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp() + ":"
+                  + getConfiguration(event.getClusterSpec()).getString(CmServerHandler.PROPERTY_PORT_WEB));
           CmServerClusterInstance.logLineItem(logger, operation);
           CmServer server = CmServerClusterInstance.getFactory().getCmServer(
-              event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(), 7180, CM_USER, CM_PASSWORD,
+              event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(),
+              getConfiguration(event.getClusterSpec()).getInt(PROPERTY_PORT_WEB), CM_USER, CM_PASSWORD,
               new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
           try {
             cluster = command.execute(event, server, cluster);
