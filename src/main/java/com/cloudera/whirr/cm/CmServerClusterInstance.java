@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
 
@@ -62,20 +63,20 @@ public class CmServerClusterInstance implements CmConstants {
     return clear ? (cluster = new CmServerCluster()) : (cluster == null ? (cluster = new CmServerCluster()) : cluster);
   }
 
-  public static synchronized CmServerCluster getCluster(ClusterSpec specification, Set<Instance> instances)
+  public static synchronized CmServerCluster getCluster(Configuration configuration, Set<Instance> instances)
       throws CmServerException, IOException {
-    return getCluster(specification, instances, Collections.<String> emptySet(), Collections.<String> emptySet());
+    return getCluster(configuration, instances, Collections.<String> emptySet(), Collections.<String> emptySet());
   }
 
-  public static synchronized CmServerCluster getCluster(ClusterSpec specification, Set<Instance> instances,
+  public static synchronized CmServerCluster getCluster(Configuration configuration, Set<Instance> instances,
       Set<String> mounts) throws CmServerException, IOException {
-    return getCluster(specification, instances, mounts, Collections.<String> emptySet());
+    return getCluster(configuration, instances, mounts, Collections.<String> emptySet());
   }
 
-  public static synchronized CmServerCluster getCluster(ClusterSpec specification, Set<Instance> instances,
+  public static synchronized CmServerCluster getCluster(Configuration configuration, Set<Instance> instances,
       Set<String> mounts, Set<String> roles) throws CmServerException, IOException {
     cluster = new CmServerCluster();
-    cluster.setIsParcel(!specification.getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false));
+    cluster.setIsParcel(!configuration.getBoolean(CONFIG_WHIRR_USE_PACKAGES, false));
     cluster.setMounts(mounts);
     for (Instance instance : instances) {
       for (String role : instance.getRoles()) {
@@ -90,10 +91,12 @@ public class CmServerClusterInstance implements CmConstants {
         } else {
           CmServerServiceType type = BaseHandlerCmCdh.getRolesToType().get(role);
           if (type != null && (roles == null || roles.isEmpty() || roles.contains(role))) {
-            cluster.addService(new CmServerServiceBuilder().type(type)
-                .tag(specification.getConfiguration().getString(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT))
-                .qualifier("" + (cluster.getServices(type).size() + 1)).ip(instance.getPublicIp())
-                .ipInternal(instance.getPrivateIp()).build());
+            cluster.addService(new CmServerServiceBuilder()
+                .type(type)
+                .tag(
+                    configuration.getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(),
+                        CONFIG_WHIRR_NAME_DEFAULT)).qualifier("" + (cluster.getServices(type).size() + 1))
+                .ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp()).build());
           }
         }
       }
@@ -113,7 +116,8 @@ public class CmServerClusterInstance implements CmConstants {
     return clusterTo;
   }
 
-  public static boolean logCluster(CmServerLog logger, String label, ClusterSpec specification, CmServerCluster cluster) {
+  public static boolean logCluster(CmServerLog logger, String label, Configuration configuration,
+      CmServerCluster cluster) {
     if (cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
       logger.logOperationInProgressSync(label, "NO CDH SERVICES");
     } else {
@@ -130,8 +134,9 @@ public class CmServerClusterInstance implements CmConstants {
     }
     SortedSet<String> cmAgentsSorted = new TreeSet<String>();
     for (CmServerService cmAgent : cluster.getAgents()) {
-      cmAgentsSorted.add("  ssh -o StrictHostKeyChecking=no -i " + specification.getPrivateKeyFile().getAbsolutePath()
-          + " " + specification.getClusterUser() + "@" + cmAgent.getIp());
+      cmAgentsSorted.add("  ssh -o StrictHostKeyChecking=no -i "
+          + configuration.getString(ClusterSpec.Property.PRIVATE_KEY_FILE.getConfigName()) + " "
+          + configuration.getString(ClusterSpec.Property.CLUSTER_USER.getConfigName()) + "@" + cmAgent.getIp());
     }
     for (String cmAgentSorted : cmAgentsSorted) {
       logger.logOperationInProgressSync(label, cmAgentSorted);
@@ -141,8 +146,9 @@ public class CmServerClusterInstance implements CmConstants {
     }
     SortedSet<String> cmNodesSorted = new TreeSet<String>();
     for (CmServerService cmNode : cluster.getNodes()) {
-      cmNodesSorted.add("  ssh -o StrictHostKeyChecking=no -i " + specification.getPrivateKeyFile().getAbsolutePath()
-          + " " + specification.getClusterUser() + "@" + cmNode.getIp());
+      cmNodesSorted.add("  ssh -o StrictHostKeyChecking=no -i "
+          + configuration.getString(ClusterSpec.Property.PRIVATE_KEY_FILE.getConfigName()) + " "
+          + configuration.getString(ClusterSpec.Property.CLUSTER_USER.getConfigName()) + "@" + cmNode.getIp());
     }
     for (String cmNodeSorted : cmNodesSorted) {
       logger.logOperationInProgressSync(label, cmNodeSorted);
@@ -150,9 +156,11 @@ public class CmServerClusterInstance implements CmConstants {
     logger.logOperationInProgressSync(label, "CM SERVER");
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(label, "  http://" + cluster.getServer() + ":7180");
-      logger.logOperationInProgressSync(label,
-          "  ssh -o StrictHostKeyChecking=no -i " + specification.getPrivateKeyFile().getAbsolutePath() + " "
-              + specification.getClusterUser() + "@" + cluster.getServer());
+      logger.logOperationInProgressSync(
+          label,
+          "  ssh -o StrictHostKeyChecking=no -i "
+              + configuration.getString(ClusterSpec.Property.PRIVATE_KEY_FILE.getConfigName()) + " "
+              + configuration.getString(ClusterSpec.Property.CLUSTER_USER.getConfigName()) + "@" + cluster.getServer());
     } else {
       logger.logOperationInProgressSync(label, "NO CM SERVER");
     }

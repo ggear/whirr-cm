@@ -199,7 +199,8 @@ public class CmServerHandlerTest extends BaseTestHandler {
       ClusterSpec clusterSpec = newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates", "1 "
           + CmServerHandler.ROLE + ",1 " + CmAgentHandler.ROLE + ",1 " + CmAgentHandler.ROLE + "+"
           + CmCdhHdfsNameNodeHandler.ROLE));
-      clusterSpec.getConfiguration().setProperty(CONFIG_WHIRR_NAME, "some_cluster_name");
+      clusterSpec.getConfiguration()
+          .setProperty(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), "some_cluster_name");
       Assert.assertNotNull(launchWithClusterSpec(clusterSpec));
     } catch (Exception e) {
       caught = true;

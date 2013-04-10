@@ -196,7 +196,7 @@ public class CmServerHandler extends BaseHandlerCm {
           } finally {
             CmServerClusterInstance.logLineItemFooter(logger, operation);
             CmServerClusterInstance.logLineItem(logger, operation);
-            CmServerClusterInstance.logCluster(logger, operation, event.getClusterSpec(), cluster);
+            CmServerClusterInstance.logCluster(logger, operation, getConfiguration(event.getClusterSpec()), cluster);
             CmServerClusterInstance.logLineItemFooter(logger, operation);
           }
         }
@@ -215,8 +215,8 @@ public class CmServerHandler extends BaseHandlerCm {
   private CmServerCluster getCluster(ClusterActionEvent event, CmServerServiceStatus status) throws CmServerException,
       IOException {
     CmServerCluster clusterStale = CmServerClusterInstance.getCluster();
-    CmServerCluster cluster, clusterCurrent = cluster = CmServerClusterInstance.getCluster(event.getClusterSpec(),
-        event.getCluster().getInstances(), getDataMounts(event));
+    CmServerCluster cluster, clusterCurrent = cluster = CmServerClusterInstance.getCluster(
+        getConfiguration(event.getClusterSpec()), event.getCluster().getInstances(), getDataMounts(event));
     if (status != null) {
       CmServerCluster clusterFiltered = CmServerClusterInstance.getCluster(clusterCurrent);
       for (CmServerServiceType type : clusterStale.getServiceTypes()) {

@@ -163,7 +163,7 @@ public class CmServerImpl implements CmServer {
         public void execute() {
           for (ApiHost host : apiResourceRoot.getHostsResource().readHosts(DataView.SUMMARY).getHosts()) {
             services.add(new CmServerServiceBuilder().host(host.getHostId()).ip(host.getIpAddress())
-                .status(CmServerServiceStatus.STARTED).build());
+                .ipInternal(host.getIpAddress()).status(CmServerServiceStatus.STARTED).build());
           }
         }
       });
@@ -192,7 +192,9 @@ public class CmServerImpl implements CmServer {
       for (CmServerService serviceTmp : services) {
         if ((service.getHost() != null && service.getHost().equals(serviceTmp.getHost()))
             || (service.getIp() != null && service.getIp().equals(serviceTmp.getIp()))
-            || (service.geIpInternal() != null && service.geIpInternal().equals(serviceTmp.getIp()))) {
+            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIpInternal()))
+            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIp()))
+            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIpInternal()))) {
           serviceFound = serviceTmp;
           break;
         }
@@ -216,7 +218,7 @@ public class CmServerImpl implements CmServer {
       List<CmServerService> services = getServiceHosts();
       for (CmServerService server : cluster.getAgents()) {
         if (getServiceHost(server, services) != null) {
-          clusterView.addAgent(server);
+          clusterView.addAgent(getServiceHost(server, services));
         }
       }
       if (isProvisioned(cluster)) {
@@ -841,6 +843,10 @@ public class CmServerImpl implements CmServer {
       apiRoleConfigGroups.add(apiRoleConfigGroup);
     }
     for (CmServerService subService : cluster.getServices(type)) {
+
+      System.err.println(subService);
+      System.err.println(services);
+
       String hostId = getServiceHost(subService, services).getHost();
       ApiRole apiRole = new ApiRole();
       apiRole.setName(subService.getName());

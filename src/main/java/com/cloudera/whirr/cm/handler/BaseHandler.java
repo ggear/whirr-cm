@@ -44,10 +44,10 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     if (!CM_CLUSTER_NAME_REGEX.matcher(
-        event.getClusterSpec().getConfiguration().getString(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT)).matches()) {
+        event.getClusterSpec().getConfiguration().getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)).matches()) {
       throw new IOException("Illegal cluster name ["
-          + event.getClusterSpec().getConfiguration().getString(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT)
-          + "] passed in variable [" + CONFIG_WHIRR_NAME + "] with default [" + CONFIG_WHIRR_NAME_DEFAULT
+          + event.getClusterSpec().getConfiguration().getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)
+          + "] passed in variable [" + ClusterSpec.Property.CLUSTER_NAME.getConfigName() + "] with default [" + CONFIG_WHIRR_NAME_DEFAULT
           + "]. Please use only alphanumeric characters.");
     }
   }

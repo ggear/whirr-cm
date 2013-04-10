@@ -190,7 +190,7 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   public ClusterSpec newClusterSpecForProperties(Map<String, String> properties) throws IOException,
       ConfigurationException, JSchException {
     ClusterSpec clusterSpec = super.newClusterSpecForProperties(ImmutableMap.<String, String> builder()
-        .putAll(properties).put(CONFIG_WHIRR_USER, CLUSTER_USER).put(CONFIG_WHIRR_NAME, CONFIG_WHIRR_NAME_DEFAULT)
+        .putAll(properties).put(ClusterSpec.Property.CLUSTER_USER.getConfigName(), CLUSTER_USER).put(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)
         .build());
     clusterSpec.setPrivateKey(FILE_KEY_PRIVATE);
     clusterSpec.setPublicKey(FILE_KEY_PUBLIC);

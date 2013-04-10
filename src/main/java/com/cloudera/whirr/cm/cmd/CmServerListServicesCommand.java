@@ -49,7 +49,7 @@ public class CmServerListServicesCommand extends BaseCommandCmServer {
     CmServerCluster clusterOutput = serverCommand.command("services").executeCluster();
     CmServerClusterInstance.logLineItemFooter(logger, getLabel());
     CmServerClusterInstance.logLineItem(logger, getLabel());
-    CmServerClusterInstance.logCluster(logger, getLabel(), specification, clusterOutput);
+    CmServerClusterInstance.logCluster(logger, getLabel(), specification.getConfiguration(), clusterOutput);
     return 0;
   }
 }

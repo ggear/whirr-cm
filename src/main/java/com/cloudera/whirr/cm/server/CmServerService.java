@@ -196,7 +196,7 @@ public class CmServerService implements Comparable<CmServerService> {
     return ip;
   }
 
-  public String geIpInternal() {
+  public String getIpInternal() {
     return ipInternal;
   }
 
