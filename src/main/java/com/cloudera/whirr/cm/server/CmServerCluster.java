@@ -31,6 +31,7 @@ import com.google.common.collect.Lists;
 
 public class CmServerCluster {
 
+  private String name;
   private String server;
   private boolean isParcel = true;
   private Set<CmServerService> agents = new HashSet<CmServerService>();
@@ -48,6 +49,10 @@ public class CmServerCluster {
       }
     }
     return true;
+  }
+
+  public synchronized String setName(String name) {
+    return this.name = name;
   }
 
   public synchronized boolean addServiceType(CmServerServiceType type) throws CmServerException {
@@ -150,6 +155,9 @@ public class CmServerCluster {
   }
 
   public synchronized String getServiceName(CmServerServiceType type) throws IOException {
+    if (type.equals(CmServerServiceType.CLUSTER) && name != null) {
+      return name;
+    }
     if (services.get(type) != null) {
       CmServerService service = services.get(type).iterator().next();
       if (service.getType().equals(type)) {

@@ -223,6 +223,8 @@ public class CmServerClusterTest extends BaseTestServer {
     Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
         + CmServerServiceType.CLUSTER.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
         cluster.getServiceName(CmServerServiceType.CLUSTER));
+    Assert.assertEquals(cluster.setName("My Cluster - Against Conventions!"),
+        cluster.getServiceName(CmServerServiceType.CLUSTER));
     Assert.assertEquals(CLUSTER_TAG + CmServerService.NAME_TOKEN_DELIM
         + CmServerServiceType.HDFS.toString().toLowerCase() + CmServerService.NAME_TOKEN_DELIM + "1",
         cluster.getServiceName(CmServerServiceType.HDFS));
