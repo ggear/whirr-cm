@@ -40,8 +40,7 @@ import com.google.common.collect.ImmutableSet;
 public class BaseTestIntegration implements BaseTest {
 
   // The CM Server and database host/IP and port
-  protected static String CM_IP = getSystemProperty("whirr.test.cm.ip", "54.224.157.241");
-  protected static String CM_IP_PRIVATE = getSystemProperty("whirr.test.cm.host-ip-private", "10.214.14.227");
+  protected static String CM_IP = getSystemProperty("whirr.test.cm.ip", "37.188.115.30");
   protected static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
 
   // The CM Server config to be uploaded
@@ -63,50 +62,50 @@ public class BaseTestIntegration implements BaseTest {
     Assert.assertTrue(serverBootstrap.initialise(CM_CONFIG).size() > 0);
     hosts = new HashSet<String>();
     for (CmServerService service : serverBootstrap.getServiceHosts()) {
-      hosts.add(service.getIp());
+      hosts.add(service.getIpInternal());
       cluster.addAgent(service);
     }
     Assert.assertFalse(hosts.isEmpty());
     Assert.assertTrue("Integration test cluster requires at least 4 nodes", hosts.size() >= 4);
     clusterSize = hosts.size();
-    if (!hosts.remove(CM_IP) && !hosts.remove(CM_IP_PRIVATE)) {
-      throw new CmServerException("Could not find integration server with public IP [" + CM_IP + "] and private IP ["
-          + CM_IP_PRIVATE + "] in host IP list " + hosts);
+    if (!hosts.remove(CM_IP)) {
+      throw new CmServerException("Could not find integration server with public IP [" + CM_IP + "] in host IP list "
+          + hosts);
     }
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
     cluster.setServer(CM_IP);
     cluster.setMounts(ImmutableSet.<String> builder().add("/data/" + CLUSTER_TAG).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HIVE_METASTORE).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_SERVER).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_BEESWAX_SERVER).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.OOZIE_SERVER).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HBASE_MASTER).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_NAMENODE).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_SECONDARY_NAMENODE).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_JOB_TRACKER).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.IMPALA_STATE_STORE).tag(CLUSTER_TAG)
-        .qualifier("1").ip(CM_IP).ipInternal(CM_IP_PRIVATE).build());
+        .qualifier("1").ip(CM_IP).build());
     for (int i = 0; i < hostSlaves.length; i++) {
       cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HBASE_REGIONSERVER).tag(CLUSTER_TAG)
-          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+          .qualifier("" + (i + 1)).ip(hostSlaves[i]).build());
       cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_TASK_TRACKER).tag(CLUSTER_TAG)
-          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+          .qualifier("" + (i + 1)).ip(hostSlaves[i]).build());
       cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
-          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+          .qualifier("" + (i + 1)).ip(hostSlaves[i]).build());
       cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.ZOOKEEPER_SERVER).tag(CLUSTER_TAG)
-          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+          .qualifier("" + (i + 1)).ip(hostSlaves[i]).build());
       cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.IMPALA_DAEMON).tag(CLUSTER_TAG)
-          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+          .qualifier("" + (i + 1)).ip(hostSlaves[i]).build());
       cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.FLUME_AGENT).tag(CLUSTER_TAG)
-          .qualifier("" + (i + 1)).host(hostSlaves[i]).build());
+          .qualifier("" + (i + 1)).ip(hostSlaves[i]).build());
     }
   }
 

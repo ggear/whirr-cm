@@ -81,7 +81,7 @@ public class CmServerImpl implements CmServer {
   private static final String CM_PARCEL_STAGE_ACTIVATED = "ACTIVATED";
 
   private static int API_POLL_PERIOD_MS = 500;
-  private static int API_POLL_PERIOD_BACKOFF_NUMBER = 4;
+  private static int API_POLL_PERIOD_BACKOFF_NUMBER = 3;
 
   private CmServerLog logger;
   final private RootResourceV3 apiResourceRoot;
@@ -190,15 +190,15 @@ public class CmServerImpl implements CmServer {
     try {
 
       for (CmServerService serviceTmp : services) {
-        if (service.getType().equals(serviceTmp.getType())) {
-          if ((service.getHost() != null && service.getHost().equals(serviceTmp.getHost()))
-              || (service.getIp() != null && service.getIp().equals(serviceTmp.getIp()))
-              || (service.getIp() != null && service.getIp().equals(serviceTmp.getIpInternal()))
-              || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIp()))
-              || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIpInternal()))) {
-            serviceFound = serviceTmp;
-            break;
-          }
+        if ((service.getHost() != null && service.getHost().equals(serviceTmp.getHost()))
+            || (service.getHost() != null && service.getHost().equals(serviceTmp.getIp()))
+            || (service.getHost() != null && service.getHost().equals(serviceTmp.getIpInternal()))
+            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIp()))
+            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIpInternal()))
+            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIp()))
+            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIpInternal()))) {
+          serviceFound = serviceTmp;
+          break;
         }
       }
 
@@ -846,8 +846,10 @@ public class CmServerImpl implements CmServer {
     }
     for (CmServerService subService : cluster.getServices(type)) {
 
-      System.err.println(subService);
-      System.err.println(services);
+      if (getServiceHost(subService, services) == null) {
+        System.err.println(subService);
+        System.err.println(services);
+      }
 
       String hostId = getServiceHost(subService, services).getHost();
       ApiRole apiRole = new ApiRole();

@@ -70,7 +70,12 @@ public abstract class BaseHandlerCm extends BaseHandler {
       String devMappings = VolumeManager.asString(deviceMappings);
       addStatement(event, call("prepare_all_disks", "'" + devMappings + "'"));
     }
+  }
+
+  @Override
+  protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     logFooterHandler("HostConfigure");
+    super.afterConfigure(event);
   }
 
   public Map<String, String> getDeviceMappings(ClusterActionEvent event) {

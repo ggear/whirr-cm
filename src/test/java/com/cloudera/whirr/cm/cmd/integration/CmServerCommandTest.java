@@ -72,6 +72,8 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
     Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(specification, cluster, command));
     Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(specification, cluster, command));
     Assert.assertEquals(0, new CmServerListServicesCommand(null, null).run(specification, cluster, command));
+    Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(specification, cluster, command));
+    Assert.assertEquals(-1, new CmServerDestroyServicesCommand(null, null).run(specification, cluster, command));
   }
 
 }
