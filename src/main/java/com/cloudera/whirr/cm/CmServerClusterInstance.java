@@ -23,7 +23,10 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
 
@@ -46,6 +49,18 @@ public class CmServerClusterInstance implements CmConstants {
   private static boolean isStandaloneCommand = true;
 
   private CmServerClusterInstance() {
+  }
+
+  public static Configuration getConfiguration(ClusterSpec clusterSpec) throws IOException {
+    try {
+      CompositeConfiguration configuration = new CompositeConfiguration();
+      configuration.addConfiguration(clusterSpec.getConfiguration());
+      configuration.addConfiguration(new PropertiesConfiguration(CmServerClusterInstance.class.getClassLoader()
+          .getResource(PROPERTIES_FILE)));
+      return configuration;
+    } catch (ConfigurationException e) {
+      throw new IOException("Error loading " + PROPERTIES_FILE, e);
+    }
   }
 
   public static synchronized boolean isStandaloneCommand() {

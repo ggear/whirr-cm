@@ -56,7 +56,7 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
   }
 
   @Test
-  public void testListServicesConfig() throws Exception {
+  public void testListServices() throws Exception {
     Assert.assertTrue(serverBootstrap.configure(cluster));
     Assert.assertEquals(0, new CmServerListServicesCommand(null, null).run(specification, cluster, command));
   }

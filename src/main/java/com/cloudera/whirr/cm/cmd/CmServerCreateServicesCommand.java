@@ -23,9 +23,8 @@ import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.state.ClusterStateStoreFactory;
 
-import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerBuilder;
-import com.cloudera.whirr.cm.server.CmServerServiceType;
+import com.cloudera.whirr.cm.server.CmServerCluster;
 
 public class CmServerCreateServicesCommand extends BaseCommandCmServer {
 

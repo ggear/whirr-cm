@@ -59,7 +59,7 @@ public class CmNodeHandler extends BaseHandlerCm {
   protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeConfigure(event);
 
-    for (Object port : getConfiguration(event.getClusterSpec()).getList(PROPERTY_PORTS)) {
+    for (Object port : CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(PROPERTY_PORTS)) {
       if (port != null && !"".equals(port))
         event.getFirewallManager().addRule(
             Rule.create().destination(role(getRole())).port(Integer.parseInt(port.toString())));

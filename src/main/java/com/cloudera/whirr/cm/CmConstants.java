@@ -21,6 +21,8 @@ import com.cloudera.whirr.cm.server.CmServerConstants;
 
 public interface CmConstants extends CmServerConstants {
 
+  public static final String PROPERTIES_FILE = "whirr-cm-default.properties";
+
   public static final String CM_USER = "admin";
   public static final String CM_PASSWORD = "admin";
 
