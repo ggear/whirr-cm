@@ -51,7 +51,7 @@ public class CmServerCommandTest extends BaseTestCommand {
 
   private static final List<Class<? extends BaseCommand>> COMMANDS = ImmutableList.<Class<? extends BaseCommand>> of(
       CmServerDownloadConfigCommand.class, CmServerCreateServicesCommand.class, CmServerDestroyServicesCommand.class,
-      CmServerListServicesCommand.class);
+      CmServerListServicesCommand.class, CmServerCleanClusterCommand.class);
 
   @Test
   public void testCommandServiceLoader() throws Exception {

@@ -190,13 +190,15 @@ public class CmServerImpl implements CmServer {
     try {
 
       for (CmServerService serviceTmp : services) {
-        if ((service.getHost() != null && service.getHost().equals(serviceTmp.getHost()))
-            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIp()))
-            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIpInternal()))
-            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIp()))
-            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIpInternal()))) {
-          serviceFound = serviceTmp;
-          break;
+        if (service.getType().equals(serviceTmp.getType())) {
+          if ((service.getHost() != null && service.getHost().equals(serviceTmp.getHost()))
+              || (service.getIp() != null && service.getIp().equals(serviceTmp.getIp()))
+              || (service.getIp() != null && service.getIp().equals(serviceTmp.getIpInternal()))
+              || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIp()))
+              || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIpInternal()))) {
+            serviceFound = serviceTmp;
+            break;
+          }
         }
       }
 
@@ -242,7 +244,7 @@ public class CmServerImpl implements CmServer {
                 }
                 clusterView.addService(new CmServerServiceBuilder().name(apiRole.getName())
                     .host(apiRole.getHostRef().getHostId()).ip(ips.get(apiRole.getHostRef().getHostId()))
-                    .status(status).build());
+                    .ipInternal(ips.get(apiRole.getHostRef().getHostId())).status(status).build());
               }
             }
           }

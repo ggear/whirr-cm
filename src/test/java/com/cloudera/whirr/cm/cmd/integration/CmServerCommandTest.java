@@ -20,6 +20,7 @@ package com.cloudera.whirr.cm.cmd.integration;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.cloudera.whirr.cm.cmd.CmServerCleanClusterCommand;
 import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
@@ -43,6 +44,11 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
     Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(specification, cluster, command));
   }
 
+  @Test
+  public void testCommandCleanCluster() throws Exception {
+    Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification, cluster, command));
+  }
+  
   @Test
   public void testCommandDownloadConfig() throws Exception {
     Assert.assertTrue(serverBootstrap.configure(cluster));
