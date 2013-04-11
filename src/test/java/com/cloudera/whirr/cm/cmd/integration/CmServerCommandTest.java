@@ -25,6 +25,7 @@ import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
 import com.cloudera.whirr.cm.cmd.CmServerListServicesCommand;
+import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmServerCommandTest extends BaseTestIntegrationCommand {
 
@@ -52,6 +53,7 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
   @Test
   public void testCommandDownloadConfig() throws Exception {
     Assert.assertTrue(serverBootstrap.configure(cluster));
+    cluster.setName(cluster.getServiceName(CmServerServiceType.CLUSTER));
     Assert.assertEquals(0, new CmServerDownloadConfigCommand(null, null).run(specification, cluster, command));
   }
 

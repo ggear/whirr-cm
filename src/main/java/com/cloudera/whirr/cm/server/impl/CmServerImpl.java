@@ -82,6 +82,7 @@ public class CmServerImpl implements CmServer {
 
   private static int API_POLL_PERIOD_MS = 500;
   private static int API_POLL_PERIOD_BACKOFF_NUMBER = 3;
+  private static int API_POLL_PERIOD_BACKOFF_INCRAMENT = 2;
 
   private CmServerLog logger;
   final private RootResourceV3 apiResourceRoot;
@@ -122,9 +123,12 @@ public class CmServerImpl implements CmServer {
                   directory.mkdirs();
                   BufferedWriter configOutput = null;
                   try {
+                    int read;
                     configOutput = new BufferedWriter(new FileWriter(new File(directory, configFile)));
                     while (configInput.available() > 0) {
-                      configOutput.write(configInput.read());
+                      if ((read = configInput.read()) != -1) {
+                        configOutput.write(read);
+                      }
                     }
                   } finally {
                     configOutput.close();
@@ -145,7 +149,7 @@ public class CmServerImpl implements CmServer {
       });
 
     } catch (Exception e) {
-      throw new CmServerException("Failed to list cluster hosts", e);
+      throw new CmServerException("Failed to get cluster config", e);
     }
 
     return executed.get();
@@ -845,12 +849,6 @@ public class CmServerImpl implements CmServer {
       apiRoleConfigGroups.add(apiRoleConfigGroup);
     }
     for (CmServerService subService : cluster.getServices(type)) {
-
-      if (getServiceHost(subService, services) == null) {
-        System.err.println(subService);
-        System.err.println(services);
-      }
-
       String hostId = getServiceHost(subService, services).getHost();
       ApiRole apiRole = new ApiRole();
       apiRole.setName(subService.getName());
@@ -1008,7 +1006,7 @@ public class CmServerImpl implements CmServer {
         return commandReturn;
       }
       if (apiPollPeriodBackoffNumber-- == 0) {
-        apiPollPeriodLog++;
+        apiPollPeriodLog += API_POLL_PERIOD_BACKOFF_INCRAMENT;
         apiPollPeriodBackoffNumber = API_POLL_PERIOD_BACKOFF_NUMBER;
       }
       Thread.sleep(API_POLL_PERIOD_MS);
