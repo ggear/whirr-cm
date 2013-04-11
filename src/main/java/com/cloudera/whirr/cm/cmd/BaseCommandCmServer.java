@@ -67,8 +67,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
   public abstract int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
       throws Exception;
 
-  private OptionSpec<String> name = parser.accepts("name", "Cluster name to target").withRequiredArg()
-      .ofType(String.class);
+  private OptionSpec<String> cmClusterName = parser.accepts("cm-cluster-name", "CM cluster name to target")
+      .withRequiredArg().ofType(String.class);
 
   private OptionSpec<String> rolesOption = isRoleFilterable() ? parser.accepts("roles", "Cluster roles to target")
       .withRequiredArg().ofType(String.class) : null;
@@ -90,8 +90,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     CmServerCluster cluster = CmServerClusterInstance.getCluster(specification.getConfiguration(),
         clusterController.getInstances(specification, clusterStateStore), Collections.<String> emptySet(), roles);
 
-    if (optionSet.hasArgument(name)) {
-      cluster.setName(optionSet.valueOf(name));
+    if (optionSet.hasArgument(cmClusterName)) {
+      cluster.setName(optionSet.valueOf(cmClusterName));
     }
 
     if (cluster.getServer() == null) {
@@ -117,7 +117,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
 
   @Override
   public void printUsage(PrintStream stream) throws IOException {
-    stream.println("Usage: whirr " + getName() + " [OPTIONS] [--name cluster-name]"
+    stream.println("Usage: whirr " + getName() + " [OPTIONS] [--cm-cluster-name \"My cluster\"]"
         + (isRoleFilterable() ? " [--roles role1,role2]" : ""));
     stream.println();
     parser.printHelpOn(stream);

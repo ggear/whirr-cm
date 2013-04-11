@@ -170,8 +170,8 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     Map<String, File> keys = KeyPair.generateTemporaryFiles();
     int rc = clusterCommand.run(null, System.out, System.err, Lists.newArrayList("--instance-templates", "1 noop",
-        "--service-name", "test-service", "--cluster-name", "test-cluster", "--identity", "myusername", "--name", name,
-        "--quiet", "--private-key-file", keys.get("private").getAbsolutePath()));
+        "--service-name", "test-service", "--cluster-name", "test-cluster", "--identity", "myusername",
+        "--cm-cluster-name", name, "--quiet", "--private-key-file", keys.get("private").getAbsolutePath()));
 
     assertThat(rc, is(0));
     verify(factory).create("test-service");

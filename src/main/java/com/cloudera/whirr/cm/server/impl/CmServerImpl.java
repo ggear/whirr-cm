@@ -101,52 +101,54 @@ public class CmServerImpl implements CmServer {
     final AtomicBoolean executed = new AtomicBoolean(false);
     try {
 
-      logger.logOperation("GetConfig", new CmServerLogSyncCommand() {
-        @Override
-        public void execute() throws IOException {
-          for (ApiService apiService : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
-              .readServices(DataView.SUMMARY)) {
-            switch (CmServerServiceType.valueOfId(apiService.getType())) {
-            case HDFS:
-            case MAPREDUCE:
-            case HIVE:
-              ZipInputStream configInput = null;
-              try {
-                configInput = new ZipInputStream(apiResourceRoot.getClustersResource()
-                    .getServicesResource(getName(cluster)).getClientConfig(apiService.getName()).getInputStream());
-                ZipEntry configInputZipEntry = null;
-                while ((configInputZipEntry = configInput.getNextEntry()) != null) {
-                  String configFile = configInputZipEntry.getName();
-                  if (configFile.contains(File.separator)) {
-                    configFile = configFile.substring(configFile.lastIndexOf(File.separator), configFile.length());
-                  }
-                  directory.mkdirs();
-                  BufferedWriter configOutput = null;
-                  try {
-                    int read;
-                    configOutput = new BufferedWriter(new FileWriter(new File(directory, configFile)));
-                    while (configInput.available() > 0) {
-                      if ((read = configInput.read()) != -1) {
-                        configOutput.write(read);
-                      }
+      if (isProvisioned(cluster)) {
+        logger.logOperation("GetConfig", new CmServerLogSyncCommand() {
+          @Override
+          public void execute() throws IOException {
+            for (ApiService apiService : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+                .readServices(DataView.SUMMARY)) {
+              switch (CmServerServiceType.valueOfId(apiService.getType())) {
+              case HDFS:
+              case MAPREDUCE:
+              case HIVE:
+                ZipInputStream configInput = null;
+                try {
+                  configInput = new ZipInputStream(apiResourceRoot.getClustersResource()
+                      .getServicesResource(getName(cluster)).getClientConfig(apiService.getName()).getInputStream());
+                  ZipEntry configInputZipEntry = null;
+                  while ((configInputZipEntry = configInput.getNextEntry()) != null) {
+                    String configFile = configInputZipEntry.getName();
+                    if (configFile.contains(File.separator)) {
+                      configFile = configFile.substring(configFile.lastIndexOf(File.separator), configFile.length());
                     }
-                  } finally {
-                    configOutput.close();
+                    directory.mkdirs();
+                    BufferedWriter configOutput = null;
+                    try {
+                      int read;
+                      configOutput = new BufferedWriter(new FileWriter(new File(directory, configFile)));
+                      while (configInput.available() > 0) {
+                        if ((read = configInput.read()) != -1) {
+                          configOutput.write(read);
+                        }
+                      }
+                    } finally {
+                      configOutput.close();
+                    }
+                  }
+                } finally {
+                  if (configInput != null) {
+                    configInput.close();
                   }
                 }
-              } finally {
-                if (configInput != null) {
-                  configInput.close();
-                }
+                executed.set(true);
+                break;
+              default:
+                break;
               }
-              executed.set(true);
-              break;
-            default:
-              break;
             }
           }
-        }
-      });
+        });
+      }
 
     } catch (Exception e) {
       throw new CmServerException("Failed to get cluster config", e);
@@ -578,6 +580,7 @@ public class CmServerImpl implements CmServer {
   }
 
   @Override
+  @CmServerCommandMethod(name = "unprovision")
   public boolean unprovision(final CmServerCluster cluster) throws CmServerException {
 
     boolean executed = false;
