@@ -44,11 +44,6 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
     Assert.assertTrue(serverBootstrap.configure(cluster));
     Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(specification, cluster, command));
   }
-
-  @Test
-  public void testCommandCleanCluster() throws Exception {
-    Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification, cluster, command));
-  }
   
   @Test
   public void testCommandDownloadConfig() throws Exception {
@@ -78,4 +73,9 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
     Assert.assertEquals(-1, new CmServerDestroyServicesCommand(null, null).run(specification, cluster, command));
   }
 
+  @Test
+  public void testCommandCleanCluster() throws Exception {
+    Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification, cluster, command));
+  }
+  
 }

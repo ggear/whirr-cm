@@ -235,7 +235,7 @@ public class CmServerImpl implements CmServer {
           public void execute() throws IOException, CmServerException {
             Map<String, String> ips = new HashMap<String, String>();
             for (ApiService apiService : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
-                .readServices(DataView.SUMMARY)) {
+                .readServices(DataView.SUMMARY)) {                           
               for (ApiRole apiRole : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                   .getRolesResource(apiService.getName()).readRoles()) {
                 if (!ips.containsKey(apiRole.getHostRef().getHostId())) {
@@ -269,13 +269,8 @@ public class CmServerImpl implements CmServer {
   @Override
   public CmServerService getService(final CmServerCluster cluster, final CmServerServiceType type)
       throws CmServerException {
-
-    CmServerCluster clusterView = getServices(cluster, type);
-    if (clusterView.isEmpty()) {
-      throw new CmServerException("Failed to find service matching type [" + type + "]");
-    }
-
-    return clusterView.getService(type);
+        
+    return  getServices(cluster, type).getService(type);
 
   }
 
@@ -285,18 +280,18 @@ public class CmServerImpl implements CmServer {
 
     final CmServerCluster clusterView = new CmServerCluster();
     try {
-
+      
       for (CmServerService service : getServices(cluster).getServices(CmServerServiceType.CLUSTER)) {
         if (type.equals(CmServerServiceType.CLUSTER) || type.equals(service.getType().getParent())
             || type.equals(service.getType())) {
           clusterView.addService(service);
         }
       }
-
+      
     } catch (Exception e) {
       throw new CmServerException("Failed to find services", e);
     }
-
+    
     return clusterView;
 
   }
