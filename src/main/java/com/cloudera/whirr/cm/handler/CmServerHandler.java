@@ -118,9 +118,6 @@ public class CmServerHandler extends BaseHandlerCm {
           }
         }
         server.initialise(config);
-        if (!server.provision(clusterInput)) {
-          throw new CmServerException("Unexepcted error attempting to provision cluster");
-        }
         return clusterInput;
       }
     }, false, true);
@@ -139,9 +136,11 @@ public class CmServerHandler extends BaseHandlerCm {
           }
         }
         boolean success = false;
-        if (server.configure(clusterInput)) {
-          if (server.getServiceConfigs(clusterInput, event.getClusterSpec().getClusterDirectory())) {
-            success = true;
+        if (server.provision(clusterInput)) {
+          if (server.configure(clusterInput)) {
+            if (server.getServiceConfigs(clusterInput, event.getClusterSpec().getClusterDirectory())) {
+              success = true;
+            }
           }
         }
         if (!success) {
