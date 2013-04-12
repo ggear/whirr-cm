@@ -998,6 +998,10 @@ public class CmServerImpl implements CmServer {
     while (true) {
       if (apiPollPeriods++ % apiPollPeriodLog == 0) {
         logger.logOperationInProgressAsync(label);
+        if (apiPollPeriodBackoffNumber-- == 0) {
+          apiPollPeriodLog += API_POLL_PERIOD_BACKOFF_INCRAMENT;
+          apiPollPeriodBackoffNumber = API_POLL_PERIOD_BACKOFF_NUMBER;
+        }
       }
       if (callback.poll()) {
         if (checkReturn && command != null
@@ -1007,10 +1011,6 @@ public class CmServerImpl implements CmServer {
         }
         logger.logOperationFinishedAsync(label);
         return commandReturn;
-      }
-      if (apiPollPeriodBackoffNumber-- == 0) {
-        apiPollPeriodLog += API_POLL_PERIOD_BACKOFF_INCRAMENT;
-        apiPollPeriodBackoffNumber = API_POLL_PERIOD_BACKOFF_NUMBER;
       }
       Thread.sleep(API_POLL_PERIOD_MS);
     }
