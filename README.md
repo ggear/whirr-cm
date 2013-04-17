@@ -44,7 +44,7 @@ mvn clean install -Dmaven.test.skip=true
 cp -rvf target/whirr-cm-*.jar $WHIRR_HOME/lib
 ```
 
-## Get your Whirr Cloudera Manager CDH cluster configuration
+## Launch a Cloudera Manager Cluster
 
 A sample Whirr CM CDH EC2 config is available here: 
 
@@ -58,8 +58,6 @@ have one), place the license in a file "cm-license.txt" on the whirr classpath (
 ```bash
 mv -v eval_acme_20120925_cloudera_enterprise_license.txt $WHIRR_HOME/conf/cm-license.txt
 ```
-
-## Launch a Cloudera Manager Cluster
 
 The following command will start a cluster with 4 nodes, 1 master and 3 slave nodes. To change the
 cluster topology, edit the cm-ec2.properties file.
