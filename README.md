@@ -17,7 +17,7 @@ export AWS_SECRET_ACCESS_KEY=...
 
 Install CDH repositotries, eg for CDH4:
 
-https://ccp.cloudera.com/display/CDH4DOC/CDH4+Installation#CDH4Installation-InstallingCDH4
+http://www.cloudera.com/content/support/en/documentation/cdh4-documentation/cdh4-documentation-v4-latest.html#CDH4Installation-InstallingCDH4
 
 then install the whirr package and create some environment variables, eg for RHEL/CentOS:
 
