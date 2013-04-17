@@ -93,7 +93,7 @@ Whirr Handler [CMClusterProvision]   http://37.188.114.234:7180
 Whirr Handler [CMClusterProvision]   ssh -o StrictHostKeyChecking=no -i /root/.ssh/whirr whirr@37.188.114.234
 ```
 
-You are able to log into the CM Web Console at any stage and observe proceedings.
+You are able to log into the CM Web Console (or hosts) at any stage and observe proceedings.
 
 The default admin user credentials are: 
 
