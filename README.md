@@ -83,6 +83,11 @@ Whirr Handler [CMClusterProvision] follow live at http://37.188.114.234:7180
 and post-provision:
 
 ```bash
+Whirr Handler [CMClusterProvision] CM AGENTS
+Whirr Handler [CMClusterProvision]   ssh -o StrictHostKeyChecking=no -i /root/.ssh/whirr whirr@37.188.114.209
+Whirr Handler [CMClusterProvision]   ssh -o StrictHostKeyChecking=no -i /root/.ssh/whirr whirr@37.188.114.210
+Whirr Handler [CMClusterProvision]   ssh -o StrictHostKeyChecking=no -i /root/.ssh/whirr whirr@37.188.114.225
+Whirr Handler [CMClusterProvision]   ssh -o StrictHostKeyChecking=no -i /root/.ssh/whirr whirr@37.188.114.234
 Whirr Handler [CMClusterProvision] CM SERVER
 Whirr Handler [CMClusterProvision]   http://37.188.114.234:7180
 Whirr Handler [CMClusterProvision]   ssh -o StrictHostKeyChecking=no -i /root/.ssh/whirr whirr@37.188.114.234
