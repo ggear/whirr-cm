@@ -1,13 +1,13 @@
 # Launching Cloudera Manager with Whirr
 
-Follow these instructions to start a cluster on EC2 running Cloudera Manager (CM),
+Follow these instructions to start a cluster on Amazon EC2 running Cloudera Manager (CM),
 allowing you to install, run and manage a CDH cluster.
 
 ## Install Whirr
 
 Run the following commands from you local machine.
 
-### Set your AWS credentials as environment variables:
+### Set your AWS credentials:
 ```bash
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
@@ -61,7 +61,7 @@ mv -v eval_acme_20120925_cloudera_enterprise_license.txt $WHIRR_HOME/conf/cm-lic
 
 ## Launch a Cloudera Manager Cluster
 
-The following command will start a cluster with 4 nodes - 1 master and 3 slave nodes. To change the
+The following command will start a cluster with 4 nodes, 1 master and 3 slave nodes. To change the
 cluster topology, edit the cm-ec2.properties file.
 
 ```bash
@@ -107,7 +107,7 @@ The Whirr property 'whirr.env.cmauto', as set in cm-ec2.properties:
 whirr.env.cmauto=true
 ```
 
-determines whether Whirr CM plugin provisions, initilialises and starts a new CDH cluster (true)
+determines whether the Whirr CM plugin provisions, initilialises and starts a new CDH cluster (true)
 or merely provisions the CM Server and Agents to allow manual CDH cluster management through
 the CM Web Console (false).
 
@@ -137,7 +137,9 @@ following commands:
 * restart-services
 * stop-services
 * destroy-services
+* launch-cluster
 * clean-cluster
+* destroy-cluster
 
 Where appropriate, these commands can be filtered by role via the '--roles' command line switch,
 bearing in mind that 'cm-server' is a mandatory role (all operations require it) and all lifecycle
