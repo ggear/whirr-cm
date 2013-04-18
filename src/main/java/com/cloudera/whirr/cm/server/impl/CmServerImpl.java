@@ -35,6 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.lang.WordUtils;
+import org.apache.cxf.jaxrs.client.ServerWebApplicationException;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 import com.cloudera.api.ClouderaManagerClientBuilder;
@@ -85,12 +86,16 @@ public class CmServerImpl implements CmServer {
   private static int API_POLL_PERIOD_BACKOFF_INCRAMENT = 2;
 
   private CmServerLog logger;
+
+  private String host;
   final private RootResourceV3 apiResourceRoot;
+
   private boolean isFirstStartRequired = true;
 
-  protected CmServerImpl(String ip, int port, String user, String password, CmServerLog logger) {
+  protected CmServerImpl(String host, int port, String user, String password, CmServerLog logger) {
+    this.host = host;
     this.logger = logger;
-    this.apiResourceRoot = new ClouderaManagerClientBuilder().withHost(ip).withPort(port)
+    this.apiResourceRoot = new ClouderaManagerClientBuilder().withHost(host).withPort(port)
         .withUsernamePassword(user, password).build().getRootV3();
   }
 
@@ -235,7 +240,7 @@ public class CmServerImpl implements CmServer {
           public void execute() throws IOException, CmServerException {
             Map<String, String> ips = new HashMap<String, String>();
             for (ApiService apiService : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
-                .readServices(DataView.SUMMARY)) {                           
+                .readServices(DataView.SUMMARY)) {
               for (ApiRole apiRole : apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                   .getRolesResource(apiService.getName()).readRoles()) {
                 if (!ips.containsKey(apiRole.getHostRef().getHostId())) {
@@ -269,8 +274,8 @@ public class CmServerImpl implements CmServer {
   @Override
   public CmServerService getService(final CmServerCluster cluster, final CmServerServiceType type)
       throws CmServerException {
-        
-    return  getServices(cluster, type).getService(type);
+
+    return getServices(cluster, type).getService(type);
 
   }
 
@@ -280,18 +285,18 @@ public class CmServerImpl implements CmServer {
 
     final CmServerCluster clusterView = new CmServerCluster();
     try {
-      
+
       for (CmServerService service : getServices(cluster).getServices(CmServerServiceType.CLUSTER)) {
         if (type.equals(CmServerServiceType.CLUSTER) || type.equals(service.getType().getParent())
             || type.equals(service.getType())) {
           clusterView.addService(service);
         }
       }
-      
+
     } catch (Exception e) {
       throw new CmServerException("Failed to find services", e);
     }
-    
+
     return clusterView;
 
   }
@@ -438,6 +443,7 @@ public class CmServerImpl implements CmServer {
         if (cluster.getIsParcel()) {
           provisionParcels(cluster);
         }
+        provisionManagement(cluster);
         executed = true;
       }
 
@@ -628,6 +634,77 @@ public class CmServerImpl implements CmServer {
     }
 
     return configPostUpdate;
+
+  }
+
+  private void provisionManagement(final CmServerCluster cluster) throws CmServerException, InterruptedException {
+
+    boolean cmsProvisionRequired = false;
+    try {
+      if (apiResourceRoot.getClouderaManagerResource().readLicense() != null) {
+        cmsProvisionRequired = apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource()
+            .readService(DataView.SUMMARY) == null;
+      }
+    } catch (ServerWebApplicationException exception) {
+      cmsProvisionRequired = true;
+    }
+    if (cmsProvisionRequired) {
+      final ApiHostRef cmServerHostRefApi = new ApiHostRef(getServiceHost(
+          new CmServerServiceBuilder().host(host).build()).getHost());
+      logger.logOperation("CreateManagementServices", new CmServerLogSyncCommand() {
+        @Override
+        public void execute() throws IOException, CmServerException, InterruptedException {
+          ApiService cmsServiceApi = new ApiService();
+          List<ApiRole> cmsRoleApis = new ArrayList<ApiRole>();
+          cmsServiceApi.setName(CmServerManagementServiceType.MANAGEMENT.getName());
+          cmsServiceApi.setType(CmServerManagementServiceType.MANAGEMENT.getId());
+          for (CmServerManagementServiceType type : CmServerManagementServiceType.values()) {
+            if (type.getParent() != null) {
+              ApiRole cmsRoleApi = new ApiRole();
+              cmsRoleApi.setName(type.getName());
+              cmsRoleApi.setType(type.getId());
+              cmsRoleApi.setHostRef(cmServerHostRefApi);
+              cmsRoleApis.add(cmsRoleApi);
+            }
+          }
+          cmsServiceApi.setRoles(cmsRoleApis);
+          apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().setupCMS(cmsServiceApi);
+          for (ApiRoleConfigGroup cmsRoleConfigGroupApi : apiResourceRoot.getClouderaManagerResource()
+              .getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
+            try {
+              CmServerManagementServiceType type = CmServerManagementServiceType.valueOf(cmsRoleConfigGroupApi
+                  .getRoleType());
+              ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
+              ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
+              switch (type) {
+              case HOSTMONITOR:
+              case SERVICEMONITOR:
+              case ACTIVITYMONITOR:
+                cmsServiceConfigApi.add(new ApiConfig("firehose_database_name", type.getId()));
+                cmsServiceConfigApi.add(new ApiConfig("firehose_database_user", type.getId()));
+                break;
+              case REPORTSMANAGER:
+                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_name", type.getId()));
+                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_user", type.getId()));
+                break;
+              case NAVIGATOR:
+                cmsServiceConfigApi.add(new ApiConfig("navigator_database_name", type.getId()));
+                break;
+              default:
+                break;
+              }
+              cmsRoleConfigGroupApiNew.setConfig(cmsServiceConfigApi);
+              apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().getRoleConfigGroupsResource()
+                  .updateRoleConfigGroup(cmsRoleConfigGroupApi.getName(), cmsRoleConfigGroupApiNew, "");
+            } catch (IllegalArgumentException e) {
+              // ignore
+            }
+          }
+        }
+      });
+      CmServerImpl.this.execute("Start " + CmServerManagementServiceType.MANAGEMENT.getId().toLowerCase(),
+          apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().startCommand());
+    }
 
   }
 

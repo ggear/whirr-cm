@@ -34,9 +34,9 @@ public class CmServerCluster {
   private String name;
   private String server;
   private boolean isParcel = true;
+  private Set<String> mounts = new HashSet<String>();
   private Set<CmServerService> agents = new HashSet<CmServerService>();
   private Set<CmServerService> nodes = new HashSet<CmServerService>();
-  private Set<String> mounts = new HashSet<String>();
   private Map<CmServerServiceType, Set<CmServerService>> services = new HashMap<CmServerServiceType, Set<CmServerService>>();
 
   public CmServerCluster() {
