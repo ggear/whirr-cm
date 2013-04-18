@@ -19,7 +19,7 @@ package com.cloudera.whirr.cm.server.impl;
 
 import com.cloudera.whirr.cm.server.CmServerService;
 
-public enum CmServerManagementServiceType {
+public enum CmServerCmsType {
 
   // Management
   MANAGEMENT(null, "MGMT"),
@@ -45,15 +45,15 @@ public enum CmServerManagementServiceType {
   // Navigator
   NAVIGATOR(MANAGEMENT, "NAVIGATOR");
 
-  private CmServerManagementServiceType parent;
+  private CmServerCmsType parent;
   private String id;
 
-  private CmServerManagementServiceType(CmServerManagementServiceType parent, String id) {
+  private CmServerCmsType(CmServerCmsType parent, String id) {
     this.parent = parent;
     this.id = id;
   }
 
-  public CmServerManagementServiceType getParent() {
+  public CmServerCmsType getParent() {
     return parent;
   }
 

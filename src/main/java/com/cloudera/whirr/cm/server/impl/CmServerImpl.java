@@ -660,9 +660,9 @@ public class CmServerImpl implements CmServer {
         public void execute() throws IOException, CmServerException, InterruptedException {
           ApiService cmsServiceApi = new ApiService();
           List<ApiRole> cmsRoleApis = new ArrayList<ApiRole>();
-          cmsServiceApi.setName(CmServerManagementServiceType.MANAGEMENT.getName());
-          cmsServiceApi.setType(CmServerManagementServiceType.MANAGEMENT.getId());
-          for (CmServerManagementServiceType type : CmServerManagementServiceType.values()) {
+          cmsServiceApi.setName(CmServerCmsType.MANAGEMENT.getName());
+          cmsServiceApi.setType(CmServerCmsType.MANAGEMENT.getId());
+          for (CmServerCmsType type : CmServerCmsType.values()) {
             if (type.getParent() != null) {
               ApiRole cmsRoleApi = new ApiRole();
               cmsRoleApi.setName(type.getName());
@@ -678,7 +678,7 @@ public class CmServerImpl implements CmServer {
           for (ApiRoleConfigGroup cmsRoleConfigGroupApi : apiResourceRoot.getClouderaManagerResource()
               .getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
             try {
-              CmServerManagementServiceType type = CmServerManagementServiceType.valueOf(cmsRoleConfigGroupApi
+              CmServerCmsType type = CmServerCmsType.valueOf(cmsRoleConfigGroupApi
                   .getRoleType());
               ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
               ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
@@ -716,7 +716,7 @@ public class CmServerImpl implements CmServer {
         }
       });
       
-      CmServerImpl.this.execute("Start " + CmServerManagementServiceType.MANAGEMENT.getId().toLowerCase(),
+      CmServerImpl.this.execute("Start " + CmServerCmsType.MANAGEMENT.getId().toLowerCase(),
           apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().startCommand());
       
     }
