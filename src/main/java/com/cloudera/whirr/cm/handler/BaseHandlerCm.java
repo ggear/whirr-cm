@@ -33,9 +33,6 @@ import com.google.common.collect.Iterables;
 
 public abstract class BaseHandlerCm extends BaseHandler {
 
-  public static final String DATA_DIRS_ROOT = "cm.data.dirs.root";
-  public static final String DATA_DIRS_DEFAULT = "cm.data.dirs.default";
-
   protected static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_WHIRR_HANDLER, false);
 
   protected Map<String, String> deviceMappings = new HashMap<String, String>();
@@ -65,7 +62,7 @@ public abstract class BaseHandlerCm extends BaseHandler {
     logHeaderHandler("HostConfigure");
     super.beforeConfigure(event);
     addStatement(event, call("retry_helpers"));
-    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT) == null) {
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(CONFIG_WHIRR_DATA_DIRS_ROOT) == null) {
       getDeviceMappings(event);
       String devMappings = VolumeManager.asString(deviceMappings);
       addStatement(event, call("prepare_all_disks", "'" + devMappings + "'"));

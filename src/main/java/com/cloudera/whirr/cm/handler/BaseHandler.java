@@ -17,12 +17,22 @@
  */
 package com.cloudera.whirr.cm.handler;
 
+import static org.apache.whirr.RolePredicates.role;
+
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandlerSupport;
+import org.apache.whirr.service.FirewallManager.Rule;
 
 import com.cloudera.whirr.cm.CmConstants;
 
@@ -45,6 +55,43 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
           + "] passed in variable [" + ClusterSpec.Property.CLUSTER_NAME.getConfigName() + "] with default ["
           + CONFIG_WHIRR_NAME_DEFAULT + "]. Please use only alphanumeric characters.");
     }
+  }
+
+  protected void handleFirewallRules(ClusterActionEvent event, List<String> anySourcePorts,
+      List<String> clusterSourcePorts) throws IOException {
+    List<String> clientCirds = event.getClusterSpec().getClientCidrs();
+    if (anySourcePorts != null && !anySourcePorts.isEmpty()) {
+      event.getClusterSpec().setClientCidrs(Arrays.asList(new String[] { "0.0.0.0/0" }));
+      for (String port : anySourcePorts) {
+        if (port != null && !"".equals(port)) {
+          event.getFirewallManager().addRule(Rule.create().destination(role(getRole())).port(Integer.parseInt(port)));
+        }
+      }
+    }
+    if (clusterSourcePorts != null && !clusterSourcePorts.isEmpty()) {
+      List<String> cirds = new ArrayList<String>();
+      cirds.add(getOriginatingIp(event));
+      for (Instance instance : event.getCluster().getInstances()) {
+        cirds.add(instance.getPrivateIp() + "/32");
+        cirds.add(instance.getPublicIp() + "/32");
+      }
+      event.getClusterSpec().setClientCidrs(cirds);
+      for (String port : clusterSourcePorts) {
+        if (port != null && !"".equals(port))
+          event.getFirewallManager().addRule(Rule.create().destination(role(getRole())).port(Integer.parseInt(port)));
+      }
+    }
+    event.getClusterSpec().setClientCidrs(clientCirds);
+    handleFirewallRules(event);
+  }
+
+  private String getOriginatingIp(ClusterActionEvent event) throws IOException {
+    if ("stub".equals(event.getClusterSpec().getProvider())) {
+      return "62.217.232.123";
+    }
+    HttpURLConnection connection = (HttpURLConnection) new URL("http://checkip.amazonaws.com/").openConnection();
+    connection.connect();
+    return IOUtils.toString(connection.getInputStream()).trim() + "/32";
   }
 
 }

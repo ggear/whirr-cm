@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 
+import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
@@ -67,7 +68,7 @@ public class CmAgentHandler extends CmNodeHandler {
           event,
           call("configure_cm_agent", "-h", event.getCluster().getInstanceMatching(role(CmServerHandler.ROLE))
               .getPrivateIp(), "-p",
-              CmServerClusterInstance. getConfiguration(event.getClusterSpec()).getString(CmServerHandler.PROPERTY_PORT_COMMS)));
+              CmServerClusterInstance. getConfiguration(event.getClusterSpec()).getString(CmConstants.CONFIG_WHIRRCM_PORT_COMMS)));
     }
   }
 

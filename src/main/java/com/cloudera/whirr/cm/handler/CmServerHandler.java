@@ -23,6 +23,7 @@ import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,8 +32,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.whirr.service.ClusterActionEvent;
-import org.apache.whirr.service.FirewallManager.Rule;
 
+import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerCluster;
@@ -51,12 +52,6 @@ public class CmServerHandler extends BaseHandlerCm {
   public static final String ROLE = "cm-server";
 
   public static final String LICENSE_FILE = "cm-license.txt";
-
-  public static final String PROPERTY_PARCEL_PRODUCT = "cm-server.parcel.product";
-  public static final String PROPERTY_PARCEL_VERSION = "cm-server.parcel.version";
-  public static final String PROPERTY_PORTS = "cm-server.ports";
-  public static final String PROPERTY_PORT_WEB = "cm-server.port.web";
-  public static final String PROPERTY_PORT_COMMS = "cm-server.port.comms";
 
   @Override
   public String getRole() {
@@ -90,14 +85,13 @@ public class CmServerHandler extends BaseHandlerCm {
     }
     addStatement(event, call("configure_cm_server"));
     @SuppressWarnings("unchecked")
-    List<String> ports = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(PROPERTY_PORTS);
-    ports.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_WEB));
-    ports.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(PROPERTY_PORT_COMMS));
-    for (String port : ports) {
-      if (port != null && !"".equals(port))
-        event.getFirewallManager().addRule(Rule.create().destination(role(ROLE)).port(Integer.parseInt(port)));
-    }
-    handleFirewallRules(event);
+    List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
+        ROLE + CONFIG_WHIRRCM_SUFFIX_PORTS);
+    clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(CONFIG_WHIRRCM_PORT_COMMS));
+    handleFirewallRules(
+        event,
+        Arrays.asList(new String[] { CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+            CONFIG_WHIRRCM_PORT_WEB) }), clusterPorts);
   }
 
   @Override
@@ -112,8 +106,8 @@ public class CmServerHandler extends BaseHandlerCm {
         Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
         while (keys.hasNext()) {
           String key = keys.next();
-          if (key.startsWith(CONFIG_WHIRR_CM_PREFIX)) {
-            config.put(key.replaceFirst(CONFIG_WHIRR_CM_PREFIX, ""), event.getClusterSpec().getConfiguration()
+          if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
+            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), event.getClusterSpec().getConfiguration()
                 .getString(key));
           }
         }
@@ -130,8 +124,8 @@ public class CmServerHandler extends BaseHandlerCm {
         Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
         while (keys.hasNext()) {
           String key = keys.next();
-          if (key.startsWith(CONFIG_WHIRR_CM_PREFIX)) {
-            config.put(key.replaceFirst(CONFIG_WHIRR_CM_PREFIX, ""), event.getClusterSpec().getConfiguration()
+          if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
+            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), event.getClusterSpec().getConfiguration()
                 .getString(key));
           }
         }
@@ -201,9 +195,9 @@ public class CmServerHandler extends BaseHandlerCm {
       CmServerCluster cluster = getCluster(event, status);
       if (!cluster.isEmpty()) {
         if (!alwaysExecute && !CmServerClusterInstance.isStandaloneCommand()
-            && !event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO_VARIABLE, true)) {
+            && !event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO, true)) {
           CmServerClusterInstance.logLineItem(logger, operation, "Warning, services found, but whirr property");
-          CmServerClusterInstance.logLineItemDetail(logger, operation, "[" + CONFIG_WHIRR_AUTO_VARIABLE
+          CmServerClusterInstance.logLineItemDetail(logger, operation, "[" + CONFIG_WHIRR_AUTO
               + "] is false so not executing");
         } else {
           CmServerClusterInstance.logLineItem(
@@ -213,12 +207,12 @@ public class CmServerHandler extends BaseHandlerCm {
                   + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
                   + ":"
                   + CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
-                      CmServerHandler.PROPERTY_PORT_WEB));
+                      CmConstants.CONFIG_WHIRRCM_PORT_WEB));
           CmServerClusterInstance.logLineItem(logger, operation);
           CmServer server = CmServerClusterInstance.getFactory().getCmServer(
               event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(),
-              CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getInt(PROPERTY_PORT_WEB), CM_USER,
-              CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
+              CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getInt(CONFIG_WHIRRCM_PORT_WEB),
+              CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
           try {
             cluster = command.execute(event, server, cluster);
           } finally {
@@ -271,13 +265,15 @@ public class CmServerHandler extends BaseHandlerCm {
 
   private Set<String> getDataMounts(ClusterActionEvent event) throws IOException {
     Set<String> mounts = new HashSet<String>();
-    String overirdeMounts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_ROOT);
+    String overirdeMounts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+        CONFIG_WHIRR_DATA_DIRS_ROOT);
     if (overirdeMounts != null) {
       mounts.add(overirdeMounts);
     } else if (!getDeviceMappings(event).isEmpty()) {
       mounts.addAll(getDeviceMappings(event).keySet());
     } else {
-      mounts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(DATA_DIRS_DEFAULT));
+      mounts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+          CONFIG_WHIRRCM_DATA_DIRS_DEFAULT));
     }
     return mounts;
   }

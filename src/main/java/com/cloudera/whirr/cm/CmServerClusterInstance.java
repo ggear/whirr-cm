@@ -180,7 +180,7 @@ public class CmServerClusterInstance implements CmConstants {
     logger.logOperationInProgressSync(label, "CM SERVER");
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(label,
-          "  http://" + cluster.getServer() + ":" + configuration.getString(CmServerHandler.PROPERTY_PORT_WEB));
+          "  http://" + cluster.getServer() + ":" + configuration.getString(CmConstants.CONFIG_WHIRRCM_PORT_WEB));
       logger.logOperationInProgressSync(
           label,
           "  ssh -o StrictHostKeyChecking=no -i "

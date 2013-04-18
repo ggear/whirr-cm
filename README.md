@@ -102,12 +102,12 @@ Password: admin
 
 ## Manage the CDH cluster with CM
 
-The Whirr property 'whirr.env.cmauto', as set in cm-ec2.properties:
+The Whirr property 'whirr.cm.auto', as set in cm-ec2.properties:
 
 ```bash
 # Switch to enable/disable the automatic setup of a cluster within Cloudera Manager,
 # its initialization and launch, defaults to true
-whirr.env.cmauto=true
+whirr.cm.auto=true
 ```
 
 determines whether the Whirr CM plugin provisions, initilialises and starts a new CDH cluster (true)
