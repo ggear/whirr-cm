@@ -136,7 +136,7 @@ public class CmServerCluster {
   }
 
   public synchronized Set<CmServerService> getServices(CmServerServiceType type) {
-    // TODO: Do Deep Copy
+    // TODO Do Deep Copy
     Set<CmServerService> servicesCopy = new TreeSet<CmServerService>();
     if (type.equals(CmServerServiceType.CLUSTER)) {
       for (CmServerServiceType serviceType : services.keySet()) {

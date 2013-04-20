@@ -67,8 +67,10 @@ public class CmServerHandlerTest extends BaseTestHandler {
 
   @Override
   protected Predicate<CharSequence> bootstrapPredicate() {
-    return and(containsPattern("configure_hostnames"),
-        and(containsPattern("install_cm"), containsPattern("install_cm_server")));
+    return and(
+        containsPattern("configure_hostnames"),
+        and(containsPattern("install_database"),
+            and(containsPattern("install_cm"), containsPattern("install_cm_server"))));
   }
 
   @Override

@@ -41,6 +41,7 @@ import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
+import com.cloudera.whirr.cm.server.impl.CmServerCmsType;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
@@ -67,6 +68,19 @@ public class CmServerHandler extends BaseHandlerCm {
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
+    for (CmServerCmsType type : CmServerCmsType.values()) {
+      switch (type) {
+      case HOSTMONITOR:
+      case SERVICEMONITOR:
+      case ACTIVITYMONITOR:
+      case REPORTSMANAGER:
+      case NAVIGATOR:
+        addStatement(event, call("install_database", "-t", getDatabaseType(event, ROLE), "-d", type.getDb()));
+        break;
+      default:
+        break;
+      }
+    }
     addStatement(event, call("install_cm"));
     addStatement(event, call("install_cm_server"));
   }
@@ -83,11 +97,12 @@ public class CmServerHandler extends BaseHandlerCm {
               Splitter.on('\n').split(
                   CharStreams.toString(Resources.newReaderSupplier(licenceConfigUri, Charsets.UTF_8)))));
     }
-    addStatement(event, call("configure_cm_server"));
+    addStatement(event, call("configure_cm_server", "-t", getDatabaseType(event, ROLE)));
     @SuppressWarnings("unchecked")
     List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
         ROLE + CONFIG_WHIRRCM_SUFFIX_PORTS);
-    clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(CONFIG_WHIRRCM_PORT_COMMS));
+    clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+        CONFIG_WHIRRCM_PORT_COMMS));
     handleFirewallRules(
         event,
         Arrays.asList(new String[] { CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(

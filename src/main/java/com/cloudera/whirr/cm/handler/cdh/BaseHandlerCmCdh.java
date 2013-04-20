@@ -42,6 +42,10 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
 
   public abstract CmServerServiceType getType();
 
+  public boolean isDatabaseDependent() {
+    return false;
+  }
+
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
@@ -59,6 +63,9 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
                   .build());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
+    }
+    if (isDatabaseDependent()) {
+      addStatement(event, call("install_database", "-t", getDatabaseType(event, getRole()), "-d", getType().getDb()));
     }
     if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
       addStatement(event, call("register_cdh_repo"));

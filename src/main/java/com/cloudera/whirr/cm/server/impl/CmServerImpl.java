@@ -465,8 +465,6 @@ public class CmServerImpl implements CmServer {
     boolean executed = false;
     try {
 
-      provisionManagement(cluster);
-
       logger.logOperationStartedSync("ClusterConfigure");
 
       if (!isProvisioned(cluster)) {
@@ -681,6 +679,7 @@ public class CmServerImpl implements CmServer {
 
           apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().setupCMS(cmsServiceApi);
 
+          // TODO Refactor, dont hardcode, pass through from whirr config
           for (ApiRoleConfigGroup cmsRoleConfigGroupApi : apiResourceRoot.getClouderaManagerResource()
               .getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
             try {
@@ -691,15 +690,25 @@ public class CmServerImpl implements CmServer {
               case HOSTMONITOR:
               case SERVICEMONITOR:
               case ACTIVITYMONITOR:
-                cmsServiceConfigApi.add(new ApiConfig("firehose_database_name", type.getId()));
-                cmsServiceConfigApi.add(new ApiConfig("firehose_database_user", type.getId()));
+                cmsServiceConfigApi.add(new ApiConfig("firehose_database_type", "mysql"));
+                cmsServiceConfigApi.add(new ApiConfig("firehose_database_host", "localhost:3306"));
+                cmsServiceConfigApi.add(new ApiConfig("firehose_database_user", type.getDb()));
+                cmsServiceConfigApi.add(new ApiConfig("firehose_database_password", type.getDb()));
+                cmsServiceConfigApi.add(new ApiConfig("firehose_database_name", type.getDb()));
                 break;
               case REPORTSMANAGER:
-                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_name", type.getId()));
-                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_user", type.getId()));
+                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_type", "mysql"));
+                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_host", "localhost:3306"));
+                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_user", type.getDb()));
+                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_password", type.getDb()));
+                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_name", type.getDb()));
                 break;
               case NAVIGATOR:
-                cmsServiceConfigApi.add(new ApiConfig("navigator_database_name", type.getId()));
+                cmsServiceConfigApi.add(new ApiConfig("navigator_database_type", "mysql"));
+                cmsServiceConfigApi.add(new ApiConfig("navigator_database_host", "localhost:3306"));
+                cmsServiceConfigApi.add(new ApiConfig("navigator_database_user", type.getDb()));
+                cmsServiceConfigApi.add(new ApiConfig("navigator_database_password", type.getDb()));
+                cmsServiceConfigApi.add(new ApiConfig("navigator_database_name", type.getDb()));
                 break;
               default:
                 break;
@@ -818,6 +827,8 @@ public class CmServerImpl implements CmServer {
 
     final List<CmServerService> services = getServiceHosts();
 
+    provisionManagement(cluster);
+
     logger.logOperation("CreateClusterServices", new CmServerLogSyncCommand() {
       @Override
       public void execute() throws IOException, InterruptedException, CmServerException {
@@ -848,6 +859,12 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_NAMENODE)));
             apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
             apiServiceConfig.add(new ApiConfig("oozie_service", cluster.getServiceName(CmServerServiceType.OOZIE)));
+            apiServiceConfig.add(new ApiConfig("database_type", "mysql"));
+            apiServiceConfig.add(new ApiConfig("database_host", "localhost"));
+            apiServiceConfig.add(new ApiConfig("database_port", "3306"));
+            apiServiceConfig.add(new ApiConfig("database_user", CmServerServiceType.HUE_SERVER.getDb()));
+            apiServiceConfig.add(new ApiConfig("database_password", CmServerServiceType.HUE_SERVER.getDb()));
+            apiServiceConfig.add(new ApiConfig("database_name", CmServerServiceType.HUE_SERVER.getDb()));
             break;
           case OOZIE:
             apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
@@ -858,8 +875,13 @@ public class CmServerImpl implements CmServer {
                 .getServiceName(CmServerServiceType.MAPREDUCE)));
             apiServiceConfig.add(new ApiConfig("hive_metastore_database_type", "mysql"));
             apiServiceConfig.add(new ApiConfig("hive_metastore_database_host", "localhost"));
-            apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", "hive"));
             apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "3306"));
+            apiServiceConfig.add(new ApiConfig("hive_metastore_database_user", CmServerServiceType.HIVE_METASTORE
+                .getDb()));
+            apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", CmServerServiceType.HIVE_METASTORE
+                .getDb()));
+            apiServiceConfig.add(new ApiConfig("hive_metastore_database_name", CmServerServiceType.HIVE_METASTORE
+                .getDb()));
             break;
           case IMPALA:
             apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
@@ -927,6 +949,13 @@ public class CmServerImpl implements CmServer {
               case MAPREDUCE_TASK_TRACKER:
                 apiConfigList.add(new ApiConfig("tasktracker_mapred_local_dir_list", cluster.getDataDirsForSuffix(
                     defaultMountPoints, "/mapred/local")));
+                break;
+              case OOZIE_SERVER:
+                apiConfigList.add(new ApiConfig("oozie_database_type", "mysql"));
+                apiConfigList.add(new ApiConfig("oozie_database_host", "localhost:3306"));
+                apiConfigList.add(new ApiConfig("oozie_database_user", roleConfigGroupType.getDb()));
+                apiConfigList.add(new ApiConfig("oozie_database_password", roleConfigGroupType.getDb()));
+                apiConfigList.add(new ApiConfig("oozie_database_name", roleConfigGroupType.getDb()));
                 break;
               default:
                 break;

@@ -80,6 +80,10 @@ public enum CmServerServiceType {
     return id;
   }
 
+  public String getDb() {
+    return toString().toLowerCase();
+  }
+  
   public CmServerServiceTypeRepo getRepository() {
     return respository;
   }

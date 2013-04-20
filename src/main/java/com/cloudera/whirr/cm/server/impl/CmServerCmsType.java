@@ -22,35 +22,37 @@ import com.cloudera.whirr.cm.server.CmServerService;
 public enum CmServerCmsType {
 
   // Management
-  MANAGEMENT(null, "MGMT"),
+  MANAGEMENT(null, "MGMT", null),
 
   // Host Monitor
-  HOSTMONITOR(MANAGEMENT, "HOSTMONITOR"),
+  HOSTMONITOR(MANAGEMENT, "HOSTMONITOR", "hmon"),
 
   // Service Monitor
-  SERVICEMONITOR(MANAGEMENT, "SERVICEMONITOR"),
+  SERVICEMONITOR(MANAGEMENT, "SERVICEMONITOR", "smon"),
 
   // Activity Monitor
-  ACTIVITYMONITOR(MANAGEMENT, "ACTIVITYMONITOR"),
+  ACTIVITYMONITOR(MANAGEMENT, "ACTIVITYMONITOR", "amon"),
 
   // Reports Manager
-  REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER"),
+  REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER", "rmgr"),
 
   // Event Server
-  EVENTSERVER(MANAGEMENT, "EVENTSERVER"),
+  EVENTSERVER(MANAGEMENT, "EVENTSERVER", null),
 
   // Alerts Publisher
-  ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER"),
+  ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER", null),
 
   // Navigator
-  NAVIGATOR(MANAGEMENT, "NAVIGATOR");
+  NAVIGATOR(MANAGEMENT, "NAVIGATOR", "nav");
 
   private CmServerCmsType parent;
   private String id;
+  private String db;
 
-  private CmServerCmsType(CmServerCmsType parent, String id) {
+  private CmServerCmsType(CmServerCmsType parent, String id, String db) {
     this.parent = parent;
     this.id = id;
+    this.db = db;
   }
 
   public CmServerCmsType getParent() {
@@ -59,6 +61,10 @@ public enum CmServerCmsType {
 
   public String getId() {
     return id;
+  }
+
+  public String getDb() {
+    return db == null ? null : "cm_" + db;
   }
 
   public String getName() {

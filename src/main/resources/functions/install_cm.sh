@@ -18,6 +18,13 @@
 set -x
 
 function install_cm() {
+  if which dpkg &> /dev/null; then
+    export DEBIAN_FRONTEND=noninteractive
+    retry_apt_get update
+    retry_apt_get -q -y install lsb-release
+  elif which rpm &> /dev/null; then
+    retry_yum install -y redhat-lsb
+  fi
   REPOCM=${REPOCM:-cm4}
   CM_REPO_HOST=${CM_REPO_HOST:-archive.cloudera.com}
   CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9]\).*/\1/')

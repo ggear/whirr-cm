@@ -94,4 +94,12 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
     return IOUtils.toString(connection.getInputStream()).trim() + "/32";
   }
 
+  protected String getDatabaseType(ClusterActionEvent event, String role) {
+    return event
+        .getClusterSpec()
+        .getConfiguration()
+        .getString(CONFIG_WHIRR_DB_PREFIX + role,
+            event.getClusterSpec().getConfiguration().getString(CONFIG_WHIRR_DB, "mysql"));
+  }
+  
 }
