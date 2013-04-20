@@ -126,13 +126,12 @@ public abstract class BaseTestIntegration implements BaseTest {
 
   @After
   public void unconfigureCluster() throws CmServerException {
-    // TODO
-//    try {
-//      serverBootstrap.unconfigure(cluster);
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//    }
-//    Assert.assertFalse(serverBootstrap.isConfigured(cluster));
+    try {
+      serverBootstrap.unconfigure(cluster);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    Assert.assertFalse(serverBootstrap.isConfigured(cluster));
   }
 
   private static String getSystemProperty(String key, String value) {
