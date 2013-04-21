@@ -55,9 +55,11 @@ END
     ./mysql_setup $CLUSTER_USER cloudera-scm $KERBEROS_REALM
     rm -rf ./mysql_setup
   fi
-  mysql -u root -e "CREATE USER '$1'@'localhost' IDENTIFIED BY '$1'"
   mysql -u root -e "CREATE DATABASE $1 DEFAULT CHARACTER SET utf8"
-  mysql -u root -e "GRANT ALL ON $1.* TO '$1'@'%'"
+  mysql -u root -e "CREATE USER '$1'@'localhost' IDENTIFIED BY '$1'"
+  mysql -u root -e "GRANT ALL PRIVILEGES ON $1.* TO '$1'@'localhost' WITH GRANT OPTION"
+  mysql -u root -e "CREATE USER '$1'@'%' IDENTIFIED BY '$1'"
+  mysql -u root -e "GRANT ALL PRIVILEGES ON $1.* TO '$1'@'%' WITH GRANT OPTION"
 }
 
 function install_database() {
