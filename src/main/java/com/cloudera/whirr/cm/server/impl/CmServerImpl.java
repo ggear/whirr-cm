@@ -897,11 +897,14 @@ public class CmServerImpl implements CmServer {
           apiService.setConfig(apiServiceConfig);
 
           for (CmServerService subService : cluster.getServices(type)) {
-            String hostId = getServiceHost(subService, services).getHost();
+            CmServerService subServiceHost = getServiceHost(subService, services);
+            if (subServiceHost == null || subServiceHost.getHost() == null) {
+              throw new CmServerException("Could not find CM agent host to match [" + subService + "]");
+            }
             ApiRole apiRole = new ApiRole();
             apiRole.setName(subService.getName());
             apiRole.setType(subService.getType().getId());
-            apiRole.setHostRef(new ApiHostRef(hostId));
+            apiRole.setHostRef(new ApiHostRef(subServiceHost.getHost()));
             apiRoles.add(apiRole);
           }
 

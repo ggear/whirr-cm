@@ -95,6 +95,10 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
     @SuppressWarnings("unchecked")
     List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
         getRole() + CONFIG_WHIRRCM_SUFFIX_PORTS);
+    if (isDatabaseDependent()) {
+      clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+          CONFIG_WHIRRCM_PREFIX_DATABASE_PORT + getDatabaseType(event, getRole())));
+    }
     handleFirewallRules(event, Collections.<String> emptyList(), clusterPorts);
   }
 

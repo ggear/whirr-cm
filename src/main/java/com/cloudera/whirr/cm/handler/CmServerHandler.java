@@ -103,6 +103,8 @@ public class CmServerHandler extends BaseHandlerCm {
         ROLE + CONFIG_WHIRRCM_SUFFIX_PORTS);
     clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
         CONFIG_WHIRRCM_PORT_COMMS));
+    clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+        CONFIG_WHIRRCM_PREFIX_DATABASE_PORT + getDatabaseType(event, ROLE)));    
     handleFirewallRules(
         event,
         Arrays.asList(new String[] { CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(

@@ -34,6 +34,7 @@ public interface CmConstants extends CmServerConstants {
   public static final String CONFIG_WHIRR_DB_PREFIX = CONFIG_WHIRR_DB + ".";
   public static final String CONFIG_WHIRR_CM_CONFIG_PREFIX = "whirr.cm.config.";
 
+  public static final String CONFIG_WHIRRCM_PREFIX_DATABASE_PORT = "database.port.";
   public static final String CONFIG_WHIRRCM_SUFFIX_PORTS = ".ports";
   public static final String CONFIG_WHIRRCM_PORT_WEB = CmServerHandler.ROLE + ".port.web";
   public static final String CONFIG_WHIRRCM_PORT_COMMS = CmServerHandler.ROLE + ".port.comms";
