@@ -58,6 +58,7 @@ import com.cloudera.api.model.ApiRoleState;
 import com.cloudera.api.model.ApiService;
 import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
+import com.cloudera.api.model.ApiServiceState;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.whirr.cm.server.CmServer;
@@ -516,6 +517,9 @@ public class CmServerImpl implements CmServer {
         executed = false;
       }
 
+      // push into provision phase once OPSAPS-13194/OPSAPS-12870 is addressed
+      startManagement(cluster);
+      
       logger.logOperationFinishedSync("ClusterStart");
 
     } catch (Exception e) {
@@ -729,10 +733,6 @@ public class CmServerImpl implements CmServer {
           }
         }
       });
-
-      CmServerImpl.this.execute("Start " + CmServerCmsType.MANAGEMENT.getId().toLowerCase(), apiResourceRoot
-          .getClouderaManagerResource().getMgmtServiceResource().startCommand());
-
     }
 
   }
@@ -1067,6 +1067,20 @@ public class CmServerImpl implements CmServer {
       break;
     default:
       break;
+    }
+
+  }
+
+  private void startManagement(final CmServerCluster cluster) throws InterruptedException {
+
+    try {
+      if (apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().readService(DataView.SUMMARY)
+          .getServiceState().equals(ApiServiceState.STOPPED)) {
+        CmServerImpl.this.execute("Start " + CmServerCmsType.MANAGEMENT.getId().toLowerCase(), apiResourceRoot
+            .getClouderaManagerResource().getMgmtServiceResource().startCommand());
+      }
+    } catch (ServerWebApplicationException exception) {
+      // ignore
     }
 
   }
