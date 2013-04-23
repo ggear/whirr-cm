@@ -23,16 +23,63 @@ function install_mysql() {
 	  export DEBIAN_FRONTEND=noninteractive
 	  retry_apt_get update
 	  retry_apt_get -q -y install expect mysql-server-5.5 mysql-client-5.5 libmysql-java
-	  service mysql start
-	  chkconfig mysql on
+	  service mysql stop
+	  MYSQL_CONF="/etc/mysql/my.cnf"
 	elif which rpm &> /dev/null; then
 	  retry_yum install -y expect mysql-server mysql-connector-java
-	  service mysqld start
-	  chkconfig mysqld on
+	  MYSQL_CONF="/etc/my.cnf"
 	fi
+	chkconfig mysql on
+	rm -rf /var/lib/mysql/ib_logfile*
+	echo '
+[mysqld]
+
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+log-bin=/var/lib/mysql/mysql_binary_log
+
+user=mysql
+binlog_format=mixed
+
+transaction-isolation=READ-COMMITTED
+
+key_buffer=16M
+key_buffer_size=32M
+max_allowed_packet=16M
+thread_stack=256K
+thread_cache_size=64
+query_cache_limit=8M
+query_cache_size=64M
+query_cache_type=1
+max_connections=750
+
+read_buffer_size=2M
+read_rnd_buffer_size=16M
+sort_buffer_size=8M
+join_buffer_size=8M
+
+innodb_file_per_table=1
+innodb_flush_log_at_trx_commit=2
+innodb_log_buffer_size=64M
+innodb_buffer_pool_size=4G
+innodb_thread_concurrency=8
+innodb_flush_method=O_DIRECT
+innodb_log_file_size=512M
+
+[mysqld_safe]
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+' > $MYSQL_CONF
 	mkdir -p /var/lib/oozie
 	chmod 777 /var/lib/oozie 
 	ln -s /usr/share/java/mysql-connector-java.jar /var/lib/oozie/mysql-connector-java.jar
+	if which dpkg &> /dev/null; then
+	  service mysql start
+	elif which rpm &> /dev/null; then
+	  service mysqld start
+	fi
 	cat >> mysql_setup <<END
 #!/usr/bin/expect -f
 set timeout 5000
