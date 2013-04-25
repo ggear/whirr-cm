@@ -15,47 +15,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.whirr.cm.server.impl;
+package com.cloudera.whirr.cm.server;
 
-import com.cloudera.whirr.cm.server.CmServerService;
-
-public enum CmServerCmsType {
+public enum CmServerServiceTypeCms {
 
   // Management
-  MANAGEMENT(null, "MGMT", null),
+  CM(null, "CM"),
+
+  // Management
+  MANAGEMENT(null, "MGMT"),
 
   // Host Monitor
-  HOSTMONITOR(MANAGEMENT, "HOSTMONITOR", "hmon"),
+  HOSTMONITOR(MANAGEMENT, "HOSTMONITOR"),
 
   // Service Monitor
-  SERVICEMONITOR(MANAGEMENT, "SERVICEMONITOR", "smon"),
+  SERVICEMONITOR(MANAGEMENT, "SERVICEMONITOR"),
 
   // Activity Monitor
-  ACTIVITYMONITOR(MANAGEMENT, "ACTIVITYMONITOR", "amon"),
+  ACTIVITYMONITOR(MANAGEMENT, "ACTIVITYMONITOR"),
 
   // Reports Manager
-  REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER", "rmgr"),
+  REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER"),
 
   // Event Server
-  EVENTSERVER(MANAGEMENT, "EVENTSERVER", null),
+  EVENTSERVER(MANAGEMENT, "EVENTSERVER"),
 
   // Alerts Publisher
-  ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER", null),
+  ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER"),
 
   // Navigator
-  NAVIGATOR(MANAGEMENT, "NAVIGATOR", "nav");
+  NAVIGATOR(MANAGEMENT, "NAVIGATOR");
 
-  private CmServerCmsType parent;
+  private CmServerServiceTypeCms parent;
   private String id;
-  private String db;
 
-  private CmServerCmsType(CmServerCmsType parent, String id, String db) {
+  private CmServerServiceTypeCms(CmServerServiceTypeCms parent, String id) {
     this.parent = parent;
     this.id = id;
-    this.db = db;
   }
 
-  public CmServerCmsType getParent() {
+  public CmServerServiceTypeCms getParent() {
     return parent;
   }
 
@@ -63,19 +62,9 @@ public enum CmServerCmsType {
     return id;
   }
 
-  public String getDb() {
-    return db == null ? null : "cm_" + db;
-  }
-
   public String getName() {
     return MANAGEMENT.getId().toLowerCase()
         + (getParent() != null ? (CmServerService.NAME_TOKEN_DELIM + getId().toLowerCase()) : "");
   }
 
-  public String getGroup() {
-    return MANAGEMENT.getId().toLowerCase()
-        + (getParent() != null ? (CmServerService.NAME_TOKEN_DELIM + getId().toLowerCase()
-            + CmServerService.NAME_TOKEN_DELIM + CmServerService.NAME_QUALIFIER_GROUP)
-            : (CmServerService.NAME_TOKEN_DELIM + CmServerService.NAME_QUALIFIER_GROUP));
-  }
 }

@@ -41,6 +41,8 @@ log-bin=/var/lib/mysql/mysql_binary_log
 user=mysql
 binlog_format=mixed
 
+default-storage-engine=INNODB
+
 transaction-isolation=READ-COMMITTED
 
 key_buffer=16M

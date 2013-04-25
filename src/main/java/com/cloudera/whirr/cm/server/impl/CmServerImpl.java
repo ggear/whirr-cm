@@ -69,10 +69,10 @@ import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
 import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
+import com.cloudera.whirr.cm.server.CmServerServiceTypeCms;
 import com.cloudera.whirr.cm.server.CmServerServiceTypeRepo;
 import com.cloudera.whirr.cm.server.impl.CmServerLog.CmServerLogSyncCommand;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 public class CmServerImpl implements CmServer {
@@ -519,7 +519,7 @@ public class CmServerImpl implements CmServer {
 
       // push into provision phase once OPSAPS-13194/OPSAPS-12870 is addressed
       startManagement(cluster);
-      
+
       logger.logOperationFinishedSync("ClusterStart");
 
     } catch (Exception e) {
@@ -668,9 +668,9 @@ public class CmServerImpl implements CmServer {
         public void execute() throws IOException, CmServerException, InterruptedException {
           ApiService cmsServiceApi = new ApiService();
           List<ApiRole> cmsRoleApis = new ArrayList<ApiRole>();
-          cmsServiceApi.setName(CmServerCmsType.MANAGEMENT.getName());
-          cmsServiceApi.setType(CmServerCmsType.MANAGEMENT.getId());
-          for (CmServerCmsType type : CmServerCmsType.values()) {
+          cmsServiceApi.setName(CmServerServiceTypeCms.MANAGEMENT.getName());
+          cmsServiceApi.setType(CmServerServiceTypeCms.MANAGEMENT.getId());
+          for (CmServerServiceTypeCms type : CmServerServiceTypeCms.values()) {
             if (type.getParent() != null) {
               ApiRole cmsRoleApi = new ApiRole();
               cmsRoleApi.setName(type.getName());
@@ -683,41 +683,19 @@ public class CmServerImpl implements CmServer {
 
           apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().setupCMS(cmsServiceApi);
 
-          // TODO Refactor, dont hardcode, pass through from whirr config
           for (ApiRoleConfigGroup cmsRoleConfigGroupApi : apiResourceRoot.getClouderaManagerResource()
               .getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
             try {
-              CmServerCmsType type = CmServerCmsType.valueOf(cmsRoleConfigGroupApi.getRoleType());
+
+              CmServerServiceTypeCms type = CmServerServiceTypeCms.valueOf(cmsRoleConfigGroupApi.getRoleType());
               ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
               ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
-              switch (type) {
-              case HOSTMONITOR:
-              case SERVICEMONITOR:
-              case ACTIVITYMONITOR:
-                cmsServiceConfigApi.add(new ApiConfig("firehose_database_type", "mysql"));
-                cmsServiceConfigApi.add(new ApiConfig("firehose_database_host", "localhost:3306"));
-                cmsServiceConfigApi.add(new ApiConfig("firehose_database_user", type.getDb()));
-                cmsServiceConfigApi.add(new ApiConfig("firehose_database_password", type.getDb()));
-                cmsServiceConfigApi.add(new ApiConfig("firehose_database_name", type.getDb()));
-                break;
-              case REPORTSMANAGER:
-                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_type", "mysql"));
-                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_host", "localhost:3306"));
-                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_user", type.getDb()));
-                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_password", type.getDb()));
-                cmsServiceConfigApi.add(new ApiConfig("headlamp_database_name", type.getDb()));
-                break;
-              case NAVIGATOR:
-                cmsServiceConfigApi.add(new ApiConfig("navigator_database_type", "mysql"));
-                cmsServiceConfigApi.add(new ApiConfig("navigator_database_host", "localhost:3306"));
-                cmsServiceConfigApi.add(new ApiConfig("navigator_database_user", type.getDb()));
-                cmsServiceConfigApi.add(new ApiConfig("navigator_database_password", type.getDb()));
-                cmsServiceConfigApi.add(new ApiConfig("navigator_database_name", type.getDb()));
-                break;
-              default:
-                break;
+              if (cluster.getServiceConfiguration().get(type.getId()) != null) {
+                for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
+                  cmsServiceConfigApi.add(new ApiConfig(setting, cluster.getServiceConfiguration().get(type.getId())
+                      .get(setting)));
+                }
               }
-
               cmsRoleConfigGroupApiNew.setConfig(cmsServiceConfigApi);
 
               apiResourceRoot
@@ -842,11 +820,13 @@ public class CmServerImpl implements CmServer {
           apiService.setName(cluster.getServiceName(type));
 
           ApiServiceConfig apiServiceConfig = new ApiServiceConfig();
-          // TODO Refactor, dont hardcode, pass through from whirr config
+          if (cluster.getServiceConfiguration().get(type.getId()) != null) {
+            for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
+              apiServiceConfig.add(new ApiConfig(setting, cluster.getServiceConfiguration().get(type.getId())
+                  .get(setting)));
+            }
+          }
           switch (type) {
-          case HDFS:
-            apiServiceConfig.add(new ApiConfig("dfs_block_local_path_access_user", "impala"));
-            break;
           case MAPREDUCE:
             apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
             break;
@@ -859,12 +839,6 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_NAMENODE)));
             apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
             apiServiceConfig.add(new ApiConfig("oozie_service", cluster.getServiceName(CmServerServiceType.OOZIE)));
-            apiServiceConfig.add(new ApiConfig("database_type", "mysql"));
-            apiServiceConfig.add(new ApiConfig("database_host", "localhost"));
-            apiServiceConfig.add(new ApiConfig("database_port", "3306"));
-            apiServiceConfig.add(new ApiConfig("database_user", CmServerServiceType.HUE_SERVER.getDb()));
-            apiServiceConfig.add(new ApiConfig("database_password", CmServerServiceType.HUE_SERVER.getDb()));
-            apiServiceConfig.add(new ApiConfig("database_name", CmServerServiceType.HUE_SERVER.getDb()));
             break;
           case OOZIE:
             apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
@@ -873,15 +847,6 @@ public class CmServerImpl implements CmServer {
           case HIVE:
             apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
                 .getServiceName(CmServerServiceType.MAPREDUCE)));
-            apiServiceConfig.add(new ApiConfig("hive_metastore_database_type", "mysql"));
-            apiServiceConfig.add(new ApiConfig("hive_metastore_database_host", "localhost"));
-            apiServiceConfig.add(new ApiConfig("hive_metastore_database_port", "3306"));
-            apiServiceConfig.add(new ApiConfig("hive_metastore_database_user", CmServerServiceType.HIVE_METASTORE
-                .getDb()));
-            apiServiceConfig.add(new ApiConfig("hive_metastore_database_password", CmServerServiceType.HIVE_METASTORE
-                .getDb()));
-            apiServiceConfig.add(new ApiConfig("hive_metastore_database_name", CmServerServiceType.HIVE_METASTORE
-                .getDb()));
             break;
           case IMPALA:
             apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
@@ -920,57 +885,36 @@ public class CmServerImpl implements CmServer {
               .getServicesResource(getName(cluster)).getRoleConfigGroupsResource(cluster.getServiceName(type))
               .readRoleConfigGroups()) {
 
+            ApiConfigList apiConfigList = new ApiConfigList();
             CmServerServiceType roleConfigGroupType = null;
             try {
               roleConfigGroupType = CmServerServiceType.valueOfId(roleConfigGroup.getRoleType());
             } catch (IllegalArgumentException e) {
               // ignore
             }
-
-            if (roleConfigGroupType != null) {
-
-              ApiConfigList apiConfigList = new ApiConfigList();
-              // TODO Refactor, dont hardcode, pass through from whirr config
-              Set<String> defaultMountPoints = ImmutableSet.<String> builder().add("/data/1").build();
-              switch (roleConfigGroupType) {
-              case HDFS_NAMENODE:
-                apiConfigList.add(new ApiConfig("dfs_name_dir_list", cluster.getDataDirsForSuffix(defaultMountPoints,
-                    "/dfs/nn")));
-                break;
-              case HDFS_SECONDARY_NAMENODE:
-                apiConfigList.add(new ApiConfig("fs_checkpoint_dir_list", cluster.getDataDirsForSuffix(
-                    defaultMountPoints, "/dfs/snn")));
-                break;
-              case HDFS_DATANODE:
-                apiConfigList.add(new ApiConfig("dfs_data_dir_list", cluster.getDataDirsForSuffix(defaultMountPoints,
-                    "/dfs/dn")));
-                break;
-              case MAPREDUCE_JOB_TRACKER:
-                apiConfigList.add(new ApiConfig("jobtracker_mapred_local_dir_list", cluster.getDataDirsForSuffix(
-                    defaultMountPoints, "/mapred/jt")));
-                break;
-              case MAPREDUCE_TASK_TRACKER:
-                apiConfigList.add(new ApiConfig("tasktracker_mapred_local_dir_list", cluster.getDataDirsForSuffix(
-                    defaultMountPoints, "/mapred/local")));
-                break;
-              case OOZIE_SERVER:
-                apiConfigList.add(new ApiConfig("oozie_database_type", "mysql"));
-                apiConfigList.add(new ApiConfig("oozie_database_host", "localhost:3306"));
-                apiConfigList.add(new ApiConfig("oozie_database_user", roleConfigGroupType.getDb()));
-                apiConfigList.add(new ApiConfig("oozie_database_password", roleConfigGroupType.getDb()));
-                apiConfigList.add(new ApiConfig("oozie_database_name", roleConfigGroupType.getDb()));
-                break;
-              default:
-                break;
+            if (roleConfigGroupType != null && roleConfigGroupType.equals(CmServerServiceType.GATEWAY)) {
+              try {
+                roleConfigGroupType = CmServerServiceType.valueOfId(new CmServerServiceBuilder()
+                    .name(roleConfigGroup.getServiceRef().getServiceName()).build().getType()
+                    + "_" + roleConfigGroup.getRoleType());
+              } catch (IllegalArgumentException e) {
+                // ignore
               }
-
+            }
+            if (roleConfigGroupType != null) {
+              Map<String, String> config = cluster.getServiceConfiguration().get(roleConfigGroupType.getId());
+              if (config != null) {
+                for (String setting : config.keySet()) {
+                  apiConfigList.add(new ApiConfig(setting, config.get(setting)));
+                }
+              }
               ApiRoleConfigGroup apiRoleConfigGroup = new ApiRoleConfigGroup();
               apiRoleConfigGroup.setConfig(apiConfigList);
               apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
                   .getRoleConfigGroupsResource(cluster.getServiceName(type))
                   .updateRoleConfigGroup(roleConfigGroup.getName(), apiRoleConfigGroup, CM_CONFIG_UPDATE_MESSAGE);
-
             }
+
           }
         }
       }
@@ -1076,7 +1020,7 @@ public class CmServerImpl implements CmServer {
     try {
       if (apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().readService(DataView.SUMMARY)
           .getServiceState().equals(ApiServiceState.STOPPED)) {
-        CmServerImpl.this.execute("Start " + CmServerCmsType.MANAGEMENT.getId().toLowerCase(), apiResourceRoot
+        CmServerImpl.this.execute("Start " + CmServerServiceTypeCms.MANAGEMENT.getId().toLowerCase(), apiResourceRoot
             .getClouderaManagerResource().getMgmtServiceResource().startCommand());
       }
     } catch (ServerWebApplicationException exception) {

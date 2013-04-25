@@ -17,6 +17,8 @@
  */
 package com.cloudera.whirr.cm;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,12 +36,11 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 public abstract class BaseTestIntegration implements BaseTest {
 
   // The CM Server and database host/IP and port
-  protected static String CM_IP = getSystemProperty("whirr.test.cm.ip", "31.222.167.239");
+  protected static String CM_IP = getSystemProperty("whirr.test.cm.ip", "46.38.165.19");
   protected static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
 
   // The CM Server config to be uploaded
@@ -54,7 +55,7 @@ public abstract class BaseTestIntegration implements BaseTest {
   protected static int clusterSize;
 
   @BeforeClass
-  public static void initialiseCluster() throws CmServerException {
+  public static void initialiseCluster() throws CmServerException, IOException {
     cluster = new CmServerCluster();
     Assert.assertNotNull(serverBootstrap = new CmServerFactory().getCmServer(CM_IP, CM_PORT, CmConstants.CM_USER,
         CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false)));
@@ -73,7 +74,8 @@ public abstract class BaseTestIntegration implements BaseTest {
     }
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
     cluster.setServer(CM_IP);
-    cluster.setMounts(ImmutableSet.<String> builder().add("/data/" + CLUSTER_TAG).build());
+    cluster.addServiceConfigurationAll(CmServerClusterInstance.getClusterConfiguration(
+        CmServerClusterInstance.getConfiguration(null), Collections.<String> emptySet()));
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HIVE_METASTORE).tag(CLUSTER_TAG)
         .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_SERVER).tag(CLUSTER_TAG)

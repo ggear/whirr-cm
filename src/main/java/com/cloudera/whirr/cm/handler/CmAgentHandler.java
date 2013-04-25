@@ -68,7 +68,7 @@ public class CmAgentHandler extends CmNodeHandler {
           event,
           call("configure_cm_agent", "-h", event.getCluster().getInstanceMatching(role(CmServerHandler.ROLE))
               .getPrivateIp(), "-p",
-              CmServerClusterInstance. getConfiguration(event.getClusterSpec()).getString(CmConstants.CONFIG_WHIRRCM_PORT_COMMS)));
+              CmServerClusterInstance. getConfiguration(event.getClusterSpec()).getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_COMMS)));
     }
   }
 

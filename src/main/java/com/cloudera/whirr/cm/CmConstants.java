@@ -29,18 +29,23 @@ public interface CmConstants extends CmServerConstants {
 
   public static final String CONFIG_WHIRR_AUTO = "whirr.cm.auto";
   public static final String CONFIG_WHIRR_USE_PACKAGES = "whirr.cm.use.packages";
-  public static final String CONFIG_WHIRR_DATA_DIRS_ROOT = "whirr.cm.data.dirs.root";
-  public static final String CONFIG_WHIRR_DB = "whirr.cm.db";
-  public static final String CONFIG_WHIRR_DB_PREFIX = CONFIG_WHIRR_DB + ".";
   public static final String CONFIG_WHIRR_CM_CONFIG_PREFIX = "whirr.cm.config.";
+  public static final String CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX = "whirr.cm.service.config.";
+  public static final String CONFIG_WHIRR_DATA_DIRS_ROOT = "whirr.cm.data.dirs.root";
+  public static final String CONFIG_WHIRR_DB_TYPE = "whirr.cm.db.type";
 
-  public static final String CONFIG_WHIRRCM_PREFIX_DATABASE_PORT = "database.port.";
-  public static final String CONFIG_WHIRRCM_SUFFIX_PORTS = ".ports";
-  public static final String CONFIG_WHIRRCM_PORT_WEB = CmServerHandler.ROLE + ".port.web";
-  public static final String CONFIG_WHIRRCM_PORT_COMMS = CmServerHandler.ROLE + ".port.comms";
-  public static final String CONFIG_WHIRRCM_DATA_DIRS_DEFAULT = CmServerHandler.ROLE + ".data.dirs.default";
+  public static final String CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX = "database.port.";
+  public static final String CONFIG_WHIRR_INTERNAL_PORTS_SUFFIX = ".ports";
+  public static final String CONFIG_WHIRR_INTERNAL_PORT_WEB = CmServerHandler.ROLE + ".port.web";
+  public static final String CONFIG_WHIRR_INTERNAL_PORT_COMMS = CmServerHandler.ROLE + ".port.comms";
+  public static final String CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT = "whirr.cm.data.dirs.root.default";
+  public static final String CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX = "whirr.cm.service.default.config.";
 
   public static final String CONFIG_WHIRR_NAME_DEFAULT = "whirr";
+
+  public static final String CONFIG_CM_DB_SUFFIX_TYPE = "database_type";
+  public static final String CONFIG_CM_DB_SUFFIX_HOST = "database_host";
+  public static final String CONFIG_CM_DB_SUFFIX_PORT = "database_port";
 
   public static final String LOG_TAG_WHIRR_HANDLER = "Whirr Handler";
   public static final String LOG_TAG_WHIRR_COMMAND = "Whirr Command";

@@ -59,7 +59,7 @@ public class CmNodeHandler extends BaseHandlerCm {
     super.beforeConfigure(event);
     @SuppressWarnings("unchecked")
     List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
-        ROLE + CONFIG_WHIRRCM_SUFFIX_PORTS);
+        ROLE + CONFIG_WHIRR_INTERNAL_PORTS_SUFFIX);
     handleFirewallRules(event, Collections.<String> emptyList(), clusterPorts);
   }
 

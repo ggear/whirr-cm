@@ -24,7 +24,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
@@ -33,6 +35,7 @@ import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandlerSupport;
 import org.apache.whirr.service.FirewallManager.Rule;
+import org.apache.whirr.service.hadoop.VolumeManager;
 
 import com.cloudera.whirr.cm.CmConstants;
 
@@ -94,12 +97,14 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
     return IOUtils.toString(connection.getInputStream()).trim() + "/32";
   }
 
-  protected String getDatabaseType(ClusterActionEvent event, String role) {
-    return event
-        .getClusterSpec()
-        .getConfiguration()
-        .getString(CONFIG_WHIRR_DB_PREFIX + role,
-            event.getClusterSpec().getConfiguration().getString(CONFIG_WHIRR_DB, "mysql"));
+  public Map<String, String> getDeviceMappings(ClusterActionEvent event) {
+    Map<String, String> deviceMappings = new HashMap<String, String>();
+    if (event.getCluster() != null && event.getCluster().getInstances() != null
+        && !event.getCluster().getInstances().isEmpty()) {
+      deviceMappings.putAll(new VolumeManager().getDeviceMappings(event.getClusterSpec(), event.getCluster()
+          .getInstances().iterator().next()));
+    }
+    return deviceMappings;
   }
-  
+
 }

@@ -65,7 +65,12 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
       throw new IOException("Unexpected error building cluster", e);
     }
     if (isDatabaseDependent()) {
-      addStatement(event, call("install_database", "-t", getDatabaseType(event, getRole()), "-d", getType().getDb()));
+      addStatement(
+          event,
+          call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(), getDeviceMappings(event).keySet(),
+              getType().getId(), getType().getParent() == null ? null : getType().getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance.getClusterConfiguration(
+              event.getClusterSpec(), getDeviceMappings(event).keySet(), getType().getId(), getType().getParent() == null ? null : getType()
+                  .getParent().getId(), "database_name")));
     }
     if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
       addStatement(event, call("register_cdh_repo"));
@@ -94,10 +99,12 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
     super.beforeConfigure(event);
     @SuppressWarnings("unchecked")
     List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
-        getRole() + CONFIG_WHIRRCM_SUFFIX_PORTS);
+        getRole() + CONFIG_WHIRR_INTERNAL_PORTS_SUFFIX);
     if (isDatabaseDependent()) {
       clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
-          CONFIG_WHIRRCM_PREFIX_DATABASE_PORT + getDatabaseType(event, getRole())));
+          CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX
+              + CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(), getDeviceMappings(event).keySet(),
+                  getType().getId(), getType().getParent() == null ? null : getType().getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE)));
     }
     handleFirewallRules(event, Collections.<String> emptyList(), clusterPorts);
   }

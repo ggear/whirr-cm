@@ -56,12 +56,15 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   protected int countConfigured;
   protected int countStarted;
   protected int countStopped;
+  protected int countConfigureedSettings;
 
   public void countersReset() {
-    countProvisioned = countConfigured = countStarted = countStopped = 0;
+    countConfigureedSettings = countProvisioned = countConfigured = countStarted = countStopped = 0;
   }
 
-  protected boolean countersAssertAndReset(int countProvisioned, int countConfigured, int countStarted, int countStopped) {
+  protected boolean countersAssertAndReset(int countSettings, int countProvisioned, int countConfigured,
+      int countStarted, int countStopped) {
+    Assert.assertEquals(countSettings, this.countConfigureedSettings);
     Assert.assertEquals(countProvisioned, this.countProvisioned);
     Assert.assertEquals(countConfigured, this.countConfigured);
     Assert.assertEquals(countStarted, this.countStarted);
@@ -157,6 +160,9 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
 
       @Override
       public boolean configure(CmServerCluster cluster) throws CmServerException {
+        for (String key : cluster.getServiceConfiguration().keySet()) {
+          countConfigureedSettings += cluster.getServiceConfiguration().get(key).size();
+        }
         countConfigured += cluster.getServices(CmServerServiceType.CLUSTER).size();
         return any(isConfigured = true);
       }
@@ -190,8 +196,8 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   public ClusterSpec newClusterSpecForProperties(Map<String, String> properties) throws IOException,
       ConfigurationException, JSchException {
     ClusterSpec clusterSpec = super.newClusterSpecForProperties(ImmutableMap.<String, String> builder()
-        .putAll(properties).put(ClusterSpec.Property.CLUSTER_USER.getConfigName(), CLUSTER_USER).put(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)
-        .build());
+        .putAll(properties).put(ClusterSpec.Property.CLUSTER_USER.getConfigName(), CLUSTER_USER)
+        .put(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT).build());
     clusterSpec.setPrivateKey(FILE_KEY_PRIVATE);
     clusterSpec.setPublicKey(FILE_KEY_PUBLIC);
     return clusterSpec;

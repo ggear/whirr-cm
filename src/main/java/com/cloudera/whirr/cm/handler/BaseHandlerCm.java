@@ -20,22 +20,16 @@ package com.cloudera.whirr.cm.handler;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.hadoop.VolumeManager;
 
 import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
-import com.google.common.collect.Iterables;
 
 public abstract class BaseHandlerCm extends BaseHandler {
 
   protected static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_WHIRR_HANDLER, false);
-
-  protected Map<String, String> deviceMappings = new HashMap<String, String>();
 
   protected String getInstanceId() {
     return getRole() + "-instance-id";
@@ -63,9 +57,7 @@ public abstract class BaseHandlerCm extends BaseHandler {
     super.beforeConfigure(event);
     addStatement(event, call("retry_helpers"));
     if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(CONFIG_WHIRR_DATA_DIRS_ROOT) == null) {
-      getDeviceMappings(event);
-      String devMappings = VolumeManager.asString(deviceMappings);
-      addStatement(event, call("prepare_all_disks", "'" + devMappings + "'"));
+      addStatement(event, call("prepare_all_disks", "'" + VolumeManager.asString(getDeviceMappings(event)) + "'"));
     }
     logFooterHandler("HostPreConfigure");
   }
@@ -73,19 +65,6 @@ public abstract class BaseHandlerCm extends BaseHandler {
   @Override
   protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterConfigure(event);
-  }
-
-  public Map<String, String> getDeviceMappings(ClusterActionEvent event) {
-    if (deviceMappings.isEmpty()) {
-      Instance prototype = Iterables.getFirst(event.getCluster().getInstances(), null);
-      if (prototype == null) {
-        throw new IllegalStateException("No instances found.");
-      }
-      VolumeManager volumeManager = new VolumeManager();
-      deviceMappings.putAll(volumeManager.getDeviceMappings(event.getClusterSpec(), prototype));
-    }
-
-    return deviceMappings;
   }
 
   private void logHeaderHandler(String operation) {
