@@ -77,10 +77,10 @@ public class CmServerHandler extends BaseHandlerCm {
         addStatement(
             event,
             call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-                getDeviceMappings(event).keySet(), type.getId(), type.getParent() == null ? null : type
-                    .getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance
-                .getClusterConfiguration(event.getClusterSpec(), getDeviceMappings(event).keySet(), type.getId(), type.getParent() == null ? null : type.getParent().getId(),
-                    "database_name")));
+                getDeviceMappings(event).keySet(), type.getId(), type.getParent() == null ? null : type.getParent()
+                    .getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance.getClusterConfiguration(event
+                .getClusterSpec(), getDeviceMappings(event).keySet(), type.getId(), type.getParent() == null ? null
+                : type.getParent().getId(), "database_name")));
         break;
       default:
         break;
@@ -114,8 +114,7 @@ public class CmServerHandler extends BaseHandlerCm {
     clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
         CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX
             + CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-                getDeviceMappings(event).keySet(), CmServerServiceTypeCms.CM.getId(), null,
-                CONFIG_CM_DB_SUFFIX_TYPE)));
+                getDeviceMappings(event).keySet(), CmServerServiceTypeCms.CM.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE)));
     handleFirewallRules(
         event,
         Arrays.asList(new String[] { CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
@@ -131,11 +130,11 @@ public class CmServerHandler extends BaseHandlerCm {
           throws Exception {
         Map<String, String> config = new HashMap<String, String>();
         @SuppressWarnings("unchecked")
-        Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
+        Iterator<String> keys = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getKeys();
         while (keys.hasNext()) {
           String key = keys.next();
           if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
-            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), event.getClusterSpec().getConfiguration()
+            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), CmServerClusterInstance.getConfiguration(event.getClusterSpec())
                 .getString(key));
           }
         }
@@ -149,11 +148,11 @@ public class CmServerHandler extends BaseHandlerCm {
           throws Exception {
         Map<String, String> config = new HashMap<String, String>();
         @SuppressWarnings("unchecked")
-        Iterator<String> keys = event.getClusterSpec().getConfiguration().getKeys();
+        Iterator<String> keys = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getKeys();
         while (keys.hasNext()) {
           String key = keys.next();
           if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
-            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), event.getClusterSpec().getConfiguration()
+            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), CmServerClusterInstance.getConfiguration(event.getClusterSpec())
                 .getString(key));
           }
         }
@@ -223,7 +222,7 @@ public class CmServerHandler extends BaseHandlerCm {
       CmServerCluster cluster = getCluster(event, status);
       if (!cluster.isEmpty()) {
         if (!alwaysExecute && !CmServerClusterInstance.isStandaloneCommand()
-            && !event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_AUTO, true)) {
+            && !CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_AUTO, true)) {
           CmServerClusterInstance.logLineItem(logger, operation, "Warning, services found, but whirr property");
           CmServerClusterInstance.logLineItemDetail(logger, operation, "[" + CONFIG_WHIRR_AUTO
               + "] is false so not executing");

@@ -38,6 +38,7 @@ import org.apache.whirr.service.FirewallManager.Rule;
 import org.apache.whirr.service.hadoop.VolumeManager;
 
 import com.cloudera.whirr.cm.CmConstants;
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 
 public abstract class BaseHandler extends ClusterActionHandlerSupport implements CmConstants {
 
@@ -50,13 +51,13 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     if (!CM_CLUSTER_NAME_REGEX.matcher(
-        event.getClusterSpec().getConfiguration()
-            .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)).matches()) {
+        CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+            ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)).matches()) {
       throw new IOException("Illegal cluster name ["
-          + event.getClusterSpec().getConfiguration()
-              .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)
-          + "] passed in variable [" + ClusterSpec.Property.CLUSTER_NAME.getConfigName() + "] with default ["
-          + CONFIG_WHIRR_NAME_DEFAULT + "]. Please use only alphanumeric characters.");
+          + CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+              ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT) + "] passed in variable ["
+          + ClusterSpec.Property.CLUSTER_NAME.getConfigName() + "] with default [" + CONFIG_WHIRR_NAME_DEFAULT
+          + "]. Please use only alphanumeric characters.");
     }
   }
 

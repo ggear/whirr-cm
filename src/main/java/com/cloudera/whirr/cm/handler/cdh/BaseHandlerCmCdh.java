@@ -58,7 +58,7 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
               new CmServerServiceBuilder()
                   .type(getType())
                   .tag(
-                      event.getClusterSpec().getConfiguration()
+                      CmServerClusterInstance.getConfiguration(event.getClusterSpec())
                           .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
                   .build());
     } catch (CmServerException e) {
@@ -72,7 +72,7 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
               event.getClusterSpec(), getDeviceMappings(event).keySet(), getType().getId(), getType().getParent() == null ? null : getType()
                   .getParent().getId(), "database_name")));
     }
-    if (event.getClusterSpec().getConfiguration().getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
       addStatement(event, call("register_cdh_repo"));
       addStatement(event, call("install_cdh_packages"));
     }
@@ -117,7 +117,7 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
           new CmServerServiceBuilder()
               .type(getType())
               .tag(
-                  event.getClusterSpec().getConfiguration()
+                  CmServerClusterInstance.getConfiguration(event.getClusterSpec())
                       .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
               .status(CmServerService.CmServerServiceStatus.STARTING).build());
     } catch (CmServerException e) {
@@ -133,7 +133,7 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
           new CmServerServiceBuilder()
               .type(getType())
               .tag(
-                  event.getClusterSpec().getConfiguration()
+                  CmServerClusterInstance.getConfiguration(event.getClusterSpec())
                       .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
               .status(CmServerService.CmServerServiceStatus.STOPPING).build());
     } catch (CmServerException e) {
