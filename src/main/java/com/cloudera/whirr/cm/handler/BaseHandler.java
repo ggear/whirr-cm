@@ -86,7 +86,9 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
       }
     }
     event.getClusterSpec().setClientCidrs(clientCirds);
-    handleFirewallRules(event);
+
+    // TODO Handle firewall requests more gracefully, currently too many redundant rule requests
+    // handleFirewallRules(event);
   }
 
   private String getOriginatingIp(ClusterActionEvent event) throws IOException {
