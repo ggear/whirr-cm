@@ -166,7 +166,7 @@ public class CmServerBuilder implements CmServerConstants {
   }
 
   public CmServerBuilder cluster(CmServerCluster cluster) throws CmServerException {
-    if (cluster == null || cluster.isEmpty()) {
+    if (cluster == null) {
       throw new CmServerException("Illegal cluster argument passed [" + cluster + "]");
     }
     this.cluster = cluster;

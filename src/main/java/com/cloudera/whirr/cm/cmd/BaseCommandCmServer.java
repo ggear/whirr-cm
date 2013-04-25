@@ -100,9 +100,6 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     if (cluster.getAgents().isEmpty() && cluster.getNodes().isEmpty()) {
       throw new CmServerException("Could not find any " + CmAgentHandler.ROLE + "'s or " + CmNodeHandler.ROLE + "'s.");
     }
-    if (cluster.isEmpty()) {
-      throw new CmServerException("Could not find any appropriate roles to target.");
-    }
 
     CmServerBuilder command = new CmServerBuilder().host(cluster.getServer()).cluster(cluster)
         .client(specification.getClusterDirectory().getAbsolutePath());

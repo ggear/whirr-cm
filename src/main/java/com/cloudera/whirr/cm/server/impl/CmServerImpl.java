@@ -236,7 +236,7 @@ public class CmServerImpl implements CmServer {
           clusterView.addAgent(getServiceHost(server, services));
         }
       }
-      if (isProvisioned(cluster)) {
+      if (!cluster.isEmpty() && isProvisioned(cluster)) {
         logger.logOperation("GetServices", new CmServerLogSyncCommand() {
           @Override
           public void execute() throws IOException, CmServerException {
@@ -440,7 +440,7 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterProvision");
 
-      if (!isProvisioned(cluster)) {
+      if (!cluster.isEmpty() && !isProvisioned(cluster)) {
         provsionCluster(cluster);
         if (cluster.getIsParcel()) {
           provisionParcels(cluster);
@@ -468,13 +468,15 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterConfigure");
 
-      if (!isProvisioned(cluster)) {
-        provision(cluster);
-      }
-      if (!isConfigured(cluster)) {
-        configureServices(cluster);
-        isFirstStartRequired = true;
-        executed = true;
+      if (!cluster.isEmpty()) {
+        if (!isProvisioned(cluster)) {
+          provision(cluster);
+        }
+        if (!isConfigured(cluster)) {
+          configureServices(cluster);
+          isFirstStartRequired = true;
+          executed = true;
+        }
       }
 
       logger.logOperationFinishedSync("ClusterConfigure");
@@ -495,30 +497,33 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterStart");
 
-      if (!isConfigured(cluster)) {
-        configure(cluster);
-      }
-      if (!isStarted(cluster)) {
-        for (CmServerServiceType type : cluster.getServiceTypes()) {
-          if (isFirstStartRequired) {
-            for (CmServerService service : cluster.getServices(type)) {
-              initPreStartServices(cluster, service);
-            }
-          }
-          startService(cluster, type);
-          if (isFirstStartRequired) {
-            for (CmServerService service : cluster.getServices(type)) {
-              initPostStartServices(cluster, service);
-            }
-          }
+      if (!cluster.isEmpty()) {
+        if (!isConfigured(cluster)) {
+          configure(cluster);
         }
-        isFirstStartRequired = false;
-      } else {
-        executed = false;
-      }
+        if (!isStarted(cluster)) {
+          for (CmServerServiceType type : cluster.getServiceTypes()) {
+            if (isFirstStartRequired) {
+              for (CmServerService service : cluster.getServices(type)) {
+                initPreStartServices(cluster, service);
+              }
+            }
+            startService(cluster, type);
+            if (isFirstStartRequired) {
+              for (CmServerService service : cluster.getServices(type)) {
+                initPostStartServices(cluster, service);
+              }
+            }
+          }
+          isFirstStartRequired = false;
+        } else {
+          executed = false;
+        }
 
-      // push into provision phase once OPSAPS-13194/OPSAPS-12870 is addressed
-      startManagement(cluster);
+        // push into provision phase once OPSAPS-13194/OPSAPS-12870 is addressed
+        startManagement(cluster);
+
+      }
 
       logger.logOperationFinishedSync("ClusterStart");
 
@@ -538,14 +543,16 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterStop");
 
-      if (isConfigured(cluster) && !isStopped(cluster)) {
-        final Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>(Collections.reverseOrder());
-        types.addAll(cluster.getServiceTypes());
-        for (CmServerServiceType type : types) {
-          stopService(cluster, type);
+      if (!cluster.isEmpty()) {
+        if (isConfigured(cluster) && !isStopped(cluster)) {
+          final Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>(Collections.reverseOrder());
+          types.addAll(cluster.getServiceTypes());
+          for (CmServerServiceType type : types) {
+            stopService(cluster, type);
+          }
+        } else {
+          executed = false;
         }
-      } else {
-        executed = false;
       }
 
       logger.logOperationFinishedSync("ClusterStop");
@@ -567,12 +574,14 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterUnConfigure");
 
-      if (isConfigured(cluster)) {
-        if (!isStopped(cluster)) {
-          stop(cluster);
+      if (!cluster.isEmpty()) {
+        if (isConfigured(cluster)) {
+          if (!isStopped(cluster)) {
+            stop(cluster);
+          }
+          unconfigureServices(cluster);
+          executed = true;
         }
-        unconfigureServices(cluster);
-        executed = true;
       }
 
       logger.logOperationFinishedSync("ClusterUnConfigure");
@@ -594,14 +603,16 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterUnProvision");
 
-      if (isProvisioned(cluster)) {
-        logger.logOperation("UnProvisionCluster", new CmServerLogSyncCommand() {
-          @Override
-          public void execute() throws IOException {
-            apiResourceRoot.getClustersResource().deleteCluster(getName(cluster));
-          }
-        });
-        executed = true;
+      if (!cluster.isEmpty()) {
+        if (isProvisioned(cluster)) {
+          logger.logOperation("UnProvisionCluster", new CmServerLogSyncCommand() {
+            @Override
+            public void execute() throws IOException {
+              apiResourceRoot.getClustersResource().deleteCluster(getName(cluster));
+            }
+          });
+          executed = true;
+        }
       }
 
       logger.logOperationFinishedSync("ClusterUnProvision");

@@ -108,16 +108,12 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
     };
 
-    ByteArrayOutputStream errBytes = new ByteArrayOutputStream();
-    PrintStream err = new PrintStream(errBytes);
-
     Map<String, File> keys = KeyPair.generateTemporaryFiles();
-    int rc = clusterCommand.run(null, System.out, err, Lists.newArrayList("--instance-templates", "1 noop",
+    int rc = clusterCommand.run(null, System.out, System.err, Lists.newArrayList("--instance-templates", "1 noop",
         "--service-name", "test-service", "--cluster-name", "test-cluster", "--identity", "myusername", "--quiet",
         "--private-key-file", keys.get("private").getAbsolutePath()));
 
-    assertThat(rc, is(-1));
-    assertThat(errBytes.toString(), containsString("Could not find any appropriate roles to target."));
+    assertThat(rc, is(0));
     verify(factory).create("test-service");
 
   }
