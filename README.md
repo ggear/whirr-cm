@@ -60,7 +60,7 @@ mv -v eval_acme_20120925_cloudera_enterprise_license.txt $WHIRR_HOME/conf/cm-lic
 ```
 
 The following command will start a cluster with 5 nodes, 1 CM server, 1 master and 3 slave nodes. To change the
-cluster topology, edit the cm-ec2.properties file.
+cluster topology, edit the [cm-ec2.properties](https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties) file.
 
 ```bash
 whirr launch-cluster --config cm-ec2.properties
