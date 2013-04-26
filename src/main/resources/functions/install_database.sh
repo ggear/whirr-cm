@@ -34,7 +34,6 @@ function install_mysql() {
 [mysqld]
 
 datadir=/var/lib/mysql
-socket=/var/lib/mysql/mysql.sock
 log_bin=/var/lib/mysql/mysql_binary_log
 
 user=mysql
@@ -63,9 +62,9 @@ innodb_file_per_table=1
 innodb_flush_log_at_trx_commit=2
 innodb_thread_concurrency=8
 innodb_flush_method=O_DIRECT
-#innodb_log_buffer_size=64M
-#innodb_buffer_pool_size=4G
-#innodb_log_file_size=512M
+innodb_log_buffer_size=64M
+innodb_buffer_pool_size=4G
+innodb_log_file_size=512M
 
 [mysqld_safe]
 
@@ -100,7 +99,7 @@ send "Y\r"
 expect EOF
 END
     chmod +x mysql_setup
-    ./mysql_setup $CLUSTER_USER cloudera-scm $KERBEROS_REALM
+    ./mysql_setup
     rm -rf ./mysql_setup
   fi
   mysql -u root -e "CREATE DATABASE $1 DEFAULT CHARACTER SET utf8"
