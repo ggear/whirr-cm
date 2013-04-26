@@ -50,8 +50,8 @@ import com.google.common.collect.Lists;
 public class CmServerCommandTest extends BaseTestCommand {
 
   private static final List<Class<? extends BaseCommand>> COMMANDS = ImmutableList.<Class<? extends BaseCommand>> of(
-      CmServerDownloadConfigCommand.class, CmServerCreateServicesCommand.class, CmServerDestroyServicesCommand.class,
-      CmServerListServicesCommand.class, CmServerCleanClusterCommand.class);
+      CmServerDownloadConfigCommand.class, CmServerInitClusterCommand.class, CmServerCreateServicesCommand.class,
+      CmServerDestroyServicesCommand.class, CmServerListServicesCommand.class, CmServerCleanClusterCommand.class);
 
   @Test
   public void testCommandServiceLoader() throws Exception {

@@ -28,7 +28,7 @@ import com.cloudera.whirr.cm.server.CmServerBuilder;
 public class CmServerCleanClusterCommand extends BaseCommandCmServer {
 
   public static final String NAME = "clean-cluster";
-  public static final String DESCRIPTION = "Terminate and cleanup resources for the cluster.";
+  public static final String DESCRIPTION = "Remove cluster and all services";
 
   public CmServerCleanClusterCommand() throws IOException {
     this(new ClusterControllerFactory());

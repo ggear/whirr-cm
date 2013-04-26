@@ -28,7 +28,7 @@ import com.cloudera.whirr.cm.server.CmServerBuilder;
 public class CmServerDestroyServicesCommand extends BaseCommandCmServer {
 
   public static final String NAME = "destroy-services";
-  public static final String DESCRIPTION = "Terminate and cleanup resources for a service.";
+  public static final String DESCRIPTION = "Stop and remove services from cluster.";
 
   public CmServerDestroyServicesCommand() throws IOException {
     this(new ClusterControllerFactory());
