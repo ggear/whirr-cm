@@ -20,11 +20,11 @@ package com.cloudera.whirr.cm.handler.cdh;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
@@ -42,6 +42,13 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
 
   public abstract CmServerServiceType getType();
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public Set<String> getPortsClient(ClusterActionEvent event) throws IOException {
+    return new HashSet<String>(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
+        getRole() + CONFIG_WHIRR_INTERNAL_PORTS_CLIENT_SUFFIX));
+  }
+
   public boolean isDatabaseDependent() {
     return false;
   }
@@ -53,24 +60,23 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
       if (!event.getInstanceTemplate().getRoles().contains(CmAgentHandler.ROLE)) {
         throw new CmServerException("Role [" + getRole() + "] requires colocated role [" + CmAgentHandler.ROLE + "]");
       }
-      CmServerClusterInstance.getCluster()
-          .addService(
-              new CmServerServiceBuilder()
-                  .type(getType())
-                  .tag(
-                      CmServerClusterInstance.getConfiguration(event.getClusterSpec())
-                          .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
-                  .build());
+      CmServerClusterInstance.getCluster().addService(
+          new CmServerServiceBuilder()
+              .type(getType())
+              .tag(
+                  CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+                      ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT)).build());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
     if (isDatabaseDependent()) {
       addStatement(
           event,
-          call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(), getDeviceMappings(event).keySet(),
-              getType().getId(), getType().getParent() == null ? null : getType().getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance.getClusterConfiguration(
-              event.getClusterSpec(), getDeviceMappings(event).keySet(), getType().getId(), getType().getParent() == null ? null : getType()
-                  .getParent().getId(), "database_name")));
+          call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
+              getDeviceMappings(event).keySet(), getType().getId(), getType().getParent() == null ? null : getType()
+                  .getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance
+              .getClusterConfiguration(event.getClusterSpec(), getDeviceMappings(event).keySet(), getType().getId(),
+                  getType().getParent() == null ? null : getType().getParent().getId(), "database_name")));
     }
     if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
       addStatement(event, call("register_cdh_repo"));
@@ -95,21 +101,6 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
   }
 
   @Override
-  protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
-    super.beforeConfigure(event);
-    @SuppressWarnings("unchecked")
-    List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
-        getRole() + CONFIG_WHIRR_INTERNAL_PORTS_SUFFIX);
-    if (isDatabaseDependent()) {
-      clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
-          CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX
-              + CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(), getDeviceMappings(event).keySet(),
-                  getType().getId(), getType().getParent() == null ? null : getType().getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE)));
-    }
-    handleFirewallRules(event, Collections.<String> emptyList(), clusterPorts);
-  }
-
-  @Override
   protected void beforeStart(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeStart(event);
     try {
@@ -117,8 +108,8 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
           new CmServerServiceBuilder()
               .type(getType())
               .tag(
-                  CmServerClusterInstance.getConfiguration(event.getClusterSpec())
-                      .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
+                  CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+                      ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
               .status(CmServerService.CmServerServiceStatus.STARTING).build());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
@@ -133,8 +124,8 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
           new CmServerServiceBuilder()
               .type(getType())
               .tag(
-                  CmServerClusterInstance.getConfiguration(event.getClusterSpec())
-                      .getString(ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
+                  CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+                      ClusterSpec.Property.CLUSTER_NAME.getConfigName(), CONFIG_WHIRR_NAME_DEFAULT))
               .status(CmServerService.CmServerServiceStatus.STOPPING).build());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);

@@ -23,8 +23,8 @@ import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.whirr.service.ClusterActionEvent;
@@ -53,6 +53,18 @@ public class CmServerHandler extends BaseHandlerCm {
   @Override
   public String getRole() {
     return ROLE;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Set<String> getPortsClient(ClusterActionEvent event) throws IOException {
+    Set<String> ports = new HashSet<String>(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
+        ROLE + CONFIG_WHIRR_INTERNAL_PORTS_CLIENT_SUFFIX));
+    ports.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec())
+        .getString(CONFIG_WHIRR_INTERNAL_PORT_WEB));
+    ports.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
+        CONFIG_WHIRR_INTERNAL_PORT_COMMS));
+    return ports;
   }
 
   @Override
@@ -103,19 +115,6 @@ public class CmServerHandler extends BaseHandlerCm {
         event,
         call("configure_cm_server", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
             getDeviceMappings(event).keySet(), CmServerServiceTypeCms.CM.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE)));
-    @SuppressWarnings("unchecked")
-    List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
-        ROLE + CONFIG_WHIRR_INTERNAL_PORTS_SUFFIX);
-    clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
-        CONFIG_WHIRR_INTERNAL_PORT_COMMS));
-    clusterPorts.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
-        CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX
-            + CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-                getDeviceMappings(event).keySet(), CmServerServiceTypeCms.CM.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE)));
-    handleFirewallRules(
-        event,
-        Arrays.asList(new String[] { CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
-            CONFIG_WHIRR_INTERNAL_PORT_WEB) }), clusterPorts);
   }
 
   @Override

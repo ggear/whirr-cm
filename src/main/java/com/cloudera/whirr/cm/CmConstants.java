@@ -30,6 +30,7 @@ public interface CmConstants extends CmServerConstants {
   public static final String CONFIG_WHIRR_AUTO = "whirr.cm.auto";
   public static final String CONFIG_WHIRR_USE_PACKAGES = "whirr.cm.use.packages";
   public static final String CONFIG_WHIRR_DATA_DIRS_ROOT = "whirr.cm.data.dirs.root";
+  public static final String CONFIG_WHIRR_FIREWALL_ENABLE = "whirr.cm.firewall.enable";
   public static final String CONFIG_WHIRR_DB_TYPE = "whirr.cm.db.type";
   public static final String CONFIG_WHIRR_CM_CONFIG_PREFIX = "whirr.cm.config.";
 
@@ -37,7 +38,7 @@ public interface CmConstants extends CmServerConstants {
   public static final String CONFIG_WHIRR_INTERNAL_PORT_COMMS = CmServerHandler.ROLE + ".port.comms";
   public static final String CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT = "whirr.cm.data.dirs.root.default";
   public static final String CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX = "database.port.";
-  public static final String CONFIG_WHIRR_INTERNAL_PORTS_SUFFIX = ".ports";
+  public static final String CONFIG_WHIRR_INTERNAL_PORTS_CLIENT_SUFFIX = ".client.ports";
   public static final String CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX = "whirr.cm.default.config.";
 
   public static final String CONFIG_WHIRR_NAME_DEFAULT = "whirr";

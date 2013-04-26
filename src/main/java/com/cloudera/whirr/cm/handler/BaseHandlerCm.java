@@ -67,13 +67,13 @@ public abstract class BaseHandlerCm extends BaseHandler {
     super.afterConfigure(event);
   }
 
-  private void logHeaderHandler(String operation) {
+  protected void logHeaderHandler(String operation) {
     CmServerClusterInstance.logHeader(logger, operation);
     CmServerClusterInstance.logLineItem(logger, operation);
     CmServerClusterInstance.logLineItemDetail(logger, operation, "Role " + getRole());
   }
 
-  private void logFooterHandler(String operation) {
+  protected void logFooterHandler(String operation) {
     CmServerClusterInstance.logLineItemFooter(logger, operation);
   }
 

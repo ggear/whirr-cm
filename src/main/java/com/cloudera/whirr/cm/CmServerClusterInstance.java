@@ -20,6 +20,7 @@ package com.cloudera.whirr.cm;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
+import org.apache.whirr.service.ClusterActionEvent;
 
 import com.cloudera.whirr.cm.handler.CmAgentHandler;
 import com.cloudera.whirr.cm.handler.CmNodeHandler;
@@ -53,8 +55,14 @@ public class CmServerClusterInstance implements CmConstants {
   private static CmServerFactory factory;
   private static CmServerCluster cluster;
   private static boolean isStandaloneCommand = true;
+  private static Map<ClusterActionEvent, Set<Integer>> ports = new HashMap<ClusterActionEvent, Set<Integer>>();
 
   private CmServerClusterInstance() {
+  }
+
+  public static synchronized void clear() {
+    ports.clear();
+    getCluster(true);
   }
 
   public synchronized static Configuration getConfiguration(ClusterSpec clusterSpec) throws IOException {
@@ -77,6 +85,31 @@ public class CmServerClusterInstance implements CmConstants {
 
   public static synchronized void setIsStandaloneCommand(boolean isStandaloneCommand) {
     CmServerClusterInstance.isStandaloneCommand = isStandaloneCommand;
+  }
+
+  public static synchronized Set<Integer> portsPush(ClusterActionEvent event, Set<String> ports) {
+    Set<Integer> portsNew = new HashSet<Integer>();
+    if (CmServerClusterInstance.ports.get(event) == null) {
+      CmServerClusterInstance.ports.put(event, new HashSet<Integer>());
+    }
+    for (String port : ports) {
+      if (ports != null && !ports.equals("")) {
+        try {
+          Integer portInteger = Integer.parseInt(port);
+          if (!CmServerClusterInstance.ports.get(event).contains(portInteger)) {
+            portsNew.add(portInteger);
+            CmServerClusterInstance.ports.get(event).add(portInteger);
+          }
+        } catch (NumberFormatException e) {
+          // ignore
+        }
+      }
+    }
+    return portsNew;
+  }
+
+  public static synchronized Set<Integer> portsPop(ClusterActionEvent event) {
+    return ports.remove(event);
   }
 
   public static synchronized CmServerFactory getFactory() {
@@ -197,8 +230,8 @@ public class CmServerClusterInstance implements CmConstants {
       if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
         String[] keyTokens = key.substring(CONFIG_WHIRR_CM_CONFIG_PREFIX.length(), key.length()).split("\\.");
         if (keyTokens == null || keyTokens.length != 2) {
-          throw new IOException("Invalid key [" + key + "], expected to be of format ["
-              + CONFIG_WHIRR_CM_CONFIG_PREFIX + "<role>.<setting>]");
+          throw new IOException("Invalid key [" + key + "], expected to be of format [" + CONFIG_WHIRR_CM_CONFIG_PREFIX
+              + "<role>.<setting>]");
         }
         keyTokens[0] = keyTokens[0].toUpperCase();
         if (clusterConfiguration.get(keyTokens[0]) == null) {
@@ -219,15 +252,14 @@ public class CmServerClusterInstance implements CmConstants {
     while (keys.hasNext()) {
       final String key = keys.next();
       if (key.startsWith(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX)) {
-        String[] keyTokens = key.substring(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX.length(),
-            key.length()).split("\\.");
+        String[] keyTokens = key.substring(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX.length(), key.length())
+            .split("\\.");
         if (keyTokens == null || keyTokens.length != 2) {
           throw new IOException("Invalid key [" + key + "], expected to be of format ["
               + CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX + "<role>.<setting>]");
         }
         keyTokens[0] = keyTokens[0].toUpperCase();
-        if (configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + keyTokens[0].toLowerCase() + "."
-            + keyTokens[1]) == null) {
+        if (configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + keyTokens[0].toLowerCase() + "." + keyTokens[1]) == null) {
           if (clusterConfiguration.get(keyTokens[0]) == null) {
             clusterConfiguration.put(keyTokens[0], new HashMap<String, String>());
           }
@@ -260,7 +292,8 @@ public class CmServerClusterInstance implements CmConstants {
                 configuration.getString(CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX
                     + configuration.getString(CONFIG_WHIRR_DB_TYPE)));
           } else if (configuration.getString(key.replace(CONFIG_CM_DB_SUFFIX_TYPE, CONFIG_CM_DB_SUFFIX_HOST)) != null
-              && !configuration.getString(key.replace(CONFIG_CM_DB_SUFFIX_TYPE, CONFIG_CM_DB_SUFFIX_HOST)).contains(":")) {
+              && !configuration.getString(key.replace(CONFIG_CM_DB_SUFFIX_TYPE, CONFIG_CM_DB_SUFFIX_HOST))
+                  .contains(":")) {
             clusterConfiguration.get(keyTokens[0]).put(
                 keyTokens[1].replace(CONFIG_CM_DB_SUFFIX_TYPE, CONFIG_CM_DB_SUFFIX_HOST),
                 configuration.getString(key.replace(CONFIG_CM_DB_SUFFIX_TYPE, CONFIG_CM_DB_SUFFIX_HOST))

@@ -198,7 +198,7 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
 
   @Before
   public void clearClusterSingleton() {
-    CmServerClusterInstance.getCluster(true);
+    CmServerClusterInstance.clear();
   }
 
   protected ClusterController getController(ClusterSpec clusterSpec) {

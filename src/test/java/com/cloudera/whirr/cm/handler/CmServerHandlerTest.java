@@ -58,11 +58,12 @@ public class CmServerHandlerTest extends BaseTestHandler {
   private static final String WHIRR_INSTANCE_TEMPLATE_ALL = "1 " + CmServerHandler.ROLE + "+" + CmAgentHandler.ROLE
       + ",1 " + CmAgentHandler.ROLE + "+" + CmCdhHdfsNameNodeHandler.ROLE + "+"
       + CmCdhHdfsSecondaryNameNodeHandler.ROLE + "+" + CmCdhHueServerHandler.ROLE + "+"
-      + CmCdhHueBeeswaxServerHandler.ROLE + "+" + CmCdhMapReduceJobTrackerHandler.ROLE + "+"
-      + CmCdhHBaseMasterHandler.ROLE + "+" + CmCdhHiveMetaStoreHandler.ROLE + "+" + CmCdhImpalaStateStoreHandler.ROLE
-      + "+" + CmCdhOozieServerHandler.ROLE + ",3 " + CmAgentHandler.ROLE + "+" + CmCdhHdfsDataNodeHandler.ROLE + "+"
-      + CmCdhMapReduceTaskTrackerHandler.ROLE + "+" + CmCdhZookeeperServerHandler.ROLE + "+"
-      + CmCdhHBaseRegionServerHandler.ROLE + "+" + CmCdhImpalaDaemonHandler.ROLE + "+" + CmCdhFlumeAgentHandler.ROLE;
+      + CmCdhHueBeeswaxServerHandler.ROLE + "+" + CmCdhMapReduceJobTrackerHandler.ROLE + "+" + ",1 "
+      + CmAgentHandler.ROLE + "+" + CmCdhHBaseMasterHandler.ROLE + "+" + CmCdhHiveMetaStoreHandler.ROLE + "+"
+      + CmCdhImpalaStateStoreHandler.ROLE + "+" + CmCdhOozieServerHandler.ROLE + ",3 " + CmAgentHandler.ROLE + "+"
+      + CmCdhHdfsDataNodeHandler.ROLE + "+" + CmCdhMapReduceTaskTrackerHandler.ROLE + "+"
+      + CmCdhZookeeperServerHandler.ROLE + "+" + CmCdhHBaseRegionServerHandler.ROLE + "+"
+      + CmCdhImpalaDaemonHandler.ROLE + "+" + CmCdhFlumeAgentHandler.ROLE;
 
   @Override
   protected Set<String> getInstanceRoles() {
@@ -288,6 +289,12 @@ public class CmServerHandlerTest extends BaseTestHandler {
         WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_AUTO, Boolean.FALSE.toString()))));
   }
 
+  @Test
+  public void testNodesAndAgentsAndClusterFirewall() throws Exception {
+    Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
+        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_FIREWALL_ENABLE, Boolean.TRUE.toString()))));
+  }
+  
   @Test
   public void testNodesAndAgentsAndClusterConfiguration() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",

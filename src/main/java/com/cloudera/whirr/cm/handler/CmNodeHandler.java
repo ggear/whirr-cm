@@ -20,8 +20,8 @@ package com.cloudera.whirr.cm.handler;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.whirr.service.ClusterActionEvent;
 
@@ -44,6 +44,13 @@ public class CmNodeHandler extends BaseHandlerCm {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public Set<String> getPortsClient(ClusterActionEvent event) throws IOException {
+    return new HashSet<String>(CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
+        ROLE + CONFIG_WHIRR_INTERNAL_PORTS_CLIENT_SUFFIX));
+  }
+
+  @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeBootstrap(event);
     try {
@@ -52,15 +59,6 @@ public class CmNodeHandler extends BaseHandlerCm {
       throw new IOException("Unexpected error building cluster", e);
     }
     addStatement(event, call("install_cm"));
-  }
-
-  @Override
-  protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
-    super.beforeConfigure(event);
-    @SuppressWarnings("unchecked")
-    List<String> clusterPorts = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(
-        ROLE + CONFIG_WHIRR_INTERNAL_PORTS_SUFFIX);
-    handleFirewallRules(event, Collections.<String> emptyList(), clusterPorts);
   }
 
 }

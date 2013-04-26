@@ -20,32 +20,28 @@ package com.cloudera.whirr.cm.handler;
 import static org.apache.whirr.RolePredicates.role;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandlerSupport;
 import org.apache.whirr.service.FirewallManager.Rule;
 import org.apache.whirr.service.hadoop.VolumeManager;
+import org.jclouds.scriptbuilder.domain.Statement;
 
 import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.CmServerClusterInstance;
+import com.google.common.primitives.Ints;
 
 public abstract class BaseHandler extends ClusterActionHandlerSupport implements CmConstants {
 
   // jclouds allows '-', CM does not, CM allows '_', jclouds does not, so lets restrict to alphanumeric
   private static final Pattern CM_CLUSTER_NAME_REGEX = Pattern.compile("[A-Za-z0-9]+");
 
-  protected static final String CONFIG_IMPORT_PATH = "functions/cmf/";
+  public abstract Set<String> getPortsClient(ClusterActionEvent event) throws IOException;
 
   @Override
   protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
@@ -61,46 +57,31 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
     }
   }
 
-  protected void handleFirewallRules(ClusterActionEvent event, List<String> anySourcePorts,
-      List<String> clusterSourcePorts) throws IOException {
-    List<String> clientCirds = event.getClusterSpec().getClientCidrs();
-    if (anySourcePorts != null && !anySourcePorts.isEmpty()) {
-      event.getClusterSpec().setClientCidrs(Arrays.asList(new String[] { "0.0.0.0/0" }));
-      for (String port : anySourcePorts) {
-        if (port != null && !"".equals(port)) {
-          event.getFirewallManager().addRule(Rule.create().destination(role(getRole())).port(Integer.parseInt(port)));
+  @Override
+  protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.beforeConfigure(event);
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE)) {
+      Set<Integer> ports = CmServerClusterInstance.portsPush(event, getPortsClient(event));
+      if (!ports.isEmpty()) {
+        event.getFirewallManager().addRules(Rule.create().destination(role(getRole())).ports(Ints.toArray(ports)));
+        for (Statement portIngressStatement : event.getFirewallManager().getRulesAsStatements()) {
+          addStatement(event, portIngressStatement);
         }
       }
     }
-    if (clusterSourcePorts != null && !clusterSourcePorts.isEmpty()) {
-      List<String> cirds = new ArrayList<String>();
-      cirds.add(getOriginatingIp(event));
-      for (Instance instance : event.getCluster().getInstances()) {
-        cirds.add(instance.getPrivateIp() + "/32");
-        cirds.add(instance.getPublicIp() + "/32");
-      }
-      event.getClusterSpec().setClientCidrs(cirds);
-      for (String port : clusterSourcePorts) {
-        if (port != null && !"".equals(port))
-          event.getFirewallManager().addRule(Rule.create().destination(role(getRole())).port(Integer.parseInt(port)));
-      }
-    }
-    event.getClusterSpec().setClientCidrs(clientCirds);
-
-    // TODO Handle firewall requests more gracefully, currently too many redundant rule requests
-    // handleFirewallRules(event);
   }
 
-  private String getOriginatingIp(ClusterActionEvent event) throws IOException {
-    if ("stub".equals(event.getClusterSpec().getProvider())) {
-      return "62.217.232.123";
+  @Override
+  protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.afterConfigure(event);
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE)) {
+      if (CmServerClusterInstance.portsPop(event) != null) {
+        event.getFirewallManager().authorizeAllRules();
+      }
     }
-    HttpURLConnection connection = (HttpURLConnection) new URL("http://checkip.amazonaws.com/").openConnection();
-    connection.connect();
-    return IOUtils.toString(connection.getInputStream()).trim() + "/32";
   }
 
-  public Map<String, String> getDeviceMappings(ClusterActionEvent event) {
+  protected Map<String, String> getDeviceMappings(ClusterActionEvent event) {
     Map<String, String> deviceMappings = new HashMap<String, String>();
     if (event.getCluster() != null && event.getCluster().getInstances() != null
         && !event.getCluster().getInstances().isEmpty()) {
