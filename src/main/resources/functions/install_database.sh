@@ -29,21 +29,20 @@ function install_mysql() {
 	  retry_yum install -y expect mysql-server mysql-connector-java
 	  MYSQL_CONF="/etc/my.cnf"
 	fi
-	chkconfig mysql on
 	rm -rf /var/lib/mysql/ib_logfile*
 	echo '
 [mysqld]
 
 datadir=/var/lib/mysql
 socket=/var/lib/mysql/mysql.sock
-log-bin=/var/lib/mysql/mysql_binary_log
+log_bin=/var/lib/mysql/mysql_binary_log
 
 user=mysql
 binlog_format=mixed
 
-default-storage-engine=INNODB
+default_storage_engine=INNODB
 
-transaction-isolation=READ-COMMITTED
+transaction_isolation=READ-COMMITTED
 
 key_buffer=16M
 key_buffer_size=32M
@@ -62,16 +61,16 @@ join_buffer_size=8M
 
 innodb_file_per_table=1
 innodb_flush_log_at_trx_commit=2
-innodb_log_buffer_size=64M
-innodb_buffer_pool_size=4G
 innodb_thread_concurrency=8
 innodb_flush_method=O_DIRECT
-innodb_log_file_size=512M
+#innodb_log_buffer_size=64M
+#innodb_buffer_pool_size=4G
+#innodb_log_file_size=512M
 
 [mysqld_safe]
 
-log-error=/var/log/mysqld.log
-pid-file=/var/run/mysqld/mysqld.pid
+log_error=/var/log/mysqld.log
+pid_file=/var/run/mysqld/mysqld.pid
 
 ' > $MYSQL_CONF
 	mkdir -p /var/lib/oozie
