@@ -423,9 +423,11 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterInitialise");
 
+      Map<String, String> configuration = cluster.getServiceConfiguration().get(CmServerServiceTypeCms.CM.getId());
+      configuration.remove("cm_database_name");
+      configuration.remove("cm_database_type");
       executed = CmServerServiceTypeCms.CM.getId() != null
-          && provisionCmSettings(cluster.getServiceConfiguration().get(CmServerServiceTypeCms.CM.getId())).size() >= cluster
-              .getServiceConfiguration().get(CmServerServiceTypeCms.CM.getId()).size();
+          && provisionCmSettings(configuration).size() >= configuration.size();
 
       logger.logOperationFinishedSync("ClusterInitialise");
 

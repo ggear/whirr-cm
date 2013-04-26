@@ -85,6 +85,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
 
   @Test
   public void testConfiguration() throws Exception {
+
     Configuration configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE)));
     Assert.assertEquals(
@@ -95,6 +96,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
         "100000",
         configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase()
             + ".parcel_distribute_rate_limit_kbs_per_second"));
+
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap
         .of("whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
             CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
@@ -159,12 +161,14 @@ public class CmServerHandlerTest extends BaseTestHandler {
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, ImmutableSet.of("/mnt/1", "/mnt/2"))
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
+
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
         CONFIG_WHIRR_DATA_DIRS_ROOT, "/tmp", CONFIG_WHIRR_CM_CONFIG_PREFIX
-            + CmServerServiceTypeCms.CM.getId().toLowerCase() + "." + CONFIG_CM_DB_SUFFIX_TYPE, "postgres",
-        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HIVE.getId().toLowerCase() + ".hive_metastore_"
-            + CONFIG_CM_DB_SUFFIX_PORT, "9999")));
+            + CmServerServiceTypeCms.CM.getId().toLowerCase() + "." + CONFIG_CM_DB_SUFFIX_NAME, "cman",
+        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase() + "."
+            + CONFIG_CM_DB_SUFFIX_TYPE, "postgres", CONFIG_WHIRR_CM_CONFIG_PREFIX
+            + CmServerServiceType.HIVE.getId().toLowerCase() + ".hive_metastore_" + CONFIG_CM_DB_SUFFIX_PORT, "9999")));
     Assert.assertEquals(
         "/tmp"
             + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
@@ -187,6 +191,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
         Collections.<String> emptySet(), CmServerServiceType.HIVE.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE));
     Assert.assertEquals("9999", CmServerClusterInstance.getClusterConfiguration(configuration,
         Collections.<String> emptySet(), CmServerServiceType.HIVE.getId(), null, CONFIG_CM_DB_SUFFIX_PORT));
+
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
         CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list",
@@ -223,6 +228,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
                 + CmServerServiceType.HDFS_SECONDARY_NAMENODE.getId().toLowerCase() + ".fs_checkpoint_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
             .get(CmServerServiceType.HDFS_SECONDARY_NAMENODE.getId()).get("fs_checkpoint_dir_list"));
+
   }
 
   @Test
@@ -292,9 +298,10 @@ public class CmServerHandlerTest extends BaseTestHandler {
   @Test
   public void testNodesAndAgentsAndClusterFirewall() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_FIREWALL_ENABLE, Boolean.TRUE.toString()))));
+        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_AUTO, Boolean.FALSE.toString(), CONFIG_WHIRR_FIREWALL_ENABLE,
+        Boolean.TRUE.toString()))));
   }
-  
+
   @Test
   public void testNodesAndAgentsAndClusterConfiguration() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
