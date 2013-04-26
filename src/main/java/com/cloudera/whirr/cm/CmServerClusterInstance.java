@@ -194,11 +194,11 @@ public class CmServerClusterInstance implements CmConstants {
     Iterator<String> keys = configuration.getKeys();
     while (keys.hasNext()) {
       String key = keys.next();
-      if (key.startsWith(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX)) {
-        String[] keyTokens = key.substring(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX.length(), key.length()).split("\\.");
+      if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
+        String[] keyTokens = key.substring(CONFIG_WHIRR_CM_CONFIG_PREFIX.length(), key.length()).split("\\.");
         if (keyTokens == null || keyTokens.length != 2) {
           throw new IOException("Invalid key [" + key + "], expected to be of format ["
-              + CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + "<role>.<setting>]");
+              + CONFIG_WHIRR_CM_CONFIG_PREFIX + "<role>.<setting>]");
         }
         keyTokens[0] = keyTokens[0].toUpperCase();
         if (clusterConfiguration.get(keyTokens[0]) == null) {
@@ -218,15 +218,15 @@ public class CmServerClusterInstance implements CmConstants {
     keys = configuration.getKeys();
     while (keys.hasNext()) {
       final String key = keys.next();
-      if (key.startsWith(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX)) {
-        String[] keyTokens = key.substring(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX.length(),
+      if (key.startsWith(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX)) {
+        String[] keyTokens = key.substring(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX.length(),
             key.length()).split("\\.");
         if (keyTokens == null || keyTokens.length != 2) {
           throw new IOException("Invalid key [" + key + "], expected to be of format ["
-              + CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX + "<role>.<setting>]");
+              + CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX + "<role>.<setting>]");
         }
         keyTokens[0] = keyTokens[0].toUpperCase();
-        if (configuration.getString(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + keyTokens[0].toLowerCase() + "."
+        if (configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + keyTokens[0].toLowerCase() + "."
             + keyTokens[1]) == null) {
           if (clusterConfiguration.get(keyTokens[0]) == null) {
             clusterConfiguration.put(keyTokens[0], new HashMap<String, String>());
@@ -244,11 +244,11 @@ public class CmServerClusterInstance implements CmConstants {
     keys = configuration.getKeys();
     while (keys.hasNext()) {
       final String key = keys.next();
-      if (key.startsWith(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX) && key.endsWith(CONFIG_CM_DB_SUFFIX_TYPE)) {
-        String[] keyTokens = key.substring(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX.length(), key.length()).split("\\.");
+      if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX) && key.endsWith(CONFIG_CM_DB_SUFFIX_TYPE)) {
+        String[] keyTokens = key.substring(CONFIG_WHIRR_CM_CONFIG_PREFIX.length(), key.length()).split("\\.");
         if (keyTokens == null || keyTokens.length != 2) {
           throw new IOException("Invalid key [" + key + "], expected to be of format ["
-              + CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX + "<role>.<setting>]");
+              + CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX + "<role>.<setting>]");
         }
         keyTokens[0] = keyTokens[0].toUpperCase();
         if (configuration.getString(key) != null && configuration.getString(key).length() == 0) {

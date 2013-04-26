@@ -24,10 +24,7 @@ import static org.jclouds.scriptbuilder.domain.Statements.createOrOverwriteFile;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.whirr.service.ClusterActionEvent;
@@ -128,17 +125,7 @@ public class CmServerHandler extends BaseHandlerCm {
       @Override
       public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
           throws Exception {
-        Map<String, String> config = new HashMap<String, String>();
-        @SuppressWarnings("unchecked")
-        Iterator<String> keys = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getKeys();
-        while (keys.hasNext()) {
-          String key = keys.next();
-          if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
-            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), CmServerClusterInstance.getConfiguration(event.getClusterSpec())
-                .getString(key));
-          }
-        }
-        server.initialise(config);
+        server.initialise(clusterInput);
         return clusterInput;
       }
     }, false, true);
@@ -146,16 +133,6 @@ public class CmServerHandler extends BaseHandlerCm {
       @Override
       public CmServerCluster execute(ClusterActionEvent event, CmServer server, CmServerCluster clusterInput)
           throws Exception {
-        Map<String, String> config = new HashMap<String, String>();
-        @SuppressWarnings("unchecked")
-        Iterator<String> keys = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getKeys();
-        while (keys.hasNext()) {
-          String key = keys.next();
-          if (key.startsWith(CONFIG_WHIRR_CM_CONFIG_PREFIX)) {
-            config.put(key.replaceFirst(CONFIG_WHIRR_CM_CONFIG_PREFIX, ""), CmServerClusterInstance.getConfiguration(event.getClusterSpec())
-                .getString(key));
-          }
-        }
         boolean success = false;
         if (server.provision(clusterInput)) {
           if (server.configure(clusterInput)) {

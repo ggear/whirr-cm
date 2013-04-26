@@ -33,6 +33,7 @@ import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
+import com.cloudera.whirr.cm.server.CmServerServiceTypeCms;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.google.common.collect.ImmutableMap;
@@ -44,10 +45,10 @@ public abstract class BaseTestIntegration implements BaseTest {
   protected static int CM_PORT = Integer.valueOf(getSystemProperty("whirr.test.cm.port", "7180"));
 
   // The CM Server config to be uploaded
-  protected static Map<String, String> CM_CONFIG = ImmutableMap.of("REMOTE_PARCEL_REPO_URLS",
-      getSystemProperty("whirr.test.cm.repos",
+  protected static Map<String, Map<String, String>> CM_CONFIG = ImmutableMap.of(CmServerServiceTypeCms.CM.getId(),
+      (Map<String, String>) ImmutableMap.of("remote_parcel_repo_urls", getSystemProperty("whirr.test.cm.repos",
           "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/cdh4/parcels/4.2.0.10/" + ","
-              + "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/"));
+              + "http://10.178.197.160/tmph3l7m2vv103/cloudera-repos/impala/parcels/0.6.109/")));
 
   protected static CmServer serverBootstrap;
   protected static CmServerCluster cluster;
@@ -57,9 +58,10 @@ public abstract class BaseTestIntegration implements BaseTest {
   @BeforeClass
   public static void initialiseCluster() throws CmServerException, IOException {
     cluster = new CmServerCluster();
+    cluster.addServiceConfigurationAll(CM_CONFIG);
     Assert.assertNotNull(serverBootstrap = new CmServerFactory().getCmServer(CM_IP, CM_PORT, CmConstants.CM_USER,
         CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false)));
-    Assert.assertTrue(serverBootstrap.initialise(CM_CONFIG).size() > 0);
+    Assert.assertTrue(serverBootstrap.initialise(cluster));
     hosts = new HashSet<String>();
     for (CmServerService service : serverBootstrap.getServiceHosts()) {
       hosts.add(service.getIpInternal());

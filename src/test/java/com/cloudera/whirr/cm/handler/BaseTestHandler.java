@@ -56,15 +56,12 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   protected int countConfigured;
   protected int countStarted;
   protected int countStopped;
-  protected int countConfigureedSettings;
 
   public void countersReset() {
-    countConfigureedSettings = countProvisioned = countConfigured = countStarted = countStopped = 0;
+    countProvisioned = countConfigured = countStarted = countStopped = 0;
   }
 
-  protected boolean countersAssertAndReset(int countSettings, int countProvisioned, int countConfigured,
-      int countStarted, int countStopped) {
-    Assert.assertEquals(countSettings, this.countConfigureedSettings);
+  protected boolean countersAssertAndReset(int countProvisioned, int countConfigured, int countStarted, int countStopped) {
     Assert.assertEquals(countProvisioned, this.countProvisioned);
     Assert.assertEquals(countConfigured, this.countConfigured);
     Assert.assertEquals(countStarted, this.countStarted);
@@ -147,9 +144,8 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
       }
 
       @Override
-      @SuppressWarnings("unchecked")
-      public Map<String, String> initialise(Map<String, String> config) throws CmServerException {
-        return any(Collections.emptyMap());
+      public boolean initialise(CmServerCluster cluster) throws CmServerException {
+        return any(true);
       }
 
       @Override
@@ -160,9 +156,6 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
 
       @Override
       public boolean configure(CmServerCluster cluster) throws CmServerException {
-        for (String key : cluster.getServiceConfiguration().keySet()) {
-          countConfigureedSettings += cluster.getServiceConfiguration().get(key).size();
-        }
         countConfigured += cluster.getServices(CmServerServiceType.CLUSTER).size();
         return any(isConfigured = true);
       }
@@ -227,11 +220,6 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   @SuppressWarnings("rawtypes")
   private static List any(List value) {
     return (List) any((Object) value);
-  }
-
-  @SuppressWarnings("rawtypes")
-  private static Map any(Map value) {
-    return (Map) any((Object) value);
   }
 
   private static CmServerService any(CmServerService value) {

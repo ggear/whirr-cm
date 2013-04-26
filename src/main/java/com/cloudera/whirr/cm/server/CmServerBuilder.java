@@ -54,7 +54,7 @@ public class CmServerBuilder implements CmServerConstants {
   private String user = "admin";
   private String password = "admin";
 
-  private File client;
+  private File path;
   private String command;
 
   private CmServerCluster cluster;
@@ -147,12 +147,12 @@ public class CmServerBuilder implements CmServerConstants {
     return this;
   }
 
-  @CmServerCommandMethod(name = "client")
-  public CmServerBuilder client(String client) throws CmServerException {
-    if (client == null) {
-      throw new CmServerException("Illegal client argument passed [" + client + "]");
+  @CmServerCommandMethod(name = "path")
+  public CmServerBuilder path(String path) throws CmServerException {
+    if (path == null) {
+      throw new CmServerException("Illegal path argument passed [" + path + "]");
     }
-    this.client = new File(client);
+    this.path = new File(path);
     return this;
   }
 
@@ -233,10 +233,10 @@ public class CmServerBuilder implements CmServerConstants {
         }
         paramaters.add(cluster);
       } else if (clazz.equals(File.class)) {
-        if (client == null) {
-          throw new CmServerException("Required paramater [client] not set");
+        if (path == null) {
+          throw new CmServerException("Required paramater [path] not set");
         }
-        paramaters.add(client);
+        paramaters.add(path);
       } else {
         throw new CmServerException("Unexpected paramater type [" + clazz.getName() + "]");
       }

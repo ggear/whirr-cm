@@ -88,22 +88,26 @@ public class CmServerHandlerTest extends BaseTestHandler {
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE)));
     Assert.assertEquals(
         "impala",
-        configuration.getString(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
+        configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
             + ".dfs_block_local_path_access_user"));
-    configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
-        "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
-        CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
-            + ".dfs_block_local_path_access_user", "some_user", CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX
-            + CmServerServiceType.HDFS.getId().toLowerCase() + ".some_setting", "some_value",
-        CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase()
-            + ".some_other_setting", "some_other_value")));
+    Assert.assertEquals(
+        "100000",
+        configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase()
+            + ".parcel_distribute_rate_limit_kbs_per_second"));
+    configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap
+        .of("whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
+            CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
+                + ".dfs_block_local_path_access_user", "some_user", CONFIG_WHIRR_CM_CONFIG_PREFIX
+                + CmServerServiceType.HDFS.getId().toLowerCase() + ".some_setting", "some_value",
+            CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase()
+                + ".some_other_setting", "some_other_value")));
     Assert.assertEquals(
         "some_user",
-        configuration.getString(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
+        configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
             + ".dfs_block_local_path_access_user"));
     Assert.assertEquals(
         "some_value",
-        configuration.getString(CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
+        configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
             + ".some_setting"));
     Assert.assertEquals("some_value", CmServerClusterInstance.getClusterConfiguration(configuration,
         Collections.<String> emptySet(), CmServerServiceType.HDFS.getId(), null, "some_setting"));
@@ -134,41 +138,41 @@ public class CmServerHandlerTest extends BaseTestHandler {
     Assert.assertTrue(caught);
     Assert.assertEquals(
         configuration.getString(CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT)
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
     Assert.assertEquals(
         "/mnt/1"
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, ImmutableSet.of("/mnt/1"))
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
     Assert.assertEquals(
         "/mnt/1"
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list")
             + ","
             + "/mnt/2"
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, ImmutableSet.of("/mnt/1", "/mnt/2"))
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
-        CONFIG_WHIRR_DATA_DIRS_ROOT, "/tmp", CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX
+        CONFIG_WHIRR_DATA_DIRS_ROOT, "/tmp", CONFIG_WHIRR_CM_CONFIG_PREFIX
             + CmServerServiceTypeCms.CM.getId().toLowerCase() + "." + CONFIG_CM_DB_SUFFIX_TYPE, "postgres",
-        CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HIVE.getId().toLowerCase() + ".hive_metastore_"
+        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HIVE.getId().toLowerCase() + ".hive_metastore_"
             + CONFIG_CM_DB_SUFFIX_PORT, "9999")));
     Assert.assertEquals(
         "/tmp"
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
     Assert.assertEquals(
         "/tmp"
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, ImmutableSet.of("/mnt/1", "/mnt/2"))
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
@@ -184,8 +188,8 @@ public class CmServerHandlerTest extends BaseTestHandler {
         Collections.<String> emptySet(), CmServerServiceType.HIVE.getId(), null, CONFIG_CM_DB_SUFFIX_PORT));
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
-        CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase()
-            + ".dfs_name_dir_list", "/mynn")));
+        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list",
+        "/mynn")));
     Assert.assertEquals(
         "/mynn",
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
@@ -196,14 +200,14 @@ public class CmServerHandlerTest extends BaseTestHandler {
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
     Assert.assertEquals(
         configuration.getString(CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT)
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_SECONDARY_NAMENODE.getId().toLowerCase() + ".fs_checkpoint_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
             .get(CmServerServiceType.HDFS_SECONDARY_NAMENODE.getId()).get("fs_checkpoint_dir_list"));
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
-        CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase()
-            + ".dfs_name_dir_list", "/mynn", CONFIG_WHIRR_DATA_DIRS_ROOT, "/tmp")));
+        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list",
+        "/mynn", CONFIG_WHIRR_DATA_DIRS_ROOT, "/tmp")));
     Assert.assertEquals(
         "/mynn",
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
@@ -214,7 +218,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
     Assert.assertEquals(
         "/tmp"
-            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_SERVICE_CONFIG_DEFAULT_PREFIX
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_SECONDARY_NAMENODE.getId().toLowerCase() + ".fs_checkpoint_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
             .get(CmServerServiceType.HDFS_SECONDARY_NAMENODE.getId()).get("fs_checkpoint_dir_list"));
@@ -242,7 +246,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
   public void testNodesAndAgentsAndCluster() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
         WHIRR_INSTANCE_TEMPLATE_ALL))));
-    Assert.assertTrue(countersAssertAndReset(56, 27, 27, 27, 0));
+    Assert.assertTrue(countersAssertAndReset(27, 27, 27, 0));
   }
 
   @Test
@@ -252,13 +256,13 @@ public class CmServerHandlerTest extends BaseTestHandler {
     ClusterController controller = getController(clusterSpec);
     Cluster cluster = launchWithClusterSpecAndWithController(clusterSpec, controller);
     Assert.assertNotNull(cluster);
-    Assert.assertTrue(countersAssertAndReset(56, 27, 27, 27, 0));
+    Assert.assertTrue(countersAssertAndReset(27, 27, 27, 0));
     Assert.assertNotNull(controller.startServices(clusterSpec, cluster));
-    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 27, 0));
+    Assert.assertTrue(countersAssertAndReset(0, 0, 27, 0));
     Assert.assertNotNull(controller.stopServices(clusterSpec, cluster));
-    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 0, 27));
+    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 27));
     Assert.assertNotNull(controller.stopServices(clusterSpec, cluster));
-    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 0, 27));
+    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 27));
   }
 
   @Test
@@ -269,13 +273,13 @@ public class CmServerHandlerTest extends BaseTestHandler {
     ClusterController controller = getController(clusterSpec);
     Cluster cluster = launchWithClusterSpecAndWithController(clusterSpec, controller);
     Assert.assertNotNull(cluster);
-    Assert.assertTrue(countersAssertAndReset(56, 27, 27, 27, 0));
+    Assert.assertTrue(countersAssertAndReset(27, 27, 27, 0));
     Assert.assertNotNull(controller.startServices(clusterSpec, cluster, roles, Collections.<String> emptySet()));
-    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 5, 0));
+    Assert.assertTrue(countersAssertAndReset(0, 0, 5, 0));
     Assert.assertNotNull(controller.stopServices(clusterSpec, cluster, roles, Collections.<String> emptySet()));
-    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 0, 5));
+    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 5));
     Assert.assertNotNull(controller.stopServices(clusterSpec, cluster, roles, Collections.<String> emptySet()));
-    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 0, 5));
+    Assert.assertTrue(countersAssertAndReset(0, 0, 0, 5));
   }
 
   @Test
@@ -287,17 +291,17 @@ public class CmServerHandlerTest extends BaseTestHandler {
   @Test
   public void testNodesAndAgentsAndClusterConfiguration() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX
-            + CmServerServiceType.HDFS.getId().toLowerCase() + ".some_setting", "some_value"))));
-    Assert.assertTrue(countersAssertAndReset(57, 27, 27, 27, 0));
+        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
+            + ".some_setting", "some_value"))));
+    Assert.assertTrue(countersAssertAndReset(27, 27, 27, 0));
   }
 
   @Test
   public void testNodesAndAgentsAndClusterConfigurationOverride() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX
-            + CmServerServiceType.HDFS.getId().toLowerCase() + ".dfs_block_local_path_access_user", "someuser"))));
-    Assert.assertTrue(countersAssertAndReset(56, 27, 27, 27, 0));
+        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
+            + ".dfs_block_local_path_access_user", "someuser"))));
+    Assert.assertTrue(countersAssertAndReset(27, 27, 27, 0));
   }
 
   @Test
@@ -305,7 +309,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
     boolean caught = false;
     try {
       Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of(
-          "whirr.instance-templates", WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_CM_SERVICE_CONFIG_PREFIX
+          "whirr.instance-templates", WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_CM_CONFIG_PREFIX
               + CmServerServiceType.HDFS.getId().toLowerCase(), "some_value"))));
     } catch (Exception e) {
       caught = true;

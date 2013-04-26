@@ -415,13 +415,17 @@ public class CmServerImpl implements CmServer {
   }
 
   @Override
-  public Map<String, String> initialise(Map<String, String> config) throws CmServerException {
-    Map<String, String> configPostUpdate = null;
+  @CmServerCommandMethod(name = "initialise")
+  public boolean initialise(final CmServerCluster cluster) throws CmServerException {
+
+    boolean executed = false;
     try {
 
       logger.logOperationStartedSync("ClusterInitialise");
 
-      configPostUpdate = provisionCmSettings(config);
+      executed = CmServerServiceTypeCms.CM.getId() != null
+          && provisionCmSettings(cluster.getServiceConfiguration().get(CmServerServiceTypeCms.CM.getId())).size() >= cluster
+              .getServiceConfiguration().get(CmServerServiceTypeCms.CM.getId()).size();
 
       logger.logOperationFinishedSync("ClusterInitialise");
 
@@ -429,7 +433,8 @@ public class CmServerImpl implements CmServer {
       logger.logOperationFailedSync("ClusterInitialise");
       throw new CmServerException("Failed to initialise cluster", e);
     }
-    return configPostUpdate;
+
+    return executed;
   }
 
   @Override
@@ -638,7 +643,7 @@ public class CmServerImpl implements CmServer {
 
     Map<String, String> configPostUpdate = new HashMap<String, String>();
     ApiConfigList apiConfigList = new ApiConfigList();
-    if (!config.isEmpty()) {
+    if (config != null && !config.isEmpty()) {
       for (String key : config.keySet()) {
         apiConfigList.add(new ApiConfig(key, config.get(key)));
       }

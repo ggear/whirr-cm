@@ -24,6 +24,7 @@ import com.cloudera.whirr.cm.cmd.CmServerCleanClusterCommand;
 import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
+import com.cloudera.whirr.cm.cmd.CmServerInitClusterCommand;
 import com.cloudera.whirr.cm.cmd.CmServerListServicesCommand;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 
@@ -32,6 +33,11 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
   @Test
   public void testClean() throws Exception {
     Assert.assertTrue(true);
+  }
+
+  @Test
+  public void testCommandInitCluster() throws Exception {
+    Assert.assertEquals(0, new CmServerInitClusterCommand(null, null).run(specification, cluster, command));
   }
 
   @Test
@@ -44,7 +50,7 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
     Assert.assertTrue(serverBootstrap.configure(cluster));
     Assert.assertEquals(0, new CmServerDestroyServicesCommand(null, null).run(specification, cluster, command));
   }
-  
+
   @Test
   public void testCommandDownloadConfig() throws Exception {
     Assert.assertTrue(serverBootstrap.configure(cluster));
@@ -77,5 +83,5 @@ public class CmServerCommandTest extends BaseTestIntegrationCommand {
   public void testCommandCleanCluster() throws Exception {
     Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification, cluster, command));
   }
-  
+
 }

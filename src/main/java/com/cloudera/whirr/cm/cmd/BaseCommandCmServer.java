@@ -102,7 +102,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     }
 
     CmServerBuilder command = new CmServerBuilder().host(cluster.getServer()).cluster(cluster)
-        .client(specification.getClusterDirectory().getAbsolutePath());
+        .path(specification.getClusterDirectory().getAbsolutePath());
 
     int returnInt = run(specification, cluster, command);
 

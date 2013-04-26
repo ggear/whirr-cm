@@ -42,7 +42,7 @@ public class CmServerCommandTest extends BaseTestServer {
   @Test
   public void testGetValid1() throws CmServerException {
     Assert.assertNotNull(new CmServerBuilder().host("host-1").cluster(cluster)
-        .client(DIR_CLIENT_CONFIG.getAbsolutePath()).command("client"));
+        .path(DIR_CLIENT_CONFIG.getAbsolutePath()).command("client"));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class CmServerCommandTest extends BaseTestServer {
 
   @Test(expected = CmServerException.class)
   public void testGetException11() throws CmServerException {
-    Assert.assertNotNull(new CmServerBuilder().host("host-1").client(DIR_CLIENT_CONFIG.getAbsolutePath())
+    Assert.assertNotNull(new CmServerBuilder().host("host-1").path(DIR_CLIENT_CONFIG.getAbsolutePath())
         .executeBoolean());
   }
 
