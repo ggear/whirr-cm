@@ -347,16 +347,16 @@ public class CmServerClusterInstance implements CmConstants {
     }
     logger.logOperationInProgressSync(label, "CM SERVER");
     if (cluster.getServer() != null) {
-      logger
-          .logOperationInProgressSync(
-              label,
-              "  http://" + cluster.getServer() + ":"
-                  + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB));
+      logger.logOperationInProgressSync(
+          label,
+          "  http://" + cluster.getServer().getIp() + ":"
+              + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB));
       logger.logOperationInProgressSync(
           label,
           "  ssh -o StrictHostKeyChecking=no -i "
               + configuration.getString(ClusterSpec.Property.PRIVATE_KEY_FILE.getConfigName()) + " "
-              + configuration.getString(ClusterSpec.Property.CLUSTER_USER.getConfigName()) + "@" + cluster.getServer());
+              + configuration.getString(ClusterSpec.Property.CLUSTER_USER.getConfigName()) + "@"
+              + cluster.getServer().getIp());
     } else {
       logger.logOperationInProgressSync(label, "NO CM SERVER");
     }
