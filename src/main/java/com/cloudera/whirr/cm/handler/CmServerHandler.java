@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.service.ClusterActionEvent;
 
 import com.cloudera.whirr.cm.CmConstants;
@@ -36,6 +37,7 @@ import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
+import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.CmServerServiceTypeCms;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
@@ -70,7 +72,7 @@ public class CmServerHandler extends BaseHandlerCm {
     super.beforeBootstrap(event);
     try {
       CmServerClusterInstance.setIsStandaloneCommand(false);
-      CmServerClusterInstance.getCluster().setServer(getInstanceId());
+      CmServerClusterInstance.getCluster().setServer(new CmServerServiceBuilder().ip(getInstanceId()).build());
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
@@ -210,8 +212,9 @@ public class CmServerHandler extends BaseHandlerCm {
                   + CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
                       CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB));
           CmServerClusterInstance.logLineItem(logger, operation);
-          CmServer server = CmServerClusterInstance.getFactory().getCmServer(
-              event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp(),
+          Instance serverInstance = event.getCluster().getInstanceMatching(role(ROLE));
+          CmServer server = CmServerClusterInstance.getFactory().getCmServer(serverInstance.getPublicIp(),
+              serverInstance.getPrivateIp(),
               CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getInt(CONFIG_WHIRR_INTERNAL_PORT_WEB),
               CM_USER, CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false));
           try {

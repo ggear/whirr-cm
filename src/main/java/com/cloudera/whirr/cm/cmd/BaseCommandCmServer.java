@@ -101,7 +101,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
       throw new CmServerException("Could not find any " + CmAgentHandler.ROLE + "'s or " + CmNodeHandler.ROLE + "'s.");
     }
 
-    CmServerBuilder command = new CmServerBuilder().host(cluster.getServer()).cluster(cluster)
+    CmServerBuilder command = new CmServerBuilder().ip(cluster.getServer().getIp())
+        .ipInternal(cluster.getServer().getIpInternal()).cluster(cluster)
         .path(specification.getClusterDirectory().getAbsolutePath());
 
     int returnInt = run(specification, cluster, command);

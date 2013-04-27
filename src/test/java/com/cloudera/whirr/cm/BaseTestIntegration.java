@@ -75,7 +75,7 @@ public abstract class BaseTestIntegration implements BaseTest {
           + hosts);
     }
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
-    cluster.setServer(CM_IP);
+    cluster.setServer(new CmServerServiceBuilder().ip(CM_IP).build());
     cluster.addServiceConfigurationAll(CmServerClusterInstance.getClusterConfiguration(
         CmServerClusterInstance.getConfiguration(null), Collections.<String> emptySet()));
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HIVE_METASTORE).tag(CLUSTER_TAG)

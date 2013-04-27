@@ -79,8 +79,8 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
     CmServerClusterInstance.getFactory(factory);
 
     Mockito.when(
-        factory.getCmServer(Matchers.anyString(), Matchers.anyInt(), Matchers.anyString(), Matchers.anyString(),
-            Matchers.<CmServerLog> any())).thenReturn(new CmServer() {
+        factory.getCmServer(Matchers.anyString(), Matchers.anyString(), Matchers.anyInt(), Matchers.anyString(),
+            Matchers.anyString(), Matchers.<CmServerLog> any())).thenReturn(new CmServer() {
 
       private boolean isProvisioned = false;
       private boolean isConfigured = false;

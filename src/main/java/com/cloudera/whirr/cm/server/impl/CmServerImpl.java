@@ -89,15 +89,15 @@ public class CmServerImpl implements CmServer {
 
   private CmServerLog logger;
 
-  private String host;
+  private CmServerService host;
   final private RootResourceV3 apiResourceRoot;
 
   private boolean isFirstStartRequired = true;
 
-  protected CmServerImpl(String host, int port, String user, String password, CmServerLog logger) {
-    this.host = host;
+  protected CmServerImpl(String ip, String ipInternal, int port, String user, String password, CmServerLog logger) {
+    this.host = new CmServerServiceBuilder().ip(ip).ipInternal(ipInternal).build();
     this.logger = logger;
-    this.apiResourceRoot = new ClouderaManagerClientBuilder().withHost(host).withPort(port)
+    this.apiResourceRoot = new ClouderaManagerClientBuilder().withHost(ip).withPort(port)
         .withUsernamePassword(user, password).build().getRootV3();
   }
 
@@ -678,8 +678,7 @@ public class CmServerImpl implements CmServer {
 
     if (cmsProvisionRequired) {
 
-      final ApiHostRef cmServerHostRefApi = new ApiHostRef(getServiceHost(
-          new CmServerServiceBuilder().host(host).build()).getHost());
+      final ApiHostRef cmServerHostRefApi = new ApiHostRef(getServiceHost(host).getHost());
 
       logger.logOperation("CreateManagementServices", new CmServerLogSyncCommand() {
         @Override

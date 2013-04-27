@@ -27,8 +27,8 @@ import java.util.TreeSet;
 public class CmServerCluster {
 
   private String name;
-  private String server;
   private boolean isParcel = true;
+  private CmServerService server;
   private Set<CmServerService> agents = new HashSet<CmServerService>();
   private Set<CmServerService> nodes = new HashSet<CmServerService>();
   private Map<String, Map<String, String>> configuration = new HashMap<String, Map<String, String>>();
@@ -94,7 +94,7 @@ public class CmServerCluster {
     return true;
   }
 
-  public synchronized boolean setServer(String server) throws CmServerException {
+  public synchronized boolean setServer(CmServerService server) throws CmServerException {
     if (this.server != null) {
       throw new CmServerException("Invalid cluster topology: Attempt to add multiple servers");
     }
@@ -184,7 +184,7 @@ public class CmServerCluster {
     throw new IOException("Cannot determine service name, cluster is empty");
   }
 
-  public synchronized String getServer() {
+  public synchronized CmServerService getServer() {
     return server;
   }
 

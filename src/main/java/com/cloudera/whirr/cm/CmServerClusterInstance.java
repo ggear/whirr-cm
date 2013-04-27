@@ -146,7 +146,8 @@ public class CmServerClusterInstance implements CmConstants {
     for (Instance instance : instances) {
       for (String role : instance.getRoles()) {
         if (role.equals(CmServerHandler.ROLE)) {
-          cluster.setServer(instance.getPublicIp());
+          cluster.setServer(new CmServerServiceBuilder().ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp())
+              .build());
         } else if (role.equals(CmAgentHandler.ROLE)) {
           cluster.addAgent(new CmServerServiceBuilder().ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp())
               .build());
