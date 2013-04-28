@@ -242,8 +242,8 @@ public class CmServerClusterInstance implements CmConstants {
       }
     }
     Set<String> mountsDirs = new TreeSet<String>();
-    if (configuration.getString(CONFIG_WHIRR_DATA_DIRS_ROOT) != null) {
-      mountsDirs.add(configuration.getString(CONFIG_WHIRR_DATA_DIRS_ROOT));
+    if (!configuration.getList(CONFIG_WHIRR_DATA_DIRS_ROOT).isEmpty()) {
+      mountsDirs.addAll(configuration.getList(CONFIG_WHIRR_DATA_DIRS_ROOT));
     } else if (!mounts.isEmpty()) {
       mountsDirs.addAll(mounts);
     } else {

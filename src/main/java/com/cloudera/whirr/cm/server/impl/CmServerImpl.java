@@ -967,6 +967,8 @@ public class CmServerImpl implements CmServer {
     switch (service.getType().getParent()) {
     case HIVE:
       execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+          .createHiveWarehouseCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
+      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
           .hiveCreateMetastoreDatabaseTablesCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
       break;
     case OOZIE:
@@ -979,6 +981,10 @@ public class CmServerImpl implements CmServer {
     case HBASE:
       execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
           .createHBaseRootCommand(cluster.getServiceName(CmServerServiceType.HBASE)));
+    case ZOOKEEPER:
+      execute(
+          apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+              .zooKeeperInitCommand(cluster.getServiceName(CmServerServiceType.ZOOKEEPER)), false);
       break;
     default:
       break;

@@ -170,6 +170,29 @@ public class CmServerHandlerTest extends BaseTestHandler {
 
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
+        CONFIG_WHIRR_DATA_DIRS_ROOT, "/data1,/data2", CONFIG_WHIRR_CM_CONFIG_PREFIX
+            + CmServerServiceTypeCms.CM.getId().toLowerCase() + "." + CONFIG_CM_DB_SUFFIX_NAME, "cman",
+        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase() + "."
+            + CONFIG_CM_DB_SUFFIX_TYPE, "postgres", CONFIG_WHIRR_CM_CONFIG_PREFIX
+            + CmServerServiceType.HIVE.getId().toLowerCase() + ".hive_metastore_" + CONFIG_CM_DB_SUFFIX_PORT, "9999")));
+    Assert.assertEquals(
+        "/data1"
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
+                + CmServerServiceTypeCms.NAVIGATOR.getId().toLowerCase() + ".mgmt_log_dir"),
+        CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
+            .get(CmServerServiceTypeCms.NAVIGATOR.getId()).get("mgmt_log_dir"));
+    Assert.assertEquals(
+        "/data1"
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
+                + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list")
+            + ",/data2"
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
+                + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
+        CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
+            .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
+
+    configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
+        "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
         CONFIG_WHIRR_DATA_DIRS_ROOT, "/tmp", CONFIG_WHIRR_CM_CONFIG_PREFIX
             + CmServerServiceTypeCms.CM.getId().toLowerCase() + "." + CONFIG_CM_DB_SUFFIX_NAME, "cman",
         CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase() + "."
