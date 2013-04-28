@@ -28,7 +28,10 @@ public enum CmServerServiceType {
   // HDFS
   HDFS(CLUSTER, "HDFS", CmServerServiceTypeRepo.CDH), HDFS_GATEWAY(HDFS, "HDFS_GATEWAY", CmServerServiceTypeRepo.CDH), HDFS_NAMENODE(
       HDFS, "NAMENODE", CmServerServiceTypeRepo.CDH), HDFS_SECONDARY_NAMENODE(HDFS, "SECONDARYNAMENODE",
-      CmServerServiceTypeRepo.CDH), HDFS_DATANODE(HDFS, "DATANODE", CmServerServiceTypeRepo.CDH),
+      CmServerServiceTypeRepo.CDH), HDFS_BALANCER(HDFS, "BALANCER", CmServerServiceTypeRepo.CDH), HDFS_FAILOVER_CONTROLLER(
+      HDFS, "FAILOVERCONTROLLER", CmServerServiceTypeRepo.CDH), HDFS_JOURNALNODE(HDFS, "JOURNALNODE",
+      CmServerServiceTypeRepo.CDH), HDFS_HTTP_FS(HDFS, "HTTPFS", CmServerServiceTypeRepo.CDH), HDFS_DATANODE(HDFS,
+      "DATANODE", CmServerServiceTypeRepo.CDH),
 
   // MapReduce
   MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepo.CDH), MAPREDUCE_GATEWAY(MAPREDUCE, "MAPREDUCE_GATEWAY",
@@ -41,8 +44,9 @@ public enum CmServerServiceType {
 
   // HBase
   HBASE(CLUSTER, "HBASE", CmServerServiceTypeRepo.CDH), HBASE_GATEWAY(HBASE, "HBASE_GATEWAY",
-      CmServerServiceTypeRepo.CDH), HBASE_MASTER(HBASE, "MASTER", CmServerServiceTypeRepo.CDH), HBASE_REGIONSERVER(
-      HBASE, "REGIONSERVER", CmServerServiceTypeRepo.CDH),
+      CmServerServiceTypeRepo.CDH), HBASE_MASTER(HBASE, "MASTER", CmServerServiceTypeRepo.CDH), HBASE_THRIFT_SERVER(
+      HBASE, "HBASETHRIFTSERVER", CmServerServiceTypeRepo.CDH), HBASE_REST_SERVER(HBASE, "HBASERESTSERVER",
+      CmServerServiceTypeRepo.CDH), HBASE_REGIONSERVER(HBASE, "REGIONSERVER", CmServerServiceTypeRepo.CDH),
 
   // Hive
   HIVE(CLUSTER, "HIVE", CmServerServiceTypeRepo.CDH), HIVE_GATEWAY(HIVE, "HIVE_GATEWAY", CmServerServiceTypeRepo.CDH), HIVE_METASTORE(
