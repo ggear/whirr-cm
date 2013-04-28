@@ -142,6 +142,12 @@ public class CmServerHandlerTest extends BaseTestHandler {
     Assert.assertEquals(
         configuration.getString(CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT)
             + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
+                + CmServerServiceTypeCms.NAVIGATOR.getId().toLowerCase() + ".mgmt_log_dir"),
+        CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
+            .get(CmServerServiceTypeCms.NAVIGATOR.getId()).get("mgmt_log_dir"));
+    Assert.assertEquals(
+        configuration.getString(CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT)
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
@@ -172,6 +178,12 @@ public class CmServerHandlerTest extends BaseTestHandler {
     Assert.assertEquals(
         "/tmp"
             + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
+                + CmServerServiceTypeCms.NAVIGATOR.getId().toLowerCase() + ".mgmt_log_dir"),
+        CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
+            .get(CmServerServiceTypeCms.NAVIGATOR.getId()).get("mgmt_log_dir"));
+    Assert.assertEquals(
+        "/tmp"
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())
             .get(CmServerServiceType.HDFS_NAMENODE.getId()).get("dfs_name_dir_list"));
@@ -196,6 +208,12 @@ public class CmServerHandlerTest extends BaseTestHandler {
         "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
         CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS_NAMENODE.getId().toLowerCase() + ".dfs_name_dir_list",
         "/mynn")));
+    Assert.assertEquals(
+        "/mnt/1"
+            + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
+                + CmServerServiceTypeCms.NAVIGATOR.getId().toLowerCase() + ".mgmt_log_dir"),
+        CmServerClusterInstance.getClusterConfiguration(configuration, ImmutableSet.of("/mnt/1", "/mnt/2"))
+            .get(CmServerServiceTypeCms.NAVIGATOR.getId()).get("mgmt_log_dir"));
     Assert.assertEquals(
         "/mynn",
         CmServerClusterInstance.getClusterConfiguration(configuration, Collections.<String> emptySet())

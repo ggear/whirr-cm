@@ -447,12 +447,12 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterProvision");
 
+      provisionManagement(cluster);
       if (!cluster.isEmpty() && !isProvisioned(cluster)) {
         provsionCluster(cluster);
         if (cluster.getIsParcel()) {
           provisionParcels(cluster);
         }
-        provisionManagement(cluster);
         executed = true;
       }
 
@@ -821,8 +821,6 @@ public class CmServerImpl implements CmServer {
       CmServerException {
 
     final List<CmServerService> services = getServiceHosts();
-
-    provisionManagement(cluster);
 
     logger.logOperation("CreateClusterServices", new CmServerLogSyncCommand() {
       @Override

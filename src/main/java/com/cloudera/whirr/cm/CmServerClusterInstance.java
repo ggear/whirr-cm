@@ -264,13 +264,18 @@ public class CmServerClusterInstance implements CmConstants {
           if (clusterConfiguration.get(keyTokens[0]) == null) {
             clusterConfiguration.put(keyTokens[0], new HashMap<String, String>());
           }
-          clusterConfiguration.get(keyTokens[0]).put(keyTokens[1],
-              Joiner.on(',').join(Lists.transform(Lists.newArrayList(mountsDirs), new Function<String, String>() {
-                @Override
-                public String apply(String input) {
-                  return input + configuration.getString(key);
-                }
-              })));
+          if (keyTokens[1].endsWith(CONFIG_CM_DIR_SUFFIX_LIST)) {
+            clusterConfiguration.get(keyTokens[0]).put(keyTokens[1],
+                Joiner.on(',').join(Lists.transform(Lists.newArrayList(mountsDirs), new Function<String, String>() {
+                  @Override
+                  public String apply(String input) {
+                    return input + configuration.getString(key);
+                  }
+                })));
+          } else {
+            clusterConfiguration.get(keyTokens[0]).put(keyTokens[1],
+                mountsDirs.iterator().next() + configuration.getString(key));
+          }
         }
       }
     }

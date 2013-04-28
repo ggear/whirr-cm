@@ -43,6 +43,9 @@ public interface CmConstants extends CmServerConstants {
 
   public static final String CONFIG_WHIRR_NAME_DEFAULT = "whirr";
 
+  public static final String CONFIG_CM_DIR_SUFFIX = "dir";
+  public static final String CONFIG_CM_DIR_SUFFIX_LIST = CONFIG_CM_DIR_SUFFIX + "_list";
+
   public static final String CONFIG_CM_DB_SUFFIX_TYPE = "database_type";
   public static final String CONFIG_CM_DB_SUFFIX_HOST = "database_host";
   public static final String CONFIG_CM_DB_SUFFIX_PORT = "database_port";
