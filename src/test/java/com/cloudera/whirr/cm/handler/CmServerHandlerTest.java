@@ -93,7 +93,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
         "impala",
         configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
             + ".dfs_block_local_path_access_user"));
-    Assert.assertEquals("/cm/agent/log/agent.log",
+    Assert.assertEquals("/manager/agent/log/agent.log",
         CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(Collections.<String, String> emptyMap()))
             .getString(CONFIG_WHIRR_INTERNAL_AGENT_LOG_FILE));
     Assert.assertEquals(
