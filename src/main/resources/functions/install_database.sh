@@ -22,11 +22,9 @@ function install_mysql() {
 	if which dpkg &> /dev/null; then
 	  export DEBIAN_FRONTEND=noninteractive
 	  retry_apt_get update
-	  retry_apt_get -q -y install expect
+	  sleep $[ ( $RANDOM % 30 )  + 1 ]s
 	  retry_apt_get update
-	  retry_apt_get -q -y install mysql-server-5.5
-	  retry_apt_get update
-	  retry_apt_get -q -y install libmysql-java
+	  retry_apt_get -q -y install expect mysql-server-5.5 libmysql-java
 	  service mysql stop
 	  MYSQL_CONF="/etc/mysql/my.cnf"
 	elif which rpm &> /dev/null; then
