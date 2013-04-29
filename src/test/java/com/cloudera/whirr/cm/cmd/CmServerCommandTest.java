@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 
+import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.command.Command;
 import org.apache.whirr.util.KeyPair;
@@ -73,8 +75,8 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
-          throws Exception {
+      public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+          CmServerBuilder serverCommand) throws Exception {
         return 0;
       }
     };
@@ -100,8 +102,8 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
-          throws Exception {
+      public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+          CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(rolesNumberCmCdh));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -127,8 +129,8 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
-          throws Exception {
+      public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+          CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(rolesNumberCmCdh));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -155,8 +157,8 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
-          throws Exception {
+      public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+          CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServiceName(CmServerServiceType.CLUSTER), is(name));
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(rolesNumberCmCdh));
         assertThat(true, is(serverCommand != null));
@@ -183,8 +185,8 @@ public class CmServerCommandTest extends BaseTestCommand {
 
     BaseCommandCmServer clusterCommand = new BaseCommandCmServer("name", "description", factory, stateStoreFactory) {
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
-          throws Exception {
+      public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+          CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -218,8 +220,8 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
 
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
-          throws Exception {
+      public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+          CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(1));
         assertThat(true, is(serverCommand != null));
         return 0;
@@ -250,8 +252,8 @@ public class CmServerCommandTest extends BaseTestCommand {
       }
 
       @Override
-      public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
-          throws Exception {
+      public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+          CmServerBuilder serverCommand) throws Exception {
         assertThat(cluster.getServices(CmServerServiceType.CLUSTER).size(), is(3));
         assertThat(true, is(serverCommand != null));
         return 0;

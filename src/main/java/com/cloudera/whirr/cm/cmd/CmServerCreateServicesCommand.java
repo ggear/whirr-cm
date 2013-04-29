@@ -18,7 +18,9 @@
 package com.cloudera.whirr.cm.cmd;
 
 import java.io.IOException;
+import java.util.Set;
 
+import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.state.ClusterStateStoreFactory;
@@ -49,7 +51,8 @@ public class CmServerCreateServicesCommand extends BaseCommandCmServer {
   }
 
   @Override
-  public int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand) throws Exception {
+  public int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+      CmServerBuilder serverCommand) throws Exception {
     return serverCommand.command("configure").executeBoolean() ? 0 : -1;
   }
 

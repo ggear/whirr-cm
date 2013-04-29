@@ -308,7 +308,14 @@ public class CmServerClusterInstance implements CmConstants {
   }
 
   public static boolean logCluster(CmServerLog logger, String label, Configuration configuration,
-      CmServerCluster cluster) {
+      CmServerCluster cluster, Set<Instance> instances) throws IOException {
+    if (!instances.isEmpty()) {
+      logger.logOperationInProgressSync(label, "HOSTS");
+      for (Instance instance : instances) {
+        logger.logOperationInProgressSync(label, "  " + instance.getId() + "@" + instance.getPublicHostName() + "@"
+            + instance.getPublicIp() + "@" + instance.getPrivateIp());
+      }
+    }
     if (cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
       logger.logOperationInProgressSync(label, "NO CDH SERVICES");
     } else {

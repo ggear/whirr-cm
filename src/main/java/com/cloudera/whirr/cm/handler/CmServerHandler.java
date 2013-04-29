@@ -86,10 +86,10 @@ public class CmServerHandler extends BaseHandlerCm {
         addStatement(
             event,
             call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-getMounts(event), type.getId(), type.getParent() == null ? null : type.getParent()
-                    .getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance.getClusterConfiguration(event
-                .getClusterSpec(), getMounts(event), type.getId(), type.getParent() == null ? null
-                : type.getParent().getId(), "database_name")));
+                getMounts(event), type.getId(), type.getParent() == null ? null : type.getParent().getId(),
+                CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance.getClusterConfiguration(
+                event.getClusterSpec(), getMounts(event), type.getId(), type.getParent() == null ? null : type
+                    .getParent().getId(), "database_name")));
         break;
       default:
         break;
@@ -222,8 +222,8 @@ getMounts(event), type.getId(), type.getParent() == null ? null : type.getParent
           } finally {
             CmServerClusterInstance.logLineItemFooter(logger, operation);
             CmServerClusterInstance.logLineItem(logger, operation);
-            CmServerClusterInstance.logCluster(logger, operation,
-                CmServerClusterInstance.getConfiguration(event.getClusterSpec()), cluster);
+            CmServerClusterInstance.logCluster(logger, operation, CmServerClusterInstance.getConfiguration(event
+                .getClusterSpec()), cluster, event.getCluster().getInstances());
             CmServerClusterInstance.logLineItemFooter(logger, operation);
           }
         }

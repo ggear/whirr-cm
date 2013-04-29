@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
+import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterController;
 import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.ClusterSpec;
@@ -64,7 +65,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     return "CM" + super.getLabel();
   }
 
-  public abstract int run(ClusterSpec specification, CmServerCluster cluster, CmServerBuilder serverCommand)
+  public abstract int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster, CmServerBuilder serverCommand)
       throws Exception;
 
   private OptionSpec<String> cmClusterName = parser.accepts("cm-cluster-name", "CM cluster name to target")
@@ -87,8 +88,9 @@ public abstract class BaseCommandCmServer extends BaseCommand {
       }
     }
 
+    Set<Instance> instances = clusterController.getInstances(specification, clusterStateStore);
     CmServerCluster cluster = CmServerClusterInstance.getCluster(specification.getConfiguration(),
-        clusterController.getInstances(specification, clusterStateStore), new TreeSet<String>(), roles);
+        instances, new TreeSet<String>(), roles);
 
     if (optionSet.hasArgument(cmClusterName)) {
       cluster.setName(optionSet.valueOf(cmClusterName));
@@ -105,7 +107,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
         .ipInternal(cluster.getServer().getIpInternal()).cluster(cluster)
         .path(specification.getClusterDirectory().getAbsolutePath());
 
-    int returnInt = run(specification, cluster, command);
+    int returnInt = run(specification, instances, cluster, command);
 
     CmServerClusterInstance.logLineItemFooter(logger, getLabel());
     CmServerClusterInstance.logLineItemFooterFinal(logger);
