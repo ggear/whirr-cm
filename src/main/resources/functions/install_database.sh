@@ -64,9 +64,9 @@ innodb_file_per_table=1
 innodb_flush_log_at_trx_commit=2
 innodb_thread_concurrency=8
 innodb_flush_method=O_DIRECT
-innodb_log_buffer_size=64M
-innodb_buffer_pool_size=4G
-innodb_log_file_size=512M
+innodb_log_buffer_size=32M
+innodb_buffer_pool_size=2G
+innodb_log_file_size=256M
 
 [mysqld_safe]
 
