@@ -76,9 +76,6 @@ log_error=/var/log/mysqld.log
 pid_file=/var/run/mysqld/mysqld.pid
 
 ' > $MYSQL_CONF
-	mkdir -p /var/lib/oozie
-	chmod 777 /var/lib/oozie 
-	ln -s /usr/share/java/mysql-connector-java.jar /var/lib/oozie/mysql-connector-java.jar
 	if which dpkg &> /dev/null; then
 	  service mysql start
 	elif which rpm &> /dev/null; then
@@ -126,7 +123,7 @@ function install_database() {
 	  d)
 	    DATABASE="$OPTARG"
 	    ;;
-	  esac
+	esac
   done
   if [ "$TYPE" == "mysql" ]; then
 	install_mysql $DATABASE

@@ -37,6 +37,9 @@ import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 public abstract class BaseHandlerCmCdh extends BaseHandler {
 
@@ -73,10 +76,10 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
       addStatement(
           event,
           call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-              getMounts(event), getType().getId(), getType().getParent() == null ? null : getType()
-                  .getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance
-              .getClusterConfiguration(event.getClusterSpec(), getMounts(event), getType().getId(),
-                  getType().getParent() == null ? null : getType().getParent().getId(), "database_name")));
+              getMounts(event), getType().getId(),
+              getType().getParent() == null ? null : getType().getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d",
+              CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(), getMounts(event), getType()
+                  .getId(), getType().getParent() == null ? null : getType().getParent().getId(), "database_name")));
     }
     if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {
       addStatement(event, call("register_cdh_repo"));
@@ -98,6 +101,20 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
+  }
+
+  @Override
+  protected void beforeConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
+    super.beforeConfigure(event);
+    addStatement(
+        event,
+        call("configure_cm_cdh", "-r", getRole(), "-d",
+            Joiner.on(',').join(Lists.transform(Lists.newArrayList(getMounts(event)), new Function<String, String>() {
+              @Override
+              public String apply(String input) {
+                return input;
+              }
+            }))));
   }
 
   @Override
