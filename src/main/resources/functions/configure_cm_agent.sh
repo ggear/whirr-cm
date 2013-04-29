@@ -36,8 +36,8 @@ function configure_cm_agent() {
 	    ;;
 	  esac
   done
-  sed -i -e "s/server_host=.*/server_host=$CM_SERVER_HOST/" /etc/cloudera-scm-agent/config.ini
-  sed -i -e "s/server_port=.*/server_port=$CM_SERVER_PORT/" /etc/cloudera-scm-agent/config.ini
-  sed -i -e "s/# log_file=.*/log_file=$CM_AGENT_LOG_FILE/" /etc/cloudera-scm-agent/config.ini
+  sed -i -e "s|server_host=.*|server_host=$CM_SERVER_HOST|" /etc/cloudera-scm-agent/config.ini
+  sed -i -e "s|server_port=.*|server_port=$CM_SERVER_PORT|" /etc/cloudera-scm-agent/config.ini
+  sed -i -e "s|# log_file=.*|log_file=$CM_AGENT_LOG_FILE|" /etc/cloudera-scm-agent/config.ini
   service cloudera-scm-agent start
 }

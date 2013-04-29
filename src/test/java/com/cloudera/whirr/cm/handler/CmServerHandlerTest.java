@@ -20,6 +20,7 @@ package com.cloudera.whirr.cm.handler;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.base.Predicates.containsPattern;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -92,6 +93,9 @@ public class CmServerHandlerTest extends BaseTestHandler {
         "impala",
         configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HDFS.getId().toLowerCase()
             + ".dfs_block_local_path_access_user"));
+    Assert.assertEquals("/cm/agent/log/agent.log",
+        CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(Collections.<String, String> emptyMap()))
+            .getString(CONFIG_WHIRR_INTERNAL_AGENT_LOG_FILE));
     Assert.assertEquals(
         "100000",
         configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase()

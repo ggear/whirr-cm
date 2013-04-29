@@ -76,7 +76,7 @@ public class CmAgentHandler extends CmNodeHandler {
               "-l",
               getMounts(event).iterator().next()
                   + CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
-                      CONFIG_WHIRR_INTERNAL_AGENT_LOG_DIR)));
+                      CONFIG_WHIRR_INTERNAL_AGENT_LOG_FILE)));
     }
   }
 
