@@ -19,10 +19,10 @@ package com.cloudera.whirr.cm.cmd;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -88,7 +88,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     }
 
     CmServerCluster cluster = CmServerClusterInstance.getCluster(specification.getConfiguration(),
-        clusterController.getInstances(specification, clusterStateStore), Collections.<String> emptySet(), roles);
+        clusterController.getInstances(specification, clusterStateStore), new TreeSet<String>(), roles);
 
     if (optionSet.hasArgument(cmClusterName)) {
       cluster.setName(optionSet.valueOf(cmClusterName));

@@ -56,7 +56,7 @@ public abstract class BaseHandlerCm extends BaseHandler {
     logHeaderHandler("HostPreConfigure");
     super.beforeConfigure(event);
     addStatement(event, call("retry_helpers"));
-    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(CONFIG_WHIRR_DATA_DIRS_ROOT) == null) {
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(CONFIG_WHIRR_DATA_DIRS_ROOT).isEmpty()) {
       addStatement(event, call("prepare_all_disks", "'" + VolumeManager.asString(getDeviceMappings(event)) + "'"));
     }
     logFooterHandler("HostPreConfigure");

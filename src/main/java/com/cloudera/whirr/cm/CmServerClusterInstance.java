@@ -130,16 +130,16 @@ public class CmServerClusterInstance implements CmConstants {
 
   public static synchronized CmServerCluster getCluster(Configuration configuration, Set<Instance> instances)
       throws CmServerException, IOException {
-    return getCluster(configuration, instances, Collections.<String> emptySet(), Collections.<String> emptySet());
+    return getCluster(configuration, instances, new TreeSet<String>(), Collections.<String> emptySet());
   }
 
   public static synchronized CmServerCluster getCluster(Configuration configuration, Set<Instance> instances,
-      Set<String> mounts) throws CmServerException, IOException {
+      SortedSet<String> mounts) throws CmServerException, IOException {
     return getCluster(configuration, instances, mounts, Collections.<String> emptySet());
   }
 
   public static synchronized CmServerCluster getCluster(Configuration configuration, Set<Instance> instances,
-      Set<String> mounts, Set<String> roles) throws CmServerException, IOException {
+      SortedSet<String> mounts, Set<String> roles) throws CmServerException, IOException {
     cluster = new CmServerCluster();
     cluster.setIsParcel(!configuration.getBoolean(CONFIG_WHIRR_USE_PACKAGES, false));
     cluster.addServiceConfigurationAll(getClusterConfiguration(configuration, mounts));
@@ -184,12 +184,12 @@ public class CmServerClusterInstance implements CmConstants {
     return clusterTo;
   }
 
-  public static String getClusterConfiguration(ClusterSpec clusterSpec, Set<String> mounts, String type,
+  public static String getClusterConfiguration(ClusterSpec clusterSpec, SortedSet<String> mounts, String type,
       String typeParent, String settingSuffix) throws IOException {
     return getClusterConfiguration(getConfiguration(clusterSpec), mounts, type, typeParent, settingSuffix);
   }
 
-  public static String getClusterConfiguration(Configuration configuration, Set<String> mounts, String type,
+  public static String getClusterConfiguration(Configuration configuration, SortedSet<String> mounts, String type,
       String typeParent, String settingSuffix) throws IOException {
     String databaseSettingValue = null;
     Map<String, Map<String, String>> clusterConfiguration = getClusterConfiguration(configuration, mounts);
@@ -216,14 +216,14 @@ public class CmServerClusterInstance implements CmConstants {
     return databaseSettingValue;
   }
 
-  public static Map<String, Map<String, String>> getClusterConfiguration(ClusterSpec clusterSpec, Set<String> mounts)
-      throws IOException {
+  public static Map<String, Map<String, String>> getClusterConfiguration(ClusterSpec clusterSpec,
+      SortedSet<String> mounts) throws IOException {
     return getClusterConfiguration(getConfiguration(clusterSpec), mounts);
   }
 
   @SuppressWarnings("unchecked")
   public static Map<String, Map<String, String>> getClusterConfiguration(final Configuration configuration,
-      Set<String> mounts) throws IOException {
+      SortedSet<String> mounts) throws IOException {
     Map<String, Map<String, String>> clusterConfiguration = new HashMap<String, Map<String, String>>();
     Iterator<String> keys = configuration.getKeys();
     while (keys.hasNext()) {
@@ -241,14 +241,6 @@ public class CmServerClusterInstance implements CmConstants {
         clusterConfiguration.get(keyTokens[0]).put(keyTokens[1], configuration.getString(key));
       }
     }
-    Set<String> mountsDirs = new TreeSet<String>();
-    if (!configuration.getList(CONFIG_WHIRR_DATA_DIRS_ROOT).isEmpty()) {
-      mountsDirs.addAll(configuration.getList(CONFIG_WHIRR_DATA_DIRS_ROOT));
-    } else if (!mounts.isEmpty()) {
-      mountsDirs.addAll(mounts);
-    } else {
-      mountsDirs.add(configuration.getString(CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT));
-    }
     keys = configuration.getKeys();
     while (keys.hasNext()) {
       final String key = keys.next();
@@ -264,17 +256,19 @@ public class CmServerClusterInstance implements CmConstants {
           if (clusterConfiguration.get(keyTokens[0]) == null) {
             clusterConfiguration.put(keyTokens[0], new HashMap<String, String>());
           }
-          if (keyTokens[1].endsWith(CONFIG_CM_DIR_SUFFIX_LIST)) {
+          if (keyTokens[1].endsWith(CONFIG_CM_DIR_SUFFIX_LIST) && !mounts.isEmpty()) {
             clusterConfiguration.get(keyTokens[0]).put(keyTokens[1],
-                Joiner.on(',').join(Lists.transform(Lists.newArrayList(mountsDirs), new Function<String, String>() {
+                Joiner.on(',').join(Lists.transform(Lists.newArrayList(mounts), new Function<String, String>() {
                   @Override
                   public String apply(String input) {
                     return input + configuration.getString(key);
                   }
                 })));
           } else {
-            clusterConfiguration.get(keyTokens[0]).put(keyTokens[1],
-                mountsDirs.iterator().next() + configuration.getString(key));
+            clusterConfiguration.get(keyTokens[0]).put(
+                keyTokens[1],
+                (mounts.isEmpty() ? configuration.getString(CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT) : mounts
+                    .iterator().next()) + configuration.getString(key));
           }
         }
       }

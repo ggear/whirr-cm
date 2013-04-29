@@ -23,8 +23,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandlerSupport;
@@ -79,6 +82,21 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
         event.getFirewallManager().authorizeAllRules();
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  protected SortedSet<String> getMounts(ClusterActionEvent event) throws IOException {
+    Configuration configuration = CmServerClusterInstance.getConfiguration(event.getClusterSpec());
+    SortedSet<String> mounts = new TreeSet<String>();
+    Set<String> deviceMappings = getDeviceMappings(event).keySet();
+    if (!configuration.getList(CONFIG_WHIRR_DATA_DIRS_ROOT).isEmpty()) {
+      mounts.addAll(configuration.getList(CONFIG_WHIRR_DATA_DIRS_ROOT));
+    } else if (!deviceMappings.isEmpty()) {
+      mounts.addAll(deviceMappings);
+    } else {
+      mounts.add(configuration.getString(CONFIG_WHIRR_INTERNAL_DATA_DIRS_DEFAULT));
+    }
+    return mounts;
   }
 
   protected Map<String, String> getDeviceMappings(ClusterActionEvent event) {

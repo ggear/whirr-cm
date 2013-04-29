@@ -73,9 +73,9 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
       addStatement(
           event,
           call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-              getDeviceMappings(event).keySet(), getType().getId(), getType().getParent() == null ? null : getType()
+              getMounts(event), getType().getId(), getType().getParent() == null ? null : getType()
                   .getParent().getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance
-              .getClusterConfiguration(event.getClusterSpec(), getDeviceMappings(event).keySet(), getType().getId(),
+              .getClusterConfiguration(event.getClusterSpec(), getMounts(event), getType().getId(),
                   getType().getParent() == null ? null : getType().getParent().getId(), "database_name")));
     }
     if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_USE_PACKAGES, false)) {

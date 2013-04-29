@@ -18,10 +18,10 @@
 package com.cloudera.whirr.cm;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -77,7 +77,7 @@ public abstract class BaseTestIntegration implements BaseTest {
     String[] hostSlaves = hosts.toArray(new String[hosts.size()]);
     cluster.setServer(new CmServerServiceBuilder().ip(CM_IP).build());
     cluster.addServiceConfigurationAll(CmServerClusterInstance.getClusterConfiguration(
-        CmServerClusterInstance.getConfiguration(null), Collections.<String> emptySet()));
+        CmServerClusterInstance.getConfiguration(null),new TreeSet<String>()));
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HIVE_METASTORE).tag(CLUSTER_TAG)
         .qualifier("1").ip(CM_IP).build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_SERVER).tag(CLUSTER_TAG)

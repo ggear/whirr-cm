@@ -86,9 +86,9 @@ public class CmServerHandler extends BaseHandlerCm {
         addStatement(
             event,
             call("install_database", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-                getDeviceMappings(event).keySet(), type.getId(), type.getParent() == null ? null : type.getParent()
+getMounts(event), type.getId(), type.getParent() == null ? null : type.getParent()
                     .getId(), CONFIG_CM_DB_SUFFIX_TYPE), "-d", CmServerClusterInstance.getClusterConfiguration(event
-                .getClusterSpec(), getDeviceMappings(event).keySet(), type.getId(), type.getParent() == null ? null
+                .getClusterSpec(), getMounts(event), type.getId(), type.getParent() == null ? null
                 : type.getParent().getId(), "database_name")));
         break;
       default:
@@ -114,7 +114,7 @@ public class CmServerHandler extends BaseHandlerCm {
     addStatement(
         event,
         call("configure_cm_server", "-t", CmServerClusterInstance.getClusterConfiguration(event.getClusterSpec(),
-            getDeviceMappings(event).keySet(), CmServerServiceTypeCms.CM.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE)));
+            getMounts(event), CmServerServiceTypeCms.CM.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE)));
   }
 
   @Override
@@ -244,7 +244,7 @@ public class CmServerHandler extends BaseHandlerCm {
     CmServerCluster clusterStale = CmServerClusterInstance.getCluster();
     CmServerCluster cluster, clusterCurrent = cluster = CmServerClusterInstance.getCluster(
         CmServerClusterInstance.getConfiguration(event.getClusterSpec()), event.getCluster().getInstances(),
-        getDeviceMappings(event).keySet());
+        getMounts(event));
     if (status != null) {
       CmServerCluster clusterFiltered = CmServerClusterInstance.getCluster(clusterCurrent);
       for (CmServerServiceType type : clusterStale.getServiceTypes()) {
