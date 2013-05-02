@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -55,7 +58,13 @@ public class CmServerClusterInstance implements CmConstants {
   private static CmServerFactory factory;
   private static CmServerCluster cluster;
   private static boolean isStandaloneCommand = true;
+  private static Future<?> logExecutorFuture;
+  private static ExecutorService logExecutor = Executors.newSingleThreadScheduledExecutor();
   private static Map<ClusterActionEvent, Set<Integer>> ports = new HashMap<ClusterActionEvent, Set<Integer>>();
+
+  private static int LOG_POLL_PERIOD_MS = 5000;
+  private static int LOG_POLL_PERIOD_BACKOFF_NUMBER = 3;
+  private static int LOG_POLL_PERIOD_BACKOFF_INCRAMENT = 2;
 
   private CmServerClusterInstance() {
   }
@@ -402,16 +411,38 @@ public class CmServerClusterInstance implements CmConstants {
     logger.logSpacerDashed();
     logger.logOperation(operation, "");
     logger.logSpacerDashed();
+    logger.logSpacer();
   }
 
   public static void logLineItem(CmServerLog logger, String operation) {
-    logger.logSpacer();
     logger.logOperationStartedSync(operation);
   }
 
   public static void logLineItem(CmServerLog logger, String operation, String detail) {
-    logger.logSpacer();
     logger.logOperationInProgressSync(operation, detail);
+  }
+
+  public static void logLineItemAsync(final CmServerLog logger, final String operation) {
+    logger.logOperationStartedAsync(operation);
+    logExecutorFuture = logExecutor.submit(new Runnable() {
+      @Override
+      public void run() {
+        int sleep = LOG_POLL_PERIOD_MS;
+        int sleepBackoffNumber = LOG_POLL_PERIOD_BACKOFF_NUMBER;
+        while (true) {
+          try {
+            logger.logOperationInProgressAsync(operation);
+            if (sleepBackoffNumber-- == 0) {
+              sleep += LOG_POLL_PERIOD_BACKOFF_INCRAMENT;
+              sleepBackoffNumber = LOG_POLL_PERIOD_BACKOFF_NUMBER;
+            }
+            Thread.sleep(sleep);
+          } catch (InterruptedException e) {
+            return;
+          }
+        }
+      }
+    });
   }
 
   public static void logLineItemDetail(CmServerLog logger, String operation, String detail) {
@@ -422,6 +453,11 @@ public class CmServerClusterInstance implements CmConstants {
     logger.logOperationFinishedSync(operation);
   }
 
+  public static void logLineItemFooterAsync(CmServerLog logger, String operation) {
+    logExecutorFuture.cancel(true);
+    logger.logOperationFinishedAsync(operation);
+  }
+
   public static void logLineItemFooterFinal(CmServerLog logger) {
     logger.logSpacer();
     logger.logSpacerDashed();
@@ -429,6 +465,7 @@ public class CmServerClusterInstance implements CmConstants {
   }
 
   public static void logException(CmServerLog logger, String operation, String message, Throwable throwable) {
+    logExecutorFuture.cancel(true);
     logger.logOperationInProgressSync(operation, "failed");
     logger.logOperationStackTrace(operation, throwable);
     logger.logSpacer();
