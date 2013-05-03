@@ -62,7 +62,7 @@ public class CmServerClusterInstance implements CmConstants {
   private static ExecutorService logExecutor = Executors.newSingleThreadScheduledExecutor();
   private static Map<ClusterActionEvent, Set<Integer>> ports = new HashMap<ClusterActionEvent, Set<Integer>>();
 
-  private static int LOG_POLL_PERIOD_MS = 5000;
+  private static int LOG_POLL_PERIOD_MS = 7500;
   private static int LOG_POLL_PERIOD_BACKOFF_NUMBER = 3;
   private static int LOG_POLL_PERIOD_BACKOFF_INCRAMENT = 2;
 
