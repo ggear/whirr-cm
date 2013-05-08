@@ -220,7 +220,7 @@ public class CmServerHandler extends BaseHandlerCm {
               logger,
               operation,
               "follow live at http://"
-                  + event.getCluster().getInstanceMatching(role(ROLE)).getPublicIp()
+                  + event.getCluster().getInstanceMatching(role(ROLE)).getPublicHostName()
                   + ":"
                   + CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
                       CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB));

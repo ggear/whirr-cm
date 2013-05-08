@@ -155,8 +155,8 @@ public class CmServerClusterInstance implements CmConstants {
     for (Instance instance : instances) {
       for (String role : instance.getRoles()) {
         if (role.equals(CmServerHandler.ROLE)) {
-          cluster.setServer(new CmServerServiceBuilder().ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp())
-              .build());
+          cluster.setServer(new CmServerServiceBuilder().host(instance.getPublicHostName()).ip(instance.getPublicIp())
+              .ipInternal(instance.getPrivateIp()).build());
         } else if (role.equals(CmAgentHandler.ROLE)) {
           cluster.addAgent(new CmServerServiceBuilder().ip(instance.getPublicIp()).ipInternal(instance.getPrivateIp())
               .build());
@@ -353,9 +353,7 @@ public class CmServerClusterInstance implements CmConstants {
             + instance.getPublicIp() + "@" + instance.getPrivateIp());
       }
     }
-    if (cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
-      logger.logOperationInProgressSync(label, "NO CDH SERVICES");
-    } else {
+    if (!cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
       for (CmServerServiceType type : cluster.getServiceTypes()) {
         logger.logOperationInProgressSync(label, "CDH " + type.toString() + " SERVICE");
         for (CmServerService service : cluster.getServices(type)) {
@@ -392,7 +390,7 @@ public class CmServerClusterInstance implements CmConstants {
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(
           label,
-          "  http://" + cluster.getServer().getIp() + ":"
+          "  http://" + cluster.getServer().getHost() + ":"
               + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB));
       logger.logOperationInProgressSync(
           label,
@@ -454,7 +452,9 @@ public class CmServerClusterInstance implements CmConstants {
   }
 
   public static void logLineItemFooterAsync(CmServerLog logger, String operation) {
-    logExecutorFuture.cancel(true);
+    if (logExecutorFuture != null) {
+      logExecutorFuture.cancel(true);
+    }
     logger.logOperationFinishedAsync(operation);
   }
 
@@ -465,7 +465,9 @@ public class CmServerClusterInstance implements CmConstants {
   }
 
   public static void logException(CmServerLog logger, String operation, String message, Throwable throwable) {
-    logExecutorFuture.cancel(true);
+    if (logExecutorFuture != null) {
+      logExecutorFuture.cancel(true);
+    }
     logger.logOperationInProgressSync(operation, "failed");
     logger.logOperationStackTrace(operation, throwable);
     logger.logSpacer();
