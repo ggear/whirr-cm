@@ -79,7 +79,7 @@ public abstract class BaseTestIntegration implements BaseTest {
   }
 
   public static boolean clusterInitialised() {
-    return new File(new File(System.getProperty("user.home")), ".whirr/whirr/instances").exists();
+    return new File(new File(System.getProperty("user.home")), ".whirr/whirrcmtest/instances").exists();
   }
 
   public static Configuration clusterConfig() throws ConfigurationException {
