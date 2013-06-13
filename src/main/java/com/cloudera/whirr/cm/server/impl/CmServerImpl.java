@@ -853,6 +853,10 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
             apiServiceConfig.add(new ApiConfig("oozie_service", cluster.getServiceName(CmServerServiceType.OOZIE)));
             break;
+          case SQOOP:
+            apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
+                .getServiceName(CmServerServiceType.MAPREDUCE)));
+            break;
           case OOZIE:
             apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
                 .getServiceName(CmServerServiceType.MAPREDUCE)));
