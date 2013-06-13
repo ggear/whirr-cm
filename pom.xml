@@ -80,7 +80,7 @@
 						<artifactId>maven-failsafe-plugin</artifactId>
 						<version>${maven-failsafe-plugin.version}</version>
 						<configuration>
-							<forkedProcessTimeoutInSeconds>3600</forkedProcessTimeoutInSeconds>
+							<forkedProcessTimeoutInSeconds>36000</forkedProcessTimeoutInSeconds>
 							<includes>
 								<include>**/integration/*Test.java</include>
 							</includes>
