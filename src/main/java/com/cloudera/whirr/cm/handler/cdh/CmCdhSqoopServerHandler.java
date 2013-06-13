@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhSqoopServerHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-sqoopserver";
+  public static final String ROLE = "cm-cdh-sqoop-server";
   public static final CmServerServiceType TYPE = CmServerServiceType.SQOOP_SERVER;
 
   @Override

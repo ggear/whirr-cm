@@ -19,10 +19,10 @@ package com.cloudera.whirr.cm.handler.cdh;
 
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 
-public class CmCdhHiveHCatalogHandler extends BaseHandlerCmCdh {
+public class CmCdhSolrServerHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-hcatalog";
-  public static final CmServerServiceType TYPE = CmServerServiceType.HIVE_HCATALOG;
+  public static final String ROLE = "cm-cdh-solr-server";
+  public static final CmServerServiceType TYPE = CmServerServiceType.SOLR_SERVER;
 
   @Override
   public String getRole() {

@@ -53,6 +53,10 @@ public enum CmServerServiceType {
       HIVE, "HIVEMETASTORE", CmServerServiceTypeRepo.CDH), HIVE_SERVER2(HIVE, "HIVESERVER2",
       CmServerServiceTypeRepo.CDH), HIVE_HCATALOG(HIVE, "WEBHCAT", CmServerServiceTypeRepo.CDH),
 
+  // Solr
+  SOLR(CLUSTER, "SOLR", CmServerServiceTypeRepo.SOLR), SOLR_SERVER(SOLR, "SOLR_SERVER",
+      CmServerServiceTypeRepo.SOLR),
+
   // Sqoop
   SQOOP(CLUSTER, "SQOOP", CmServerServiceTypeRepo.CDH), SQOOP_SERVER(SQOOP, "SQOOP_SERVER", CmServerServiceTypeRepo.CDH),
 

@@ -19,6 +19,6 @@ package com.cloudera.whirr.cm.server;
 
 public enum CmServerServiceTypeRepo {
 
-  CDH, IMPALA
+  CDH, IMPALA, SOLR
 
 };

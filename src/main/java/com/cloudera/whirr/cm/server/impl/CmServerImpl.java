@@ -60,7 +60,7 @@ import com.cloudera.api.model.ApiServiceConfig;
 import com.cloudera.api.model.ApiServiceList;
 import com.cloudera.api.model.ApiServiceState;
 import com.cloudera.api.v3.ParcelResource;
-import com.cloudera.api.v3.RootResourceV3;
+import com.cloudera.api.v4.RootResourceV4;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerBuilder.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerCluster;
@@ -90,7 +90,7 @@ public class CmServerImpl implements CmServer {
   private CmServerLog logger;
 
   private CmServerService host;
-  final private RootResourceV3 apiResourceRoot;
+  final private RootResourceV4 apiResourceRoot;
 
   private boolean isFirstStartRequired = true;
 
@@ -98,7 +98,7 @@ public class CmServerImpl implements CmServer {
     this.host = new CmServerServiceBuilder().ip(ip).ipInternal(ipInternal).build();
     this.logger = logger;
     this.apiResourceRoot = new ClouderaManagerClientBuilder().withHost(ip).withPort(port)
-        .withUsernamePassword(user, password).build().getRootV3();
+        .withUsernamePassword(user, password).build().getRootV4();
   }
 
   @Override
@@ -848,6 +848,11 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("zookeeper_service", cluster
                 .getServiceName(CmServerServiceType.ZOOKEEPER)));
             break;
+          case SOLR:
+            apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
+            apiServiceConfig.add(new ApiConfig("zookeeper_service", cluster
+                .getServiceName(CmServerServiceType.ZOOKEEPER)));
+            break;
           case HUE:
             apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_NAMENODE)));
             apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
@@ -971,6 +976,8 @@ public class CmServerImpl implements CmServer {
     switch (service.getType().getParent()) {
     case HIVE:
       execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+          .createHiveUserDirCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
+      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
           .createHiveWarehouseCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
       execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
           .hiveCreateMetastoreDatabaseTablesCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
@@ -990,6 +997,14 @@ public class CmServerImpl implements CmServer {
           apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
               .zooKeeperInitCommand(cluster.getServiceName(CmServerServiceType.ZOOKEEPER)), false);
       break;
+    case SOLR:
+      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+          .createSolrHdfsHomeDirCommand(cluster.getServiceName(CmServerServiceType.SOLR)));
+      break;
+    case SQOOP:
+      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
+          .createSqoopUserDirCommand(cluster.getServiceName(CmServerServiceType.SQOOP)));
+      break;
     default:
       break;
     }
@@ -1008,10 +1023,6 @@ public class CmServerImpl implements CmServer {
               .getRoleCommandsResource(cluster.getServiceName(CmServerServiceType.HUE))
               .syncHueDbCommand(new ApiRoleNameList(ImmutableList.<String> builder().add(service.getName()).build())),
           false);
-      break;
-    case HUE_BEESWAX_SERVER:
-      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
-          .createBeeswaxWarehouseCommand(cluster.getServiceName(CmServerServiceType.HUE)));
       break;
     default:
       break;
