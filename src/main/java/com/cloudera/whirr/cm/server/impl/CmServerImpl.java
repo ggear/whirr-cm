@@ -976,8 +976,6 @@ public class CmServerImpl implements CmServer {
     switch (service.getType().getParent()) {
     case HIVE:
       execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
-          .createHiveUserDirCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
-      execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
           .createHiveWarehouseCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
       execute(apiResourceRoot.getClustersResource().getServicesResource(getName(cluster))
           .hiveCreateMetastoreDatabaseTablesCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
