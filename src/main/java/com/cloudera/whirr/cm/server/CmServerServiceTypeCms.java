@@ -34,15 +34,15 @@ public enum CmServerServiceTypeCms {
   // Activity Monitor
   ACTIVITYMONITOR(MANAGEMENT, "ACTIVITYMONITOR", false),
 
+  // Alerts Publisher
+  ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER", false),
+
   // Reports Manager
   REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER", true),
 
   // Event Server
   EVENTSERVER(MANAGEMENT, "EVENTSERVER", false),
-
-  // Alerts Publisher
-  ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER", false),
-
+  
   // Navigator
   NAVIGATOR(MANAGEMENT, "NAVIGATOR", true);
 

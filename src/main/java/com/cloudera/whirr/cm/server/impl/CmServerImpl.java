@@ -675,7 +675,14 @@ public class CmServerImpl implements CmServer {
     if (cmsProvisionRequired) {
 
       final ApiHostRef cmServerHostRefApi = new ApiHostRef(getServiceHost(host).getHost());
-      final boolean enableEnterpriseFeatures = apiResourceRoot.getClouderaManagerResource().readLicense() != null;
+
+      boolean licenseDeployed = false;
+      try {
+        licenseDeployed = apiResourceRoot.getClouderaManagerResource().readLicense() != null;
+      } catch (Exception e) {
+        // ignore
+      }
+      final boolean enableEnterpriseFeatures = licenseDeployed;
 
       logger.logOperation("CreateManagementServices", new CmServerLogSyncCommand() {
         @Override
