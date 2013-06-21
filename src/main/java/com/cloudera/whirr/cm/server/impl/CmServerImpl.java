@@ -709,23 +709,25 @@ public class CmServerImpl implements CmServer {
             try {
 
               CmServerServiceTypeCms type = CmServerServiceTypeCms.valueOf(cmsRoleConfigGroupApi.getRoleType());
-              ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
-              ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
-              if (cluster.getServiceConfiguration().get(type.getId()) != null) {
-                for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
-                  cmsServiceConfigApi.add(new ApiConfig(setting, cluster.getServiceConfiguration().get(type.getId())
-                      .get(setting)));
+              if (!type.getEnterprise() || enterpriseDeployed) {
+                ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
+                ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
+                if (cluster.getServiceConfiguration().get(type.getId()) != null) {
+                  for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
+                    cmsServiceConfigApi.add(new ApiConfig(setting, cluster.getServiceConfiguration().get(type.getId())
+                        .get(setting)));
+                  }
                 }
+                cmsRoleConfigGroupApiNew.setConfig(cmsServiceConfigApi);
+
+                apiResourceRoot
+                    .getClouderaManagerResource()
+                    .getMgmtServiceResource()
+                    .getRoleConfigGroupsResource()
+                    .updateRoleConfigGroup(cmsRoleConfigGroupApi.getName(), cmsRoleConfigGroupApiNew,
+                        CM_CONFIG_UPDATE_MESSAGE);
+
               }
-              cmsRoleConfigGroupApiNew.setConfig(cmsServiceConfigApi);
-
-              apiResourceRoot
-                  .getClouderaManagerResource()
-                  .getMgmtServiceResource()
-                  .getRoleConfigGroupsResource()
-                  .updateRoleConfigGroup(cmsRoleConfigGroupApi.getName(), cmsRoleConfigGroupApiNew,
-                      CM_CONFIG_UPDATE_MESSAGE);
-
             } catch (IllegalArgumentException e) {
               // ignore
             }
