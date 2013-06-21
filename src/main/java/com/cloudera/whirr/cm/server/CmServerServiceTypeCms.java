@@ -44,7 +44,7 @@ public enum CmServerServiceTypeCms {
   ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER", false),
 
   // Navigator
-  NAVIGATOR(MANAGEMENT, "NAVIGATOR", false);
+  NAVIGATOR(MANAGEMENT, "NAVIGATOR", true);
 
   private CmServerServiceTypeCms parent;
   private String id;
