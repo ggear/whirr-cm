@@ -660,73 +660,56 @@ public class CmServerImpl implements CmServer {
 
   private void provisionManagement(final CmServerCluster cluster) throws CmServerException, InterruptedException {
 
-    boolean cmsProvisionRequired = false;
-    try {
-      if (apiResourceRoot.getClouderaManagerResource().readLicense() != null) {
-        try {
-          cmsProvisionRequired = apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource()
-              .readService(DataView.SUMMARY) == null;
-        } catch (ServerWebApplicationException exception) {
-          cmsProvisionRequired = true;
+    final ApiHostRef cmServerHostRefApi = new ApiHostRef(getServiceHost(host).getHost());
+
+    logger.logOperation("CreateManagementServices", new CmServerLogSyncCommand() {
+      @Override
+      public void execute() throws IOException, CmServerException, InterruptedException {
+        ApiService cmsServiceApi = new ApiService();
+        List<ApiRole> cmsRoleApis = new ArrayList<ApiRole>();
+        cmsServiceApi.setName(CmServerServiceTypeCms.MANAGEMENT.getName());
+        cmsServiceApi.setType(CmServerServiceTypeCms.MANAGEMENT.getId());
+        for (CmServerServiceTypeCms type : CmServerServiceTypeCms.values()) {
+          if (type.getParent() != null) {
+            ApiRole cmsRoleApi = new ApiRole();
+            cmsRoleApi.setName(type.getName());
+            cmsRoleApi.setType(type.getId());
+            cmsRoleApi.setHostRef(cmServerHostRefApi);
+            cmsRoleApis.add(cmsRoleApi);
+          }
+        }
+        cmsServiceApi.setRoles(cmsRoleApis);
+
+        apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().setupCMS(cmsServiceApi);
+
+        for (ApiRoleConfigGroup cmsRoleConfigGroupApi : apiResourceRoot.getClouderaManagerResource()
+            .getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
+          try {
+
+            CmServerServiceTypeCms type = CmServerServiceTypeCms.valueOf(cmsRoleConfigGroupApi.getRoleType());
+            ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
+            ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
+            if (cluster.getServiceConfiguration().get(type.getId()) != null) {
+              for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
+                cmsServiceConfigApi.add(new ApiConfig(setting, cluster.getServiceConfiguration().get(type.getId())
+                    .get(setting)));
+              }
+            }
+            cmsRoleConfigGroupApiNew.setConfig(cmsServiceConfigApi);
+
+            apiResourceRoot
+                .getClouderaManagerResource()
+                .getMgmtServiceResource()
+                .getRoleConfigGroupsResource()
+                .updateRoleConfigGroup(cmsRoleConfigGroupApi.getName(), cmsRoleConfigGroupApiNew,
+                    CM_CONFIG_UPDATE_MESSAGE);
+
+          } catch (IllegalArgumentException e) {
+            // ignore
+          }
         }
       }
-    } catch (ServerWebApplicationException exception) {
-      // ignore
-    }
-
-    if (cmsProvisionRequired) {
-
-      final ApiHostRef cmServerHostRefApi = new ApiHostRef(getServiceHost(host).getHost());
-
-      logger.logOperation("CreateManagementServices", new CmServerLogSyncCommand() {
-        @Override
-        public void execute() throws IOException, CmServerException, InterruptedException {
-          ApiService cmsServiceApi = new ApiService();
-          List<ApiRole> cmsRoleApis = new ArrayList<ApiRole>();
-          cmsServiceApi.setName(CmServerServiceTypeCms.MANAGEMENT.getName());
-          cmsServiceApi.setType(CmServerServiceTypeCms.MANAGEMENT.getId());
-          for (CmServerServiceTypeCms type : CmServerServiceTypeCms.values()) {
-            if (type.getParent() != null) {
-              ApiRole cmsRoleApi = new ApiRole();
-              cmsRoleApi.setName(type.getName());
-              cmsRoleApi.setType(type.getId());
-              cmsRoleApi.setHostRef(cmServerHostRefApi);
-              cmsRoleApis.add(cmsRoleApi);
-            }
-          }
-          cmsServiceApi.setRoles(cmsRoleApis);
-
-          apiResourceRoot.getClouderaManagerResource().getMgmtServiceResource().setupCMS(cmsServiceApi);
-
-          for (ApiRoleConfigGroup cmsRoleConfigGroupApi : apiResourceRoot.getClouderaManagerResource()
-              .getMgmtServiceResource().getRoleConfigGroupsResource().readRoleConfigGroups()) {
-            try {
-
-              CmServerServiceTypeCms type = CmServerServiceTypeCms.valueOf(cmsRoleConfigGroupApi.getRoleType());
-              ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
-              ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
-              if (cluster.getServiceConfiguration().get(type.getId()) != null) {
-                for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
-                  cmsServiceConfigApi.add(new ApiConfig(setting, cluster.getServiceConfiguration().get(type.getId())
-                      .get(setting)));
-                }
-              }
-              cmsRoleConfigGroupApiNew.setConfig(cmsServiceConfigApi);
-
-              apiResourceRoot
-                  .getClouderaManagerResource()
-                  .getMgmtServiceResource()
-                  .getRoleConfigGroupsResource()
-                  .updateRoleConfigGroup(cmsRoleConfigGroupApi.getName(), cmsRoleConfigGroupApiNew,
-                      CM_CONFIG_UPDATE_MESSAGE);
-
-            } catch (IllegalArgumentException e) {
-              // ignore
-            }
-          }
-        }
-      });
-    }
+    });
 
   }
 
