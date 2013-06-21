@@ -37,11 +37,11 @@ public enum CmServerServiceTypeCms {
   // Alerts Publisher
   ALERTPUBLISHER(MANAGEMENT, "ALERTPUBLISHER", false),
 
-  // Reports Manager
-  REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER", true),
-
   // Event Server
   EVENTSERVER(MANAGEMENT, "EVENTSERVER", false),
+
+  // Reports Manager
+  REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER", true),
   
   // Navigator
   NAVIGATOR(MANAGEMENT, "NAVIGATOR", true);
@@ -53,6 +53,7 @@ public enum CmServerServiceTypeCms {
   private CmServerServiceTypeCms(CmServerServiceTypeCms parent, String id, boolean enterprise) {
     this.parent = parent;
     this.id = id;
+    this.enterprise = enterprise;
   }
 
   public CmServerServiceTypeCms getParent() {

@@ -682,7 +682,7 @@ public class CmServerImpl implements CmServer {
       } catch (Exception e) {
         // ignore
       }
-      final boolean enableEnterpriseFeatures = licenseDeployed;
+      final boolean enterpriseDeployed = licenseDeployed;
 
       logger.logOperation("CreateManagementServices", new CmServerLogSyncCommand() {
         @Override
@@ -692,7 +692,7 @@ public class CmServerImpl implements CmServer {
           cmsServiceApi.setName(CmServerServiceTypeCms.MANAGEMENT.getName());
           cmsServiceApi.setType(CmServerServiceTypeCms.MANAGEMENT.getId());
           for (CmServerServiceTypeCms type : CmServerServiceTypeCms.values()) {
-            if (type.getParent() != null && (!type.getEnterprise() || enableEnterpriseFeatures)) {
+            if (type.getParent() != null && (!type.getEnterprise() || enterpriseDeployed)) {
               ApiRole cmsRoleApi = new ApiRole();
               cmsRoleApi.setName(type.getName());
               cmsRoleApi.setType(type.getId());
