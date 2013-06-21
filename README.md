@@ -35,8 +35,8 @@ ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa_cm
 
 ## Install the Whirr Cloudera Manager Plugin (optional)
 
-As of CDH 4.2, whirr ships with the whirr CM plugin, but in the event that you would like to update this, you can follow
-these instructions (take note of any dependencies copied which may indicate old stale versions remain and should be deleted from $WHIRR_HOME/lib)
+As of CDH 4.2, whirr ships with the whirr CM plugin, but in the event that you would like to replace this, you can follow
+these instructions (take note of any files copied during the 'mvn dependency:copy-dependencies' command, this may indicate old versions remain and should be deleted from $WHIRR_HOME/lib)
 
 ```bash
 git clone https://github.com/cloudera/whirr-cm.git
