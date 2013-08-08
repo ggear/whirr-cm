@@ -430,8 +430,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
   @Test
   public void testNodesAndAgentsAndClusterFirewall() throws Exception {
     Assert.assertNotNull(launchWithClusterSpec(newClusterSpecForProperties(ImmutableMap.of("whirr.instance-templates",
-        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_AUTO, Boolean.FALSE.toString(), CONFIG_WHIRR_FIREWALL_ENABLE,
-        Boolean.TRUE.toString()))));
+        WHIRR_INSTANCE_TEMPLATE_ALL, CONFIG_WHIRR_AUTO, Boolean.FALSE.toString()))));
   }
 
   @Test

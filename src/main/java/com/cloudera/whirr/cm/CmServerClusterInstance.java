@@ -38,7 +38,6 @@ import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
 import org.apache.whirr.service.ClusterActionEvent;
 
-import com.cloudera.whirr.cm.Utils;
 import com.cloudera.whirr.cm.handler.CmAgentHandler;
 import com.cloudera.whirr.cm.handler.CmNodeHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
@@ -50,7 +49,6 @@ import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
@@ -108,6 +106,28 @@ public class CmServerClusterInstance implements CmConstants {
 
   public static synchronized void setIsStandaloneCommand(boolean isStandaloneCommand) {
     CmServerClusterInstance.isStandaloneCommand = isStandaloneCommand;
+  }
+
+  public static String getVersion(Configuration configuration) throws IOException {
+    return getVersionSubstring(configuration, CONFIG_WHIRR_CM_VERSION, "cm");
+  }
+
+  public static String getVersionApi(Configuration configuration) throws IOException {
+    return getVersionSubstring(configuration, CONFIG_WHIRR_CM_API_VERSION, "v");
+  }
+
+  public static String getVersionCdh(Configuration configuration) throws IOException {
+    return getVersionSubstring(configuration, CONFIG_WHIRR_CM_CDH_VERSION, "cdh");
+  }
+
+  private static String getVersionSubstring(Configuration configuration, String property, String prefix)
+      throws IOException {
+    String version = configuration.getString(property);
+    if (version == null || !version.startsWith(prefix)) {
+      return null;
+    } else {
+      return version.substring(prefix.length());
+    }
   }
 
   public static synchronized Set<Integer> portsPush(ClusterActionEvent event, Set<String> ports) {

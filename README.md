@@ -3,6 +3,13 @@
 Follow these instructions to start a cluster on Amazon EC2 running Cloudera Manager (CM),
 allowing you to install, run and manage a CDH cluster.
 
+## Requirements
+
+This plugin has dependencies on whirr and CM as per the pom, but remains backwards compatible with:
+
+* whirr 0.8+
+* CM 4.5+ (CM API 3+)
+
 ## Install Whirr
 
 Run the following commands from you local machine.
@@ -41,7 +48,7 @@ these instructions (take note of any files copied during the 'mvn dependency:cop
 ```bash
 git clone https://github.com/cloudera/whirr-cm.git
 cd whirr-cm
-mvn clean install -Dmaven.test.skip=true -Dmaven.assembly.skip=true
+mvn clean install -Dmaven.test.skip=true
 mvn dependency:copy-dependencies -DincludeScope=runtime -DoverWriteIfNewer=false -DoutputDirectory=$WHIRR_HOME/lib
 rm -rf $WHIRR_HOME/lib/whirr-cdh-* $WHIRR_HOME/lib/whirr-cm-*
 cp -rvf target/whirr-cm-*.jar $WHIRR_HOME/lib
@@ -217,28 +224,40 @@ whirr destroy-cluster --config cm-ec2.properties
 This project includes a full suit of unit tests, launchable via:
 
 ```bash
-mvn test -Dmaven.assembly.skip=true
+mvn clean test
 ```
 
-The smoke integration test can be launched against Amazon EC2 via:
+Integration tests that run against Amazon EC2 are also avialable, enabled via the 'integration' profile as per:
 
 ```bash
-mvn test -Pintegration -Dtest=CmServerSmokeTest#testCleanClusterLifecycle -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY
+mvn integration-test -Pintegration -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY
 ```
 
-The full set of integration tests can be laucnhed against Amazon EC2 via:
+Be wary though, these tests will take some time to execute, so it is advisable to use the smoke integrations tests on a case by case basis for quick testsing:
 
 ```bash
-mvn integration-test -Pintegration -Dmaven.test.skip=true -Dmaven.assembly.skip=true -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY
+mvn integration-test -Pintegration-smoke -Dtest=CmServerSmokeTest#testClusterLifecycle -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY
 ```
 
-You can optionally specifiy a target platform (Unbuntu and CentOS currently supported) by providing the 'test.platform' property:
+You can optionally specifiy a target platform (Unbuntu and CentOS currently supported, CentOS by default) by providing the 'whirr.test.platform' system property:
 
 ```bash
-mvn integration-test -Pintegration -Dmaven.test.skip=true -Dmaven.assembly.skip=true -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY -Dtest.platform=centos
+mvn integration-test -Pintegration-smoke -Dtest=CmServerSmokeTest#testClusterLifecycle -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY -Dtest.platform=centos
 ```
 
-The integration tests setup and teardown a cluster automatically, if you would like to launch and persist a cluster between integration tests for iterative testing minus the cluster bootstrap costs, a cluster can be launched via:
+In addition, you can also specify target CM versions, both server and API via the 'whirr.test.cm.version' and 'whirr.test.cm.api.version' system properties respectively (CM 4.5+, CM API 3+, defaults to latest of each available):
+
+```bash
+mvn integration-test -Pintegration-smoke -Dtest=CmServerSmokeTest#testClusterLifecycle -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY -Dwhirr.test.cm.version=cm4.5.0 -Dwhirr.test.cm.api.version=v3
+```
+
+A suite of smoke tests working against a matrix of OS platforms, CM and CM API versions can be launched and run as per:
+
+```bash
+mvn integration-test -Pintegration-smoke -Dtest=CmServerSuiteSmokeTest -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY
+```
+
+The integration tests setup and teardown a cluster automatically, if you would like to launch and persist a cluster between integration tests for iterative testing minus the cluster bootstrap costs, a cluster can be launched via (above platform and version system properties are also supported):
 
 ```bash
 mvn exec:java -Dexec.mainClass=com.cloudera.whirr.cm.BaseTestIntegrationBoostrap -Dexec.classpathScope=test -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY -Dlog4j.configuration=file:./target/test-classes/log4j.properties
@@ -251,7 +270,6 @@ mvn exec:java -Dexec.mainClass=com.cloudera.whirr.cm.BaseTestIntegrationDestroy 
 ```
 
 The status of the standalone launched cluster can be queried via:
-
 
 ```bash
 mvn exec:java -Dexec.mainClass=com.cloudera.whirr.cm.BaseTestIntegrationStatus -Dexec.classpathScope=test -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY -Dlog4j.configuration=file:./target/test-classes/log4j.properties

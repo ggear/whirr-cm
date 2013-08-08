@@ -68,7 +68,7 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
     if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getList(CONFIG_WHIRR_DATA_DIRS_ROOT).isEmpty()) {
       addStatement(event, call("prepare_all_disks", "'" + VolumeManager.asString(getDeviceMappings(event)) + "'"));
     }
-    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE)) {
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE, true)) {
       Set<Integer> ports = CmServerClusterInstance.portsPush(event, getPortsClient(event));
       if (!ports.isEmpty()) {
         event.getFirewallManager().addRules(Rule.create().destination(role(getRole())).ports(Ints.toArray(ports)));
@@ -82,7 +82,7 @@ public abstract class BaseHandler extends ClusterActionHandlerSupport implements
   @Override
   protected void afterConfigure(ClusterActionEvent event) throws IOException, InterruptedException {
     super.afterConfigure(event);
-    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE)) {
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE, true)) {
       if (CmServerClusterInstance.portsPop(event) != null) {
         event.getFirewallManager().authorizeAllRules();
       }

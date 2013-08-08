@@ -68,6 +68,9 @@
 		<maven-failsafe-plugin.version>2.12</maven-failsafe-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.test.skip>false</maven.test.skip>
+		<maven.assembly.skip>true</maven.assembly.skip>
+		<maven.integration-test.skip>false</maven.integration-test.skip>
 	</properties>
 
 	<profiles>
@@ -82,7 +85,7 @@
 						<configuration>
 							<forkedProcessTimeoutInSeconds>36000</forkedProcessTimeoutInSeconds>
 							<includes>
-								<include>**/integration/*Test.java</include>
+								<include>**/integration/*IT.java</include>
 							</includes>
 							<systemPropertyVariables>
 								<log4j.configuration>file:${project.build.testOutputDirectory}/log4j.properties</log4j.configuration>
@@ -287,7 +290,7 @@
 				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
 					<excludes>
-						<exclude>**/integration/*Test.java</exclude>
+						<exclude>**/integration/*IT.java</exclude>
 					</excludes>
 					<systemPropertyVariables>
 						<log4j.configuration>file:${project.build.testOutputDirectory}/log4j.properties</log4j.configuration>
@@ -296,5 +299,5 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 </project>

@@ -65,8 +65,8 @@ public abstract class BaseCommandCmServer extends BaseCommand {
     return "CM" + super.getLabel();
   }
 
-  public abstract int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster, CmServerBuilder serverCommand)
-      throws Exception;
+  public abstract int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
+      CmServerBuilder serverCommand) throws Exception;
 
   private OptionSpec<String> cmClusterName = parser.accepts("cm-cluster-name", "CM cluster name to target")
       .withRequiredArg().ofType(String.class);
@@ -103,8 +103,11 @@ public abstract class BaseCommandCmServer extends BaseCommand {
       throw new CmServerException("Could not find any " + CmAgentHandler.ROLE + "'s or " + CmNodeHandler.ROLE + "'s.");
     }
 
-    CmServerBuilder command = new CmServerBuilder().ip(cluster.getServer().getIp())
-        .ipInternal(cluster.getServer().getIpInternal()).cluster(cluster)
+    CmServerBuilder command = new CmServerBuilder()
+        .version(CmServerClusterInstance.getVersion(CmServerClusterInstance.getConfiguration(specification)))
+        .versionApi(CmServerClusterInstance.getVersionApi(CmServerClusterInstance.getConfiguration(specification)))
+        .versionCdh(CmServerClusterInstance.getVersionCdh(CmServerClusterInstance.getConfiguration(specification)))
+        .ip(cluster.getServer().getIp()).ipInternal(cluster.getServer().getIpInternal()).cluster(cluster)
         .path(specification.getClusterDirectory().getAbsolutePath());
 
     int returnInt = run(specification, instances, cluster, command);
