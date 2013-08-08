@@ -3,12 +3,10 @@ package com.cloudera.whirr.cm.integration;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CmServerClusterIT extends BaseITServer {
+public abstract class CmServerClusterIT extends BaseITServer {
 
   @Test
   public void testClusterLifecycle() throws Exception {
-
-    Assert.assertTrue(serverTest.provision(cluster));
 
     Assert.assertTrue(serverTest.isProvisioned(cluster));
     Assert.assertFalse(serverTest.isConfigured(cluster));

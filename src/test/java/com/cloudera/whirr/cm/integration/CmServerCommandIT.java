@@ -12,7 +12,7 @@ import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
 import com.cloudera.whirr.cm.cmd.CmServerInitClusterCommand;
 import com.cloudera.whirr.cm.cmd.CmServerListServicesCommand;
 
-public class CmServerCommandIT extends BaseITServer {
+public class CmServerCommandIT extends CmServerClusterIT {
 
   @Test
   public void testInitCluster() throws Exception {
