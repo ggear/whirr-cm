@@ -53,6 +53,8 @@ import com.google.common.collect.ImmutableMap;
 
 public abstract class BaseITServer implements BaseTest {
 
+  private static final String PLATFORM_DEFAULT = "example";
+
   protected static CmServerLog log = new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false);
 
   protected String cm;
@@ -190,13 +192,11 @@ public abstract class BaseITServer implements BaseTest {
     if (System.getProperty("config") != null) {
       config.addConfiguration(new PropertiesConfiguration(System.getProperty("config")));
     }
-    config.addConfiguration(new PropertiesConfiguration(
-        "test-whirrcm-"
-            + (System.getProperty("whirr.test.platform") == null
-                || System.getProperty("whirr.test.platform").equals("") ? "centos" : System
-                .getProperty("whirr.test.platform")) + ".properties"));
-    config.addConfiguration(new PropertiesConfiguration("test-whirrcm.properties"));
-    config.addConfiguration(new PropertiesConfiguration("cm-ec2.properties"));
+    config.addConfiguration(new PropertiesConfiguration(TEST_CM_PREFIX_PROPERTIES
+        + (System.getProperty(TEST_PLATFORM) == null || System.getProperty(TEST_PLATFORM).equals("") ? PLATFORM_DEFAULT
+            : System.getProperty(TEST_PLATFORM)) + ".properties"));
+    config.addConfiguration(new PropertiesConfiguration(TEST_CM_TEST_PROPERTIES));
+    config.addConfiguration(new PropertiesConfiguration(TEST_CM_EXAMPLE_PROPERTIES));
     return config;
   }
 
