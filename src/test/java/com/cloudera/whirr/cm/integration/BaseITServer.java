@@ -115,7 +115,10 @@ public abstract class BaseITServer implements BaseTest {
         .getVersion(configuration), CmServerClusterInstance.getVersionApi(configuration), CmServerClusterInstance
         .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), CM_PORT,
         CmConstants.CM_USER, CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
-    Assert.assertNotNull(serverTestBuilder = new CmServerBuilder().ip(cluster.getServer().getIp())
+    Assert.assertNotNull(serverTestBuilder = new CmServerBuilder()
+        .version(CmServerClusterInstance.getVersion(configuration))
+        .versionApi(CmServerClusterInstance.getVersionApi(configuration))
+        .versionCdh(CmServerClusterInstance.getVersionCdh(configuration)).ip(cluster.getServer().getIp())
         .ipInternal(cluster.getServer().getIpInternal()).cluster(cluster).path(DIR_CLIENT_CONFIG.getAbsolutePath()));
     Assert.assertTrue(serverBootstrap.initialise(cluster));
     if (isClusterBootstrappedStatically()) {
