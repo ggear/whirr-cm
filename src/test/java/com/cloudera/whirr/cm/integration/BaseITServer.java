@@ -138,20 +138,21 @@ public abstract class BaseITServer implements BaseTest {
     CmServerClusterInstance.logCluster(log, "PreTestServices", CmServerClusterInstance.getConfiguration(specification),
         serverBootstrap.getServices(cluster), instances);
     log.logOperationFinishedSync("PreTestServices");
-    log.logOperationFinishedSync(getTestName());
+    log.logSpacer();
     log.logSpacerDashed();
     log.logOperationStartedSync(getTestName());
     log.logSpacerDashed();
-    log.logOperationFinishedSync(getTestName());
+    log.logSpacer();
+    CmServerClusterInstance.clear();
   }
 
   @After
   public void teardownMethod() throws Exception {
-    log.logOperationFinishedSync(getTestName());
+    log.logSpacer();
     log.logSpacerDashed();
     log.logOperationFinishedSync(getTestName());
     log.logSpacerDashed();
-    log.logOperationFinishedSync(getTestName());
+    log.logSpacer();
     if (serverBootstrap != null) {
       log.logOperationStartedSync("PostTestServices");
       CmServerClusterInstance.logCluster(log, "PostTestServices",

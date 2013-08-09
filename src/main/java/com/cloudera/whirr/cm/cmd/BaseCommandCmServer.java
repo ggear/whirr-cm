@@ -31,7 +31,6 @@ import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterController;
 import org.apache.whirr.ClusterControllerFactory;
 import org.apache.whirr.ClusterSpec;
-import org.apache.whirr.state.ClusterStateStore;
 import org.apache.whirr.state.ClusterStateStoreFactory;
 
 import com.cloudera.whirr.cm.CmServerClusterInstance;
@@ -46,6 +45,15 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.google.common.base.Splitter;
 
 public abstract class BaseCommandCmServer extends BaseCommand {
+
+  public static final String OPTION_ROLES = "roles";
+  public static final String OPTION_CLUSTER_NAME = "cm-cluster-name";
+
+  protected OptionSpec<String> OPTIONSPEC_ROLES = isRoleFilterable() ? parser
+      .accepts("roles", "Cluster roles to target").withRequiredArg().ofType(String.class) : null;
+
+  protected OptionSpec<String> OPTIONSPEC_CLUSTER_NAME = parser.accepts("cm-cluster-name", "CM cluster name to target")
+      .withRequiredArg().ofType(String.class);
 
   public BaseCommandCmServer(String name, String description, ClusterControllerFactory factory,
       ClusterStateStoreFactory stateStoreFactory) {
@@ -68,32 +76,25 @@ public abstract class BaseCommandCmServer extends BaseCommand {
   public abstract int run(ClusterSpec specification, Set<Instance> instances, CmServerCluster cluster,
       CmServerBuilder serverCommand) throws Exception;
 
-  private OptionSpec<String> cmClusterName = parser.accepts("cm-cluster-name", "CM cluster name to target")
-      .withRequiredArg().ofType(String.class);
-
-  private OptionSpec<String> rolesOption = isRoleFilterable() ? parser.accepts("roles", "Cluster roles to target")
-      .withRequiredArg().ofType(String.class) : null;
-
   @Override
-  public int run(OptionSet optionSet, ClusterSpec specification, ClusterStateStore clusterStateStore,
-      ClusterController clusterController) throws Exception {
+  public int run(ClusterSpec specification, ClusterController clusterController, OptionSet optionSet) throws Exception {
 
     CmServerClusterInstance.logHeader(logger, getLabel());
     CmServerClusterInstance.logLineItem(logger, getLabel());
 
     Set<String> roles = new HashSet<String>();
-    if (isRoleFilterable() && optionSet.hasArgument(rolesOption)) {
-      if ((roles = filterRoles(optionSet.valueOf(rolesOption))).isEmpty()) {
+    if (isRoleFilterable() && optionSet.hasArgument(OPTION_ROLES)) {
+      if ((roles = filterRoles((String) optionSet.valueOf(OPTION_ROLES))).isEmpty()) {
         throw new CmServerException("Role filter does not include any appropriate roles.");
       }
     }
 
-    Set<Instance> instances = clusterController.getInstances(specification, clusterStateStore);
+    Set<Instance> instances = clusterController.getInstances(specification, createClusterStateStore(specification));
     CmServerCluster cluster = CmServerClusterInstance.getCluster(specification, specification.getConfiguration(),
         instances, new TreeSet<String>(), roles);
 
-    if (optionSet.hasArgument(cmClusterName)) {
-      cluster.setName(optionSet.valueOf(cmClusterName));
+    if (optionSet.hasArgument(OPTION_CLUSTER_NAME)) {
+      cluster.setName((String) optionSet.valueOf(OPTION_CLUSTER_NAME));
     }
 
     if (cluster.getServer() == null) {

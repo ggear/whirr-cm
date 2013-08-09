@@ -2,10 +2,16 @@ package com.cloudera.whirr.cm.integration;
 
 import java.util.Collections;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+
 import org.apache.whirr.Cluster.Instance;
+import org.apache.whirr.cli.command.StartServicesCommand;
+import org.apache.whirr.cli.command.StopServicesCommand;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
@@ -43,13 +49,15 @@ public class CmServerCommandIT extends CmServerClusterIT {
 
   @Test
   public void testStartServices() throws Exception {
-    // TODO
+    Assert.assertEquals(0,
+        new StartServicesCommand().runLifecycleStep(specification, controller, new OptionParser().parse("")));
   }
 
   @Test
   public void testStopServices() throws Exception {
     Assert.assertTrue(serverBootstrap.start(cluster));
-    // TODO
+    Assert.assertEquals(0,
+        new StopServicesCommand().runLifecycleStep(specification, controller, new OptionParser().parse("")));
   }
 
   @Test
@@ -64,6 +72,19 @@ public class CmServerCommandIT extends CmServerClusterIT {
     // TODO
     // Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification,
     // Collections.<Instance> emptySet(), cluster, serverTestBuilder));
+  }
+
+  @Test
+  public void testServiceLifecycleFiltered() throws Exception {
+    OptionParser optionParser = new OptionParser();
+    optionParser.accepts("roles").withRequiredArg().ofType(String.class);
+    OptionSet optionSetFilter = optionParser.parse("--roles", "cm-server,cm-cdh-namenode,cm-cdh-jobtracker");
+    Assert.assertEquals(0, new CmServerCreateServicesCommand().run(specification, controller, optionSetFilter));
+    CmServerClusterInstance.clear();
+    Assert.assertEquals(0,
+        new CmServerListServicesCommand().run(specification, controller, new OptionParser().parse("")));
+    CmServerClusterInstance.clear();
+    Assert.assertEquals(0, new CmServerDestroyServicesCommand().run(specification, controller, optionSetFilter));
   }
 
 }

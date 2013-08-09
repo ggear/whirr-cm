@@ -6,7 +6,7 @@ import org.junit.Test;
 public abstract class CmServerClusterIT extends BaseITServer {
 
   @Test
-  public void testClusterLifecycle() throws Exception {
+  public void testServiceLifecycle() throws Exception {
 
     Assert.assertTrue(serverTest.isProvisioned(cluster));
     Assert.assertFalse(serverTest.isConfigured(cluster));
