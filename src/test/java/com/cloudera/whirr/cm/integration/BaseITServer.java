@@ -85,6 +85,7 @@ public abstract class BaseITServer implements BaseTest {
 
   @Before
   public void setupMethod() throws Exception {
+    CmServerClusterInstance.clear();
     setSystemProperty(TEST_CM_VERSION, cm);
     setSystemProperty(TEST_CM_API_VERSION, api);
     setSystemProperty(TEST_CM_CDH_VERSION, cdh);
@@ -95,7 +96,6 @@ public abstract class BaseITServer implements BaseTest {
     if (!isClusterBootstrapped()) {
       clusterBootstrap(ImmutableMap.of(CONFIG_WHIRR_AUTO, "" + isClusterBootstrappedAuto()));
     }
-    CmServerClusterInstance.clear();
     Assert.assertNotNull(configuration = clusterConfig());
     Assert.assertNotNull(specification = ClusterSpec.withNoDefaults(clusterConfig()));
     Assert.assertNotNull(controller = new ClusterController());
@@ -147,10 +147,12 @@ public abstract class BaseITServer implements BaseTest {
     log.logOperationFinishedSync(getTestName());
     log.logSpacerDashed();
     log.logOperationFinishedSync(getTestName());
-    log.logOperationStartedSync("PostTestServices");
-    CmServerClusterInstance.logCluster(log, "PostTestServices",
-        CmServerClusterInstance.getConfiguration(specification), serverBootstrap.getServices(cluster), instances);
-    log.logOperationFinishedSync("PostTestServices");
+    if (serverBootstrap != null) {
+      log.logOperationStartedSync("PostTestServices");
+      CmServerClusterInstance.logCluster(log, "PostTestServices",
+          CmServerClusterInstance.getConfiguration(specification), serverBootstrap.getServices(cluster), instances);
+      log.logOperationFinishedSync("PostTestServices");
+    }
     if (!isClusterBootstrappedStatically()) {
       clusterDestroy();
     }
@@ -164,10 +166,11 @@ public abstract class BaseITServer implements BaseTest {
   }
 
   private String getTestName() {
-    return WordUtils.capitalize(test.getMethodName()) + WordUtils.capitalize(System.getProperty(TEST_CM_VERSION))
+    String qualifier = WordUtils.capitalize(System.getProperty(TEST_CM_VERSION))
         + WordUtils.capitalize(System.getProperty(TEST_CM_API_VERSION))
         + WordUtils.capitalize(System.getProperty(TEST_CM_CDH_VERSION))
         + WordUtils.capitalize(System.getProperty(TEST_PLATFORM));
+    return WordUtils.capitalize(test.getMethodName()) + (qualifier.equals("") ? "" : ("-" + qualifier));
   }
 
   protected boolean isClusterBootstrappedStatically() {
