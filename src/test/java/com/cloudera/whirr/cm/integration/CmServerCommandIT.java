@@ -69,7 +69,7 @@ public class CmServerCommandIT extends CmServerClusterIT {
 
   @Test
   public void testCleanCluster() throws Exception {
-    // TODO
+    // TODO: Re-enable once OPSAPS-14933 is addressed
     // Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification,
     // Collections.<Instance> emptySet(), cluster, serverTestBuilder));
   }

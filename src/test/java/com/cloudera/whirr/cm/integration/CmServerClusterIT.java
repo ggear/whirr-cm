@@ -128,6 +128,8 @@ public abstract class CmServerClusterIT extends BaseITServer {
     Assert.assertFalse(serverTest.isStarted(cluster));
     Assert.assertTrue(serverTest.isStopped(cluster));
 
+    // TODO: Test unprovision/provision once OPSAPS-14933 is addressed
+
   }
 
 }
