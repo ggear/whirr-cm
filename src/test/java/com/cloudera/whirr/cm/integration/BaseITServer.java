@@ -18,7 +18,6 @@
 package com.cloudera.whirr.cm.integration;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -228,7 +227,7 @@ public abstract class BaseITServer implements BaseTest {
     public static void main(String[] args) {
       int returnValue = 0;
       try {
-        BaseITServer.clusterBootstrap(new HashMap<String, String>());
+        BaseITServer.clusterBootstrap(ImmutableMap.of(CONFIG_WHIRR_AUTO, Boolean.FALSE.toString()));
       } catch (Exception e) {
         e.printStackTrace();
         returnValue = 1;
