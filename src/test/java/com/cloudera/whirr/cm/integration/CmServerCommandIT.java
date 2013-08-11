@@ -70,11 +70,9 @@ public class CmServerCommandIT extends CmServerClusterIT {
 
   @Test
   public void testCleanCluster() throws Exception {
-    Assert.assertEquals(0, new CmServerInitClusterCommand(null, null).run(specification,
-        Collections.<Instance> emptySet(), cluster, serverTestBuilder));
     Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification,
         Collections.<Instance> emptySet(), cluster, serverTestBuilder));
-    Assert.assertEquals(0, new CmServerInitClusterCommand(null, null).run(specification,
+    Assert.assertEquals(0, new CmServerCreateServicesCommand(null, null).run(specification,
         Collections.<Instance> emptySet(), cluster, serverTestBuilder));
   }
 
