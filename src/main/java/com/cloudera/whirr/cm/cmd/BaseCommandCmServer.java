@@ -112,7 +112,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
         .path(specification.getClusterDirectory().getAbsolutePath());
 
     int returnInt = run(specification, instances, cluster, command);
-
+    
     CmServerClusterInstance.logLineItemFooter(logger, getLabel());
     CmServerClusterInstance.logLineItemFooterFinal(logger);
 

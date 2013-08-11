@@ -44,7 +44,6 @@ import com.cloudera.whirr.cm.BaseTest;
 import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.CmServer;
-import com.cloudera.whirr.cm.server.CmServerBuilder;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
@@ -67,9 +66,8 @@ public abstract class BaseITServer implements BaseTest {
   protected ClusterController controller;
   protected Set<Instance> instances;
 
-  protected CmServer serverBootstrap;
   protected CmServer serverTest;
-  protected CmServerBuilder serverTestBuilder;
+  protected CmServer serverTestBootstrap;
   protected CmServerCluster cluster;
 
   private static boolean clusterSetupAndTeardown = false;
@@ -107,7 +105,7 @@ public abstract class BaseITServer implements BaseTest {
         new HashSet<String>()));
     Assert.assertNotNull(instances = controller.getInstances(specification,
         controller.getClusterStateStore(specification)));
-    Assert.assertNotNull(serverBootstrap = new CmServerFactory().getCmServer(CmServerClusterInstance
+    Assert.assertNotNull(serverTestBootstrap = new CmServerFactory().getCmServer(CmServerClusterInstance
         .getVersion(configuration), CmServerClusterInstance.getVersionApi(configuration), CmServerClusterInstance
         .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), CM_PORT,
         CmConstants.CM_USER, CmConstants.CM_PASSWORD, log));
@@ -115,28 +113,23 @@ public abstract class BaseITServer implements BaseTest {
         .getVersion(configuration), CmServerClusterInstance.getVersionApi(configuration), CmServerClusterInstance
         .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), CM_PORT,
         CmConstants.CM_USER, CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
-    Assert.assertNotNull(serverTestBuilder = new CmServerBuilder()
-        .version(CmServerClusterInstance.getVersion(configuration))
-        .versionApi(CmServerClusterInstance.getVersionApi(configuration))
-        .versionCdh(CmServerClusterInstance.getVersionCdh(configuration)).ip(cluster.getServer().getIp())
-        .ipInternal(cluster.getServer().getIpInternal()).cluster(cluster).path(DIR_CLIENT_CONFIG.getAbsolutePath()));
-    Assert.assertTrue(serverBootstrap.initialise(cluster));
+    Assert.assertTrue(serverTestBootstrap.initialise(cluster));
     if (isClusterBootstrappedStatically()) {
       try {
-        serverBootstrap.unconfigure(cluster);
+        serverTestBootstrap.unconfigure(cluster);
       } catch (Exception e) {
         e.printStackTrace();
       }
       try {
-        serverBootstrap.provision(cluster);
+        serverTestBootstrap.provision(cluster);
       } catch (Exception e) {
         e.printStackTrace();
       }
-      Assert.assertTrue(serverBootstrap.isProvisioned(cluster));
+      Assert.assertTrue(serverTestBootstrap.isProvisioned(cluster));
     }
     log.logOperationStartedSync("PreTestServices");
     CmServerClusterInstance.logCluster(log, "PreTestServices", CmServerClusterInstance.getConfiguration(specification),
-        serverBootstrap.getServices(cluster), instances);
+        serverTestBootstrap.getServices(cluster), instances);
     log.logOperationFinishedSync("PreTestServices");
     log.logSpacer();
     log.logSpacerDashed();
@@ -153,10 +146,10 @@ public abstract class BaseITServer implements BaseTest {
     log.logOperationFinishedSync(getTestName());
     log.logSpacerDashed();
     log.logSpacer();
-    if (serverBootstrap != null) {
+    if (serverTestBootstrap != null) {
       log.logOperationStartedSync("PostTestServices");
       CmServerClusterInstance.logCluster(log, "PostTestServices",
-          CmServerClusterInstance.getConfiguration(specification), serverBootstrap.getServices(cluster), instances);
+          CmServerClusterInstance.getConfiguration(specification), serverTestBootstrap.getServices(cluster), instances);
       log.logOperationFinishedSync("PostTestServices");
     }
     if (!isClusterBootstrappedStatically()) {
