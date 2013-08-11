@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cloudera.whirr.cm.CmServerClusterInstance;
+import com.cloudera.whirr.cm.cmd.CmServerCleanClusterCommand;
 import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
@@ -69,9 +70,12 @@ public class CmServerCommandIT extends CmServerClusterIT {
 
   @Test
   public void testCleanCluster() throws Exception {
-    // TODO
-    // Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification,
-    // Collections.<Instance> emptySet(), cluster, serverTestBuilder));
+    Assert.assertEquals(0, new CmServerInitClusterCommand(null, null).run(specification,
+        Collections.<Instance> emptySet(), cluster, serverTestBuilder));
+    Assert.assertEquals(0, new CmServerCleanClusterCommand(null, null).run(specification,
+        Collections.<Instance> emptySet(), cluster, serverTestBuilder));
+    Assert.assertEquals(0, new CmServerInitClusterCommand(null, null).run(specification,
+        Collections.<Instance> emptySet(), cluster, serverTestBuilder));
   }
 
   @Test
