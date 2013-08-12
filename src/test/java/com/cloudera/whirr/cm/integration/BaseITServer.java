@@ -184,16 +184,18 @@ public abstract class BaseITServer implements BaseTest {
   }
 
   private static Configuration clusterConfig() throws ConfigurationException {
-    CompositeConfiguration config = new CompositeConfiguration();
+    CompositeConfiguration configuration = new CompositeConfiguration();
     if (System.getProperty("config") != null) {
-      config.addConfiguration(new PropertiesConfiguration(System.getProperty("config")));
+      configuration.addConfiguration(new PropertiesConfiguration(System.getProperty("config")));
     }
-    config.addConfiguration(new PropertiesConfiguration(TEST_CM_PREFIX_PROPERTIES
+    configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_PREFIX_PROPERTIES
         + (System.getProperty(TEST_PLATFORM) == null || System.getProperty(TEST_PLATFORM).equals("") ? PLATFORM_DEFAULT
             : System.getProperty(TEST_PLATFORM)) + ".properties"));
-    config.addConfiguration(new PropertiesConfiguration(TEST_CM_TEST_PROPERTIES));
-    config.addConfiguration(new PropertiesConfiguration(TEST_CM_EXAMPLE_PROPERTIES));
-    return config;
+    configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_TEST_PROPERTIES));
+    configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_EXAMPLE_PROPERTIES));
+    configuration.addConfiguration(new PropertiesConfiguration(CmServerClusterInstance.class.getClassLoader()
+        .getResource(CONFIG_WHIRR_DEFAULT_FILE)));
+    return configuration;
   }
 
   private static void clusterBootstrap(Map<String, String> configuration) throws Exception {

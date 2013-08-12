@@ -93,10 +93,10 @@ public class CmServerClusterInstance implements CmConstants {
         configuration.addConfiguration(clusterSpec.getConfiguration());
       }
       configuration.addConfiguration(new PropertiesConfiguration(CmServerClusterInstance.class.getClassLoader()
-          .getResource(PROPERTIES_FILE)));
+          .getResource(CONFIG_WHIRR_DEFAULT_FILE)));
       return configuration;
     } catch (ConfigurationException e) {
-      throw new IOException("Error loading " + PROPERTIES_FILE, e);
+      throw new IOException("Error loading " + CONFIG_WHIRR_DEFAULT_FILE, e);
     }
   }
 
