@@ -79,7 +79,7 @@ pid_file=/var/run/mysqld/mysqld.pid
     elif which rpm &> /dev/null; then
       service mysqld start
     fi
-    sleep 10
+    sleep 20
     cat >> mysql_setup <<END
 #!/usr/bin/expect -f
 set timeout 5000
