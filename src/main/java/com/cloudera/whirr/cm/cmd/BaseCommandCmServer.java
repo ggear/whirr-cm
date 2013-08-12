@@ -22,7 +22,6 @@ import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -91,7 +90,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
 
     Set<Instance> instances = clusterController.getInstances(specification, createClusterStateStore(specification));
     CmServerCluster cluster = CmServerClusterInstance.getCluster(specification, specification.getConfiguration(),
-        instances, new TreeSet<String>(), roles);
+        instances, CmServerClusterInstance.getMounts(specification, instances), roles);
 
     if (optionSet.hasArgument(OPTION_CLUSTER_NAME)) {
       cluster.setName((String) optionSet.valueOf(OPTION_CLUSTER_NAME));
@@ -112,7 +111,7 @@ public abstract class BaseCommandCmServer extends BaseCommand {
         .path(specification.getClusterDirectory().getAbsolutePath());
 
     int returnInt = run(specification, instances, cluster, command);
-    
+
     CmServerClusterInstance.logLineItemFooter(logger, getLabel());
     CmServerClusterInstance.logLineItemFooterFinal(logger);
 
