@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.cloudera.whirr.cm.cmd.BaseCommandCmServer;
+import com.cloudera.whirr.cm.cmd.CmServerCleanClusterCommand;
 import com.cloudera.whirr.cm.cmd.CmServerCreateServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDestroyServicesCommand;
 import com.cloudera.whirr.cm.cmd.CmServerDownloadConfigCommand;
@@ -106,6 +107,14 @@ public class CmServerCommandIT extends CmServerClusterIT {
     // Assert.assertFalse(serverTestBootstrap.isStarted(cluster));
     // Assert.assertTrue(serverTestBootstrap.isStopped(cluster));
     // Assert.assertEquals(0, serverTestBootstrap.getServices(cluster).getServiceTypes().size());
+  }
+
+  @Test
+  public void testUnprovision() throws Exception {
+    Assert.assertEquals(0, new CmServerCreateServicesCommand().run(specification, controller, OPTIONS_EMPTY));
+    Assert.assertEquals(0, new CmServerCleanClusterCommand().run(specification, controller, OPTIONS_EMPTY));
+    Assert.assertEquals(0, new CmServerCreateServicesCommand().run(specification, controller, OPTIONS_EMPTY));
+    Assert.assertEquals(0, new CmServerCleanClusterCommand().run(specification, controller, OPTIONS_EMPTY));
   }
 
   @Test
