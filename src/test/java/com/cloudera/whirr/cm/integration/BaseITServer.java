@@ -51,9 +51,7 @@ import com.google.common.collect.ImmutableMap;
 
 public abstract class BaseITServer implements BaseTest {
 
-  private static final String PLATFORM_DEFAULT = "example";
-
-  protected static CmServerLog log = new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false);
+  protected static CmServerLog log = new CmServerLog.CmServerLogSysOut(TEST_LOG_TAG_CM_SERVER_API_TEST, false);
 
   protected String cm;
   protected String api;
@@ -79,6 +77,9 @@ public abstract class BaseITServer implements BaseTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
+    if (new File(TEST_CM_EXAMPLE_TEST_PROPERTIES).exists()) {
+      
+    }
     clusterSetupAndTeardown = !isClusterBootstrapped();
   }
 
@@ -188,9 +189,11 @@ public abstract class BaseITServer implements BaseTest {
     if (System.getProperty("config") != null) {
       configuration.addConfiguration(new PropertiesConfiguration(System.getProperty("config")));
     }
-    configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_PREFIX_PROPERTIES
-        + (System.getProperty(TEST_PLATFORM) == null || System.getProperty(TEST_PLATFORM).equals("") ? PLATFORM_DEFAULT
-            : System.getProperty(TEST_PLATFORM)) + ".properties"));
+    configuration
+        .addConfiguration(new PropertiesConfiguration(
+            TEST_CM_PREFIX_PROPERTIES
+                + (System.getProperty(TEST_PLATFORM) == null || System.getProperty(TEST_PLATFORM).equals("") ? BaseTest.TEST_PLATFORM_DEFAULT
+                    : System.getProperty(TEST_PLATFORM)) + ".properties"));
     configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_TEST_PROPERTIES));
     configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_EXAMPLE_PROPERTIES));
     configuration.addConfiguration(new PropertiesConfiguration(CmServerClusterInstance.class.getClassLoader()

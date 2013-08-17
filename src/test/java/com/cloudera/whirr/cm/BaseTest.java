@@ -32,13 +32,17 @@ public interface BaseTest extends CmConstants {
 
   public static final String TEST_CM_PREFIX_PROPERTIES = "test-whirrcm-";
   public static final String TEST_CM_EXAMPLE_PROPERTIES = "cm-ec2.properties";
-  public static final String TEST_CM_TEST_PROPERTIES = "test-whirrcm.properties";  
+  public static final String TEST_CM_EXAMPLE_TEST_PROPERTIES = "cm-ec2.properties";
+  public static final String TEST_CM_TEST_PROPERTIES = "test-whirrcm.properties";
 
-  public static final File DIR_CLIENT_CONFIG = new File(new File(".").getAbsolutePath() + "/target/test-client");
-  public static final File FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath() + "/src/test/resources/test-key");
-  public static final File FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath()
+  public static final String TEST_PLATFORM_DEFAULT = "example";
+
+  public static final File TEST_DIR_CLIENT_CONFIG = new File(new File(".").getAbsolutePath() + "/target/test-client");
+  public static final File TEST_FILE_KEY_PRIVATE = new File(new File(".").getAbsolutePath()
+      + "/src/test/resources/test-key");
+  public static final File TEST_FILE_KEY_PUBLIC = new File(new File(".").getAbsolutePath()
       + "/src/test/resources/test-key.pub");
 
-  public static final String LOG_TAG_CM_SERVER_API_TEST = "TestBootstrap";
+  public static final String TEST_LOG_TAG_CM_SERVER_API_TEST = "TestBootstrap";
 
 }
