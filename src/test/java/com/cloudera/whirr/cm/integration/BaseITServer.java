@@ -18,8 +18,8 @@
 package com.cloudera.whirr.cm.integration;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.WordUtils;
 import org.apache.whirr.Cluster.Instance;
@@ -44,7 +45,6 @@ import com.cloudera.whirr.cm.BaseTest;
 import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.CmServerClusterInstance;
 import com.cloudera.whirr.cm.server.CmServer;
-import com.cloudera.whirr.cm.server.CmServerBuilder;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
@@ -53,9 +53,7 @@ import com.google.common.collect.ImmutableMap;
 
 public abstract class BaseITServer implements BaseTest {
 
-  private static final String PLATFORM_DEFAULT = "example";
-
-  protected static CmServerLog log = new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API_TEST, false);
+  protected static CmServerLog log = new CmServerLog.CmServerLogSysOut(TEST_LOG_TAG_CM_SERVER_API_TEST, false);
 
   protected String cm;
   protected String api;
@@ -67,15 +65,28 @@ public abstract class BaseITServer implements BaseTest {
   protected ClusterController controller;
   protected Set<Instance> instances;
 
-  protected CmServer serverBootstrap;
   protected CmServer serverTest;
-  protected CmServerBuilder serverTestBuilder;
+  protected CmServer serverTestBootstrap;
   protected CmServerCluster cluster;
 
   private static boolean clusterSetupAndTeardown = false;
 
-  private static final File clusterStateStoreFile = new File(new File(System.getProperty("user.home")),
-      ".whirr/whirrcmtest/instances");
+  private static final File clusterStateStoreFile = new File(new File(System.getProperty("user.home")), ".whirr/"
+      + clusterConfig().getString("whirr.cluster-name") + "/instances");
+
+  static {
+    try {
+      FileConfiguration configuration = new PropertiesConfiguration(TEST_CM_TEST_GLOBAL_PROPERTIES);
+      String key = null;
+      @SuppressWarnings("unchecked")
+      Iterator<String> keys = configuration.getKeys();
+      while (keys.hasNext()) {
+        setSystemProperty(key = keys.next(), configuration.getString(key), false);
+      }
+    } catch (ConfigurationException e) {
+      throw new RuntimeException("Could not load test properties [" + TEST_CM_TEST_GLOBAL_PROPERTIES + "]", e);
+    }
+  }
 
   @Rule
   public TestName test = new TestName();
@@ -107,7 +118,7 @@ public abstract class BaseITServer implements BaseTest {
         new HashSet<String>()));
     Assert.assertNotNull(instances = controller.getInstances(specification,
         controller.getClusterStateStore(specification)));
-    Assert.assertNotNull(serverBootstrap = new CmServerFactory().getCmServer(CmServerClusterInstance
+    Assert.assertNotNull(serverTestBootstrap = new CmServerFactory().getCmServer(CmServerClusterInstance
         .getVersion(configuration), CmServerClusterInstance.getVersionApi(configuration), CmServerClusterInstance
         .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), CM_PORT,
         CmConstants.CM_USER, CmConstants.CM_PASSWORD, log));
@@ -115,28 +126,23 @@ public abstract class BaseITServer implements BaseTest {
         .getVersion(configuration), CmServerClusterInstance.getVersionApi(configuration), CmServerClusterInstance
         .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), CM_PORT,
         CmConstants.CM_USER, CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
-    Assert.assertNotNull(serverTestBuilder = new CmServerBuilder()
-        .version(CmServerClusterInstance.getVersion(configuration))
-        .versionApi(CmServerClusterInstance.getVersionApi(configuration))
-        .versionCdh(CmServerClusterInstance.getVersionCdh(configuration)).ip(cluster.getServer().getIp())
-        .ipInternal(cluster.getServer().getIpInternal()).cluster(cluster).path(DIR_CLIENT_CONFIG.getAbsolutePath()));
-    Assert.assertTrue(serverBootstrap.initialise(cluster));
+    Assert.assertTrue(serverTestBootstrap.initialise(cluster));
     if (isClusterBootstrappedStatically()) {
       try {
-        serverBootstrap.unconfigure(cluster);
+        serverTestBootstrap.unconfigure(cluster);
       } catch (Exception e) {
         e.printStackTrace();
       }
       try {
-        serverBootstrap.provision(cluster);
+        serverTestBootstrap.provision(cluster);
       } catch (Exception e) {
         e.printStackTrace();
       }
-      Assert.assertTrue(serverBootstrap.isProvisioned(cluster));
+      Assert.assertTrue(serverTestBootstrap.isProvisioned(cluster));
     }
     log.logOperationStartedSync("PreTestServices");
     CmServerClusterInstance.logCluster(log, "PreTestServices", CmServerClusterInstance.getConfiguration(specification),
-        serverBootstrap.getServices(cluster), instances);
+        serverTestBootstrap.getServices(cluster), instances);
     log.logOperationFinishedSync("PreTestServices");
     log.logSpacer();
     log.logSpacerDashed();
@@ -153,10 +159,10 @@ public abstract class BaseITServer implements BaseTest {
     log.logOperationFinishedSync(getTestName());
     log.logSpacerDashed();
     log.logSpacer();
-    if (serverBootstrap != null) {
+    if (serverTestBootstrap != null) {
       log.logOperationStartedSync("PostTestServices");
       CmServerClusterInstance.logCluster(log, "PostTestServices",
-          CmServerClusterInstance.getConfiguration(specification), serverBootstrap.getServices(cluster), instances);
+          CmServerClusterInstance.getConfiguration(specification), serverTestBootstrap.getServices(cluster), instances);
       log.logOperationFinishedSync("PostTestServices");
     }
     if (!isClusterBootstrappedStatically()) {
@@ -191,17 +197,26 @@ public abstract class BaseITServer implements BaseTest {
     return clusterStateStoreFile.exists();
   }
 
-  private static Configuration clusterConfig() throws ConfigurationException {
-    CompositeConfiguration config = new CompositeConfiguration();
-    if (System.getProperty("config") != null) {
-      config.addConfiguration(new PropertiesConfiguration(System.getProperty("config")));
+  private static Configuration clusterConfig() {
+    CompositeConfiguration configuration = new CompositeConfiguration();
+    try {
+      if (System.getProperty("config") != null) {
+        configuration.addConfiguration(new PropertiesConfiguration(System.getProperty("config")));
+      }
+      configuration
+          .addConfiguration(new PropertiesConfiguration(
+              TEST_CM_TEST_PREFIX_PROPERTIES
+                  + (System.getProperty(TEST_PLATFORM) == null || System.getProperty(TEST_PLATFORM).equals("") ? BaseTest.TEST_PLATFORM_DEFAULT
+                      : System.getProperty(TEST_PLATFORM)) + ".properties"));
+      configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_TEST_PROPERTIES));
+      configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_TEST_GLOBAL_PROPERTIES));
+      configuration.addConfiguration(new PropertiesConfiguration(TEST_CM_EXAMPLE_PROPERTIES));
+      configuration.addConfiguration(new PropertiesConfiguration(CmServerClusterInstance.class.getClassLoader()
+          .getResource(CONFIG_WHIRR_DEFAULT_FILE)));
+    } catch (ConfigurationException e) {
+      throw new RuntimeException("Could not load integration test properties", e);
     }
-    config.addConfiguration(new PropertiesConfiguration(TEST_CM_PREFIX_PROPERTIES
-        + (System.getProperty(TEST_PLATFORM) == null || System.getProperty(TEST_PLATFORM).equals("") ? PLATFORM_DEFAULT
-            : System.getProperty(TEST_PLATFORM)) + ".properties"));
-    config.addConfiguration(new PropertiesConfiguration(TEST_CM_TEST_PROPERTIES));
-    config.addConfiguration(new PropertiesConfiguration(TEST_CM_EXAMPLE_PROPERTIES));
-    return config;
+    return configuration;
   }
 
   private static void clusterBootstrap(Map<String, String> configuration) throws Exception {
@@ -220,11 +235,14 @@ public abstract class BaseITServer implements BaseTest {
   }
 
   private static void clusterDestroy() throws Exception {
-    if (isClusterBootstrapped()) {
+    final Configuration configuration = clusterConfig();
+    if (isClusterBootstrapped()
+        && (System.getProperty(TEST_PLATFORM_DESTROY) == null || System.getProperty(TEST_PLATFORM_DESTROY).equals(
+            "true"))) {
       log.logOperation("ClusterDestroy", new CmServerLogSyncCommand() {
         @Override
         public void execute() throws Exception {
-          new ClusterController().destroyCluster(ClusterSpec.withNoDefaults(clusterConfig()));
+          new ClusterController().destroyCluster(ClusterSpec.withNoDefaults(configuration));
         }
       });
     }
@@ -235,7 +253,7 @@ public abstract class BaseITServer implements BaseTest {
     public static void main(String[] args) {
       int returnValue = 0;
       try {
-        BaseITServer.clusterBootstrap(new HashMap<String, String>());
+        BaseITServer.clusterBootstrap(ImmutableMap.of(CONFIG_WHIRR_AUTO, Boolean.FALSE.toString()));
       } catch (Exception e) {
         e.printStackTrace();
         returnValue = 1;
@@ -261,14 +279,21 @@ public abstract class BaseITServer implements BaseTest {
   }
 
   protected static void setSystemProperty(String name, String value) {
+    setSystemProperty(name, value, true);
+
+  }
+
+  protected static void setSystemProperty(String name, String value, boolean overide) {
     if (name == null) {
       throw new IllegalArgumentException("Null name passed");
     }
-    if (value == null || value.equals("")) {
-      value = System.getProperty(name);
+    if (overide || System.getProperty(name) == null) {
+      if (value == null || value.equals("")) {
+        value = System.getProperty(name);
+      }
+      value = value == null ? "" : value;
+      System.setProperty(name, value);
     }
-    value = value == null ? "" : value;
-    System.setProperty(name, value);
   }
 
 }
