@@ -271,3 +271,8 @@ and then destroyed via:
 ```bash
 mvn exec:java -Dexec.mainClass="com.cloudera.whirr.cm.integration.BaseITServer\$ClusterDestroy" -Dexec.classpathScope="test" -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY -Dlog4j.configuration=file:./target/test-classes/log4j.properties
 ```
+
+As a convenience (especially for running within an IDE) the integration tests source the [cm-test.properties](cm-test.properties) as 
+system and whirr properties prior to execution, absolving the need to specify these properties in less convenient forms (eg command line switches, maven properties, IDE properties etc).
+
+

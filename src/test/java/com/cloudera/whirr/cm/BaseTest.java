@@ -30,10 +30,10 @@ public interface BaseTest extends CmConstants {
   public static final String TEST_CM_API_VERSION = "whirr.test.cm.api.version";
   public static final String TEST_CM_CDH_VERSION = "whirr.test.cm.cdh.version";
 
-  public static final String TEST_CM_PREFIX_PROPERTIES = "test-whirrcm-";
-  public static final String TEST_CM_EXAMPLE_PROPERTIES = "cm-ec2.properties";
-  public static final String TEST_CM_EXAMPLE_TEST_PROPERTIES = "cm-ec2.properties";
   public static final String TEST_CM_TEST_PROPERTIES = "test-whirrcm.properties";
+  public static final String TEST_CM_TEST_GLOBAL_PROPERTIES = "cm-test.properties";
+  public static final String TEST_CM_TEST_PREFIX_PROPERTIES = "test-whirrcm-";
+  public static final String TEST_CM_EXAMPLE_PROPERTIES = "cm-ec2.properties";
 
   public static final String TEST_PLATFORM_DEFAULT = "example";
 
