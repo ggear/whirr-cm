@@ -26,6 +26,7 @@ public interface BaseTest extends CmConstants {
   public static final String CLUSTER_USER = "whirr";
 
   public static final String TEST_PLATFORM = "whirr.test.platform";
+  public static final String TEST_PLATFORM_DESTROY = "whirr.test.platform.destroy";
   public static final String TEST_CM_VERSION = "whirr.test.cm.version";
   public static final String TEST_CM_API_VERSION = "whirr.test.cm.api.version";
   public static final String TEST_CM_CDH_VERSION = "whirr.test.cm.cdh.version";

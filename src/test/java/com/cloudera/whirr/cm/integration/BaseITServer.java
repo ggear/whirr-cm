@@ -235,11 +235,14 @@ public abstract class BaseITServer implements BaseTest {
   }
 
   private static void clusterDestroy() throws Exception {
-    if (isClusterBootstrapped()) {
+    final Configuration configuration = clusterConfig();
+    if (isClusterBootstrapped()
+        && (System.getProperty(TEST_PLATFORM_DESTROY) == null || System.getProperty(TEST_PLATFORM_DESTROY).equals(
+            "true"))) {
       log.logOperation("ClusterDestroy", new CmServerLogSyncCommand() {
         @Override
         public void execute() throws Exception {
-          new ClusterController().destroyCluster(ClusterSpec.withNoDefaults(clusterConfig()));
+          new ClusterController().destroyCluster(ClusterSpec.withNoDefaults(configuration));
         }
       });
     }
