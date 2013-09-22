@@ -37,6 +37,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.cxf.jaxrs.client.ServerWebApplicationException;
+import org.apache.cxf.jaxrs.ext.multipart.InputStreamDataSource;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
@@ -230,44 +231,44 @@ public class CmServerImpl implements CmServer {
           public void execute() throws IOException {
             for (ApiService apiService : apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
                 .readServices(DataView.SUMMARY)) {
-              switch (CmServerServiceType.valueOfId(apiService.getType())) {
-              case HDFS:
-              case MAPREDUCE:
-              case HIVE:
-              case HBASE:
-                ZipInputStream configInput = null;
+              CmServerServiceType type = CmServerServiceType.valueOfId(apiService.getType());
+              if (type.equals(CmServerServiceType.HDFS) || type.equals(CmServerServiceType.MAPREDUCE)
+                  || type.equals(CmServerServiceType.HBASE) || (versionApi >= 4)
+                  && (type.equals(CmServerServiceType.HIVE)) || (versionApi >= 5)
+                  && (type.equals(CmServerServiceType.SOLR))) {
+                ZipInputStream configInputZip = null;
                 try {
-                  configInput = new ZipInputStream(apiResourceRootV3.getClustersResource()
-                      .getServicesResource(getName(cluster)).getClientConfig(apiService.getName()).getInputStream());
-                  ZipEntry configInputZipEntry = null;
-                  while ((configInputZipEntry = configInput.getNextEntry()) != null) {
-                    String configFile = configInputZipEntry.getName();
-                    if (configFile.contains(File.separator)) {
-                      configFile = configFile.substring(configFile.lastIndexOf(File.separator), configFile.length());
-                    }
-                    directory.mkdirs();
-                    BufferedWriter configOutput = null;
-                    try {
-                      int read;
-                      configOutput = new BufferedWriter(new FileWriter(new File(directory, configFile)));
-                      while (configInput.available() > 0) {
-                        if ((read = configInput.read()) != -1) {
-                          configOutput.write(read);
-                        }
+                  InputStreamDataSource configInput = apiResourceRootV3.getClustersResource()
+                      .getServicesResource(getName(cluster)).getClientConfig(apiService.getName());
+                  if (configInput != null) {
+                    configInputZip = new ZipInputStream(configInput.getInputStream());
+                    ZipEntry configInputZipEntry = null;
+                    while ((configInputZipEntry = configInputZip.getNextEntry()) != null) {
+                      String configFile = configInputZipEntry.getName();
+                      if (configFile.contains(File.separator)) {
+                        configFile = configFile.substring(configFile.lastIndexOf(File.separator), configFile.length());
                       }
-                    } finally {
-                      configOutput.close();
+                      directory.mkdirs();
+                      BufferedWriter configOutput = null;
+                      try {
+                        int read;
+                        configOutput = new BufferedWriter(new FileWriter(new File(directory, configFile)));
+                        while (configInputZip.available() > 0) {
+                          if ((read = configInputZip.read()) != -1) {
+                            configOutput.write(read);
+                          }
+                        }
+                      } finally {
+                        configOutput.close();
+                      }
                     }
                   }
                 } finally {
-                  if (configInput != null) {
-                    configInput.close();
+                  if (configInputZip != null) {
+                    configInputZip.close();
                   }
                 }
                 executed.set(true);
-                break;
-              default:
-                break;
               }
             }
           }
