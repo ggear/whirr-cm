@@ -65,6 +65,7 @@ import com.cloudera.api.model.ApiServiceState;
 import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.api.v4.RootResourceV4;
+import com.cloudera.api.v5.RootResourceV5;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerBuilder.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerCluster;
@@ -82,7 +83,10 @@ import com.google.common.collect.Lists;
 
 public class CmServerImpl implements CmServer {
 
-  public static Map<String, Integer> CM_VERSION_API_MATRIX = ImmutableMap.of("4.5.0", 3, "4.6.0", 4);
+  // CM Version Matrix, of form {CM_VERSION=CM_API_VERSION}
+  // Entry for the latest CM minor version for each API upgrade, from baseline 4.5.0
+  public static Map<String, Integer> CM_VERSION_API_MATRIX = ImmutableMap.of("4.5.0", 3, "4.5.3", 3, "4.6.3", 4,
+      "4.7.0", 5);
   public static String CM_VERSION_EARLIEST = CM_VERSION_API_MATRIX.keySet().toArray(
       new String[CM_VERSION_API_MATRIX.size()])[0];
   public static String CM_VERSION_LATEST = CM_VERSION_API_MATRIX.keySet().toArray(
@@ -111,6 +115,8 @@ public class CmServerImpl implements CmServer {
 
   final private RootResourceV3 apiResourceRootV3;
   final private RootResourceV4 apiResourceRootV4;
+  @SuppressWarnings("unused")
+  final private RootResourceV5 apiResourceRootV5;
 
   private boolean isFirstStartRequired = true;
 
@@ -124,11 +130,8 @@ public class CmServerImpl implements CmServer {
     ApiRootResource apiResource = new ClouderaManagerClientBuilder().withHost(ip).withPort(port)
         .withUsernamePassword(user, password).build();
     this.apiResourceRootV3 = apiResource.getRootV3();
-    if (this.versionApi >= 4) {
-      this.apiResourceRootV4 = apiResource.getRootV4();
-    } else {
-      this.apiResourceRootV4 = null;
-    }
+    this.apiResourceRootV4 = this.versionApi >= 4 ? apiResource.getRootV4() : null;
+    this.apiResourceRootV5 = this.versionApi >= 5 ? apiResource.getRootV5() : null;
   }
 
   protected String getVersion(String version) throws CmServerException {
@@ -1116,8 +1119,9 @@ public class CmServerImpl implements CmServer {
           .hiveCreateMetastoreDatabaseTablesCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
       break;
     case OOZIE:
-      execute(apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
-          .installOozieShareLib(cluster.getServiceName(CmServerServiceType.OOZIE)), false);
+      execute(
+          apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
+              .installOozieShareLib(cluster.getServiceName(CmServerServiceType.OOZIE)), false);
       execute(
           apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
               .createOozieDb(cluster.getServiceName(CmServerServiceType.OOZIE)), false);

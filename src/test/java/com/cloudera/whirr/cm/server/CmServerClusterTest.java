@@ -124,7 +124,7 @@ public class CmServerClusterTest extends BaseTestServer {
         new CmServerFactory().getCmServer(null, "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(CmServerImpl.CM_VERSION_API_LATEST,
         new CmServerFactory().getCmServer("", "", "", 7180, "", "", null).getVersionApi());
-    Assert.assertEquals(4, new CmServerFactory().getCmServer("4", "", "", 7180, "", "", null).getVersionApi());
+    Assert.assertEquals(5, new CmServerFactory().getCmServer("4", "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(3, new CmServerFactory().getCmServer("4.5", "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(4, new CmServerFactory().getCmServer("4.6.0", "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(4, new CmServerFactory().getCmServer("4.6.2", "", "", 7180, "", "", null).getVersionApi());
