@@ -230,14 +230,14 @@ public class CmServerHandlerTest extends BaseTestHandler {
         CmServerClusterInstance.getClusterConfiguration(configuration, ImmutableSortedSet.of("/mnt/1", "/mnt/2"))
             .get(CmServerServiceType.MAPREDUCE_TASK_TRACKER.getId()).get(CONFIG_CM_TASKTRACKER_INSTRUMENTATION));
 
-    configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap
-        .of("whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
-            CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase() + "."
-                + CONFIG_CM_DB_SUFFIX_NAME, "cman", CONFIG_WHIRR_CM_CONFIG_PREFIX
-                + CmServerServiceTypeCms.CM.getId().toLowerCase() + "." + CONFIG_CM_DB_SUFFIX_TYPE, "postgres",
-            CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HIVE.getId().toLowerCase() + ".hive_metastore_"
-                + CONFIG_CM_DB_SUFFIX_PORT, "9999", CONFIG_WHIRR_CM_LICENSE_URI,
-            "classpath:///whirr-cm-default.properties")));
+    configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(
+        "whirr.instance-templates", "1 " + CmServerHandler.ROLE + ",2 " + CmNodeHandler.ROLE,
+        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase() + "."
+            + CONFIG_CM_DB_SUFFIX_NAME, "cman", CONFIG_WHIRR_CM_CONFIG_PREFIX
+            + CmServerServiceTypeCms.CM.getId().toLowerCase() + "." + CONFIG_CM_DB_SUFFIX_TYPE, "postgres",
+        CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceType.HIVE.getId().toLowerCase() + ".hive_metastore_"
+            + CONFIG_CM_DB_SUFFIX_PORT, "9999", CONFIG_WHIRR_CM_LICENSE_URI, "classpath:///"
+            + CONFIG_WHIRR_DEFAULT_FILE)));
     Assert.assertEquals(
         "/data1"
             + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
@@ -257,7 +257,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
         "org.apache.hadoop.mapred.TaskTrackerCmonInst",
         CmServerClusterInstance.getClusterConfiguration(configuration, ImmutableSortedSet.of("/mnt/1", "/mnt/2"))
             .get(CmServerServiceType.MAPREDUCE_TASK_TRACKER.getId()).get(CONFIG_CM_TASKTRACKER_INSTRUMENTATION));
-    Assert.assertEquals("classpath:///whirr-cm-default.properties",
+    Assert.assertEquals("classpath:///" + CONFIG_WHIRR_DEFAULT_FILE,
         configuration.getString(CONFIG_WHIRR_CM_LICENSE_URI));
 
     configuration = CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(ImmutableMap.of(

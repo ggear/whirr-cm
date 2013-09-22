@@ -70,5 +70,5 @@ public class CmNodeHandlerTest extends BaseTestHandler {
         + CmNodeHandler.ROLE)));
     assertScriptPredicateOnPhase(dryRun, "bootstrap", bootstrapPredicate());
   }
-  
+
 }

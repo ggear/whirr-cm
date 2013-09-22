@@ -28,8 +28,8 @@ public class UtilsTest implements BaseTest {
   public void testUrlForURI() throws Exception {
     Assert.assertNull(Utils.urlForURI("classpath:///file-that-does-not-exist-we-hope"));
     Assert.assertNull(Utils.urlForURI("http://www.exmaple.com/non-existant-url"));
-    Assert.assertEquals(Utils.urlForURI("classpath:///whirr-cm-default.properties"), UtilsTest.class.getClassLoader()
-        .getResource("whirr-cm-default.properties"));
+    Assert.assertEquals(Utils.urlForURI("classpath:///" + CONFIG_WHIRR_DEFAULT_FILE), UtilsTest.class.getClassLoader()
+        .getResource(CONFIG_WHIRR_DEFAULT_FILE));
     File pom = new File("pom.xml");
     Assert.assertEquals(Utils.urlForURI("file://" + pom.getAbsolutePath()), pom.toURI().toURL());
   }
