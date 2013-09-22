@@ -116,7 +116,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
         CmServerClusterInstance.getConfiguration(newClusterSpecForProperties(Collections.<String, String> emptyMap()))
             .getString(CONFIG_WHIRR_INTERNAL_AGENT_LOG_FILE));
     Assert.assertEquals(
-        "100000",
+        "500000",
         configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + CmServerServiceTypeCms.CM.getId().toLowerCase()
             + ".parcel_distribute_rate_limit_kbs_per_second"));
 
