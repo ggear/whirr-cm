@@ -70,7 +70,7 @@ public enum CmServerServiceTypeCms {
 
   public String getName() {
     return MANAGEMENT.getId().toLowerCase()
-        + (getParent() != null ? (CmServerService.NAME_TOKEN_DELIM + getId().toLowerCase()) : "");
+        + (getParent() != null ? CmServerService.NAME_TOKEN_DELIM + getId().toLowerCase() : "");
   }
 
 }

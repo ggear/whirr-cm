@@ -233,9 +233,8 @@ public class CmServerImpl implements CmServer {
                 .readServices(DataView.SUMMARY)) {
               CmServerServiceType type = CmServerServiceType.valueOfId(apiService.getType());
               if (type.equals(CmServerServiceType.HDFS) || type.equals(CmServerServiceType.MAPREDUCE)
-                  || type.equals(CmServerServiceType.HBASE) || (versionApi >= 4)
-                  && (type.equals(CmServerServiceType.HIVE)) || (versionApi >= 5)
-                  && (type.equals(CmServerServiceType.SOLR))) {
+                  || type.equals(CmServerServiceType.HBASE) || versionApi >= 4 && type.equals(CmServerServiceType.HIVE)
+                  || versionApi >= 5 && type.equals(CmServerServiceType.SOLR)) {
                 ZipInputStream configInputZip = null;
                 try {
                   InputStreamDataSource configInput = apiResourceRootV3.getClustersResource()
@@ -320,13 +319,13 @@ public class CmServerImpl implements CmServer {
     CmServerService serviceFound = null;
     try {
       for (CmServerService serviceTmp : services) {
-        if ((service.getHost() != null && service.getHost().equals(serviceTmp.getHost()))
-            || (service.getHost() != null && service.getHost().equals(serviceTmp.getIp()))
-            || (service.getHost() != null && service.getHost().equals(serviceTmp.getIpInternal()))
-            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIp()))
-            || (service.getIp() != null && service.getIp().equals(serviceTmp.getIpInternal()))
-            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIp()))
-            || (service.getIpInternal() != null && service.getIpInternal().equals(serviceTmp.getIpInternal()))) {
+        if (service.getHost() != null && service.getHost().equals(serviceTmp.getHost()) || service.getHost() != null
+            && service.getHost().equals(serviceTmp.getIp()) || service.getHost() != null
+            && service.getHost().equals(serviceTmp.getIpInternal()) || service.getIp() != null
+            && service.getIp().equals(serviceTmp.getIp()) || service.getIp() != null
+            && service.getIp().equals(serviceTmp.getIpInternal()) || service.getIpInternal() != null
+            && service.getIpInternal().equals(serviceTmp.getIp()) || service.getIpInternal() != null
+            && service.getIpInternal().equals(serviceTmp.getIpInternal())) {
           serviceFound = serviceTmp;
           break;
         }
@@ -546,7 +545,8 @@ public class CmServerImpl implements CmServer {
 
       logger.logOperationStartedSync("ClusterInitialise");
 
-      Map<String, String> configuration = cluster.getServiceConfiguration().get(CmServerServiceTypeCms.CM.getId());
+      Map<String, String> configuration = cluster.getServiceConfiguration(versionApi).get(
+          CmServerServiceTypeCms.CM.getId());
       configuration.remove("cm_database_name");
       configuration.remove("cm_database_type");
       executed = CmServerServiceTypeCms.CM.getId() != null
@@ -838,9 +838,9 @@ public class CmServerImpl implements CmServer {
                 if (!type.getEnterprise() || enterpriseDeployed) {
                   ApiRoleConfigGroup cmsRoleConfigGroupApiNew = new ApiRoleConfigGroup();
                   ApiServiceConfig cmsServiceConfigApi = new ApiServiceConfig();
-                  if (cluster.getServiceConfiguration().get(type.getId()) != null) {
-                    for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
-                      cmsServiceConfigApi.add(new ApiConfig(setting, cluster.getServiceConfiguration()
+                  if (cluster.getServiceConfiguration(versionApi).get(type.getId()) != null) {
+                    for (String setting : cluster.getServiceConfiguration(versionApi).get(type.getId()).keySet()) {
+                      cmsServiceConfigApi.add(new ApiConfig(setting, cluster.getServiceConfiguration(versionApi)
                           .get(type.getId()).get(setting)));
                     }
                   }
@@ -968,9 +968,9 @@ public class CmServerImpl implements CmServer {
           apiService.setName(cluster.getServiceName(type));
 
           ApiServiceConfig apiServiceConfig = new ApiServiceConfig();
-          if (cluster.getServiceConfiguration().get(type.getId()) != null) {
-            for (String setting : cluster.getServiceConfiguration().get(type.getId()).keySet()) {
-              apiServiceConfig.add(new ApiConfig(setting, cluster.getServiceConfiguration().get(type.getId())
+          if (cluster.getServiceConfiguration(versionApi).get(type.getId()) != null) {
+            for (String setting : cluster.getServiceConfiguration(versionApi).get(type.getId()).keySet()) {
+              apiServiceConfig.add(new ApiConfig(setting, cluster.getServiceConfiguration(versionApi).get(type.getId())
                   .get(setting)));
             }
           }
@@ -1065,7 +1065,7 @@ public class CmServerImpl implements CmServer {
               }
             }
             if (roleConfigGroupType != null) {
-              Map<String, String> config = cluster.getServiceConfiguration().get(roleConfigGroupType.getId());
+              Map<String, String> config = cluster.getServiceConfiguration(versionApi).get(roleConfigGroupType.getId());
               if (config != null) {
                 for (String setting : config.keySet()) {
                   apiConfigList.add(new ApiConfig(setting, config.get(setting)));
