@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
+
 public class CmServerCluster {
 
   private String name;
@@ -252,12 +254,14 @@ public class CmServerCluster {
     for (String configVersion : this.configuration.keySet()) {
       for (String configGroup : this.configuration.get(configVersion).keySet()) {
         for (String configSetting : this.configuration.get(configVersion).get(configGroup).keySet()) {
-          if (version < 0 || Integer.parseInt(configVersion) <= version) {
-            if (configuration.get(configGroup) == null) {
-              configuration.put(configGroup, new HashMap<String, String>());
+          if (StringUtils.isNumeric(configVersion)) {
+            if (version < 0 || Integer.parseInt(configVersion) <= version) {
+              if (configuration.get(configGroup) == null) {
+                configuration.put(configGroup, new HashMap<String, String>());
+              }
+              configuration.get(configGroup).put(configSetting,
+                  this.configuration.get(configVersion).get(configGroup).get(configSetting));
             }
-            configuration.get(configGroup).put(configSetting,
-                this.configuration.get(configVersion).get(configGroup).get(configSetting));
           }
         }
       }

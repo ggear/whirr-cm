@@ -34,6 +34,7 @@ import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.whirr.Cluster;
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterSpec;
@@ -281,6 +282,10 @@ public class CmServerClusterInstance implements CmConstants {
       keyTokensValidated[1] = keyTokens[0].toUpperCase();
       keyTokensValidated[2] = keyTokens[1];
     } else {
+      if (!StringUtils.isNumeric(keyTokens[0])) {
+        throw new IOException("Invalid key [" + key + "], expected to be of format [" + prefix
+            + "<version>.<role>.<setting>]");
+      }
       keyTokensValidated[0] = keyTokens[0];
       keyTokensValidated[1] = keyTokens[1].toUpperCase();
       keyTokensValidated[2] = keyTokens[2];

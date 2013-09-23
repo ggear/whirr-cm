@@ -50,6 +50,7 @@ import com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaStateStoreHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhMapReduceJobTrackerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhMapReduceTaskTrackerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhOozieServerHandler;
+import com.cloudera.whirr.cm.handler.cdh.CmCdhSolrIndexerHBaseHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhSolrServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhSqoopServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhZookeeperServerHandler;
@@ -70,7 +71,8 @@ public class CmServerHandlerTest extends BaseTestHandler {
       CmCdhHdfsHttpFsHandler.ROLE };
   private static final String[] WHIRR_INSTANCE_TEMPLATE_ROLES_SLAVES = { CmCdhHdfsDataNodeHandler.ROLE,
       CmCdhMapReduceTaskTrackerHandler.ROLE, CmCdhZookeeperServerHandler.ROLE, CmCdhHBaseRegionServerHandler.ROLE,
-      CmCdhImpalaDaemonHandler.ROLE, CmCdhFlumeAgentHandler.ROLE, CmCdhHdfsHttpFsHandler.ROLE };
+      CmCdhImpalaDaemonHandler.ROLE, CmCdhFlumeAgentHandler.ROLE, CmCdhSolrIndexerHBaseHandler.ROLE,
+      CmCdhHdfsHttpFsHandler.ROLE };
   private static final int WHIRR_INSTANCE_TEMPLATE_NUM_ROLES = WHIRR_INSTANCE_TEMPLATE_ROLES_MASTER.length
       + WHIRR_INSTANCE_TEMPLATE_NUM_SLAVES * WHIRR_INSTANCE_TEMPLATE_ROLES_SLAVES.length;
   private static String WHIRR_INSTANCE_TEMPLATE_ALL = "1 " + CmServerHandler.ROLE + "+" + CmAgentHandler.ROLE + ",1 "

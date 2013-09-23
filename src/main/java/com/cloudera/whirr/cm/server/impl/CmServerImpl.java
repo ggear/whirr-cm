@@ -988,6 +988,10 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("zookeeper_service", cluster
                 .getServiceName(CmServerServiceType.ZOOKEEPER)));
             break;
+          case SOLR_INDEXER:
+            apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+            apiServiceConfig.add(new ApiConfig("solr_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+            break;
           case HUE:
             apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_NAMENODE)));
             apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
