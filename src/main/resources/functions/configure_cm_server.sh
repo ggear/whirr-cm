@@ -51,7 +51,7 @@ function configure_cm_server() {
   /usr/share/cmf/schema/scm_prepare_database.sh -u root $TYPE cm cm cm
   service cloudera-scm-server start
   if wait_cm_server; then
-    if [ ! -z "${CONFIGURE_KERBEROS_DONE+xxx}" ] && [ ! -z "${KERBEROS_REALM+xxx}" ]; then
+    if [ ! -z "${KERBEROS_REALM+xxx}" ]; then
       sed -i -e "s/EXAMPLE\.COM/$KERBEROS_REALM_REGEX/" /var/kerberos/krb5kdc/kadm5.acl
       cat >> run_addpinc <<END
 #!/usr/bin/expect -f
