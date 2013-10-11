@@ -17,8 +17,6 @@
  */
 package com.cloudera.whirr.cm.handler;
 
-import static org.jclouds.scriptbuilder.domain.Statements.call;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,7 +58,6 @@ public class CmNodeHandler extends BaseHandlerCm {
     } catch (CmServerException e) {
       throw new IOException("Unexpected error building cluster", e);
     }
-    addStatement(event, call("install_cm"));
   }
 
 }

@@ -102,7 +102,6 @@ public class CmServerHandler extends BaseHandlerCm {
         break;
       }
     }
-    addStatement(event, call("install_cm"));
     addStatement(event, call("install_cm_server"));
     CmServerClusterInstance.logLineItemFooterAsync(logger, "HostBootstrapInit");
     CmServerClusterInstance.logLineItemAsync(logger, "HostBootstrapExecute");
