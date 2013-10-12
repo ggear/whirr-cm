@@ -23,7 +23,7 @@ function install_cm_server() {
     retry_apt_get update
     retry_apt_get -q -y install cloudera-manager-server cloudera-manager-daemons
   elif which rpm &> /dev/null; then
-    retry_yum --exclude jdk install -y cloudera-manager-server cloudera-manager-daemons
+    yum --exclude jdk install -y cloudera-manager-server cloudera-manager-daemons
   fi
   rm -rvf /etc/cloudera-scm-server/db.mgmt.properties
 }
