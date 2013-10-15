@@ -28,7 +28,7 @@ function install_mysql() {
       service mysql stop
       MYSQL_CONF="/etc/mysql/my.cnf"
     elif which rpm &> /dev/null; then
-      yum --exclude "jdk java-*-openjdk" install -y expect "mysql-server-5.1*" mysql-connector-java
+      retry_yum install --exclude "jdk java-*-openjdk" -y expect "mysql-server-5.1*" mysql-connector-java
       MYSQL_CONF="/etc/my.cnf"
     fi
     rm -rf /var/lib/mysql/ib_logfile*
