@@ -55,6 +55,6 @@ function configure_cm_cdh() {
       ln -s /usr/share/java/mysql-connector-java.jar /var/lib/oozie/mysql-connector-java.jar
     fi
     wget -nv http://extjs.com/deploy/ext-2.2.zip
-    unzip ext-2.2.zip -d /var/lib/oozie
+    unzip -q ext-2.2.zip -d /var/lib/oozie
   fi
 }
