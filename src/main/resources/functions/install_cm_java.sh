@@ -35,7 +35,7 @@ function install_cm_java() {
 
   if [ ! -z "${JDK_INSTALL_URL+xxx}" ]; then 
     JDK_PACKAGE=$(basename $JDK_INSTALL_URL)
-    wget $JDK_INSTALL_URL
+    wget -nv $JDK_INSTALL_URL
     if [ $(echo $JDK_PACKAGE | cut -d'.' -f2) == "bin" ]; then
       chmod +x $JDK_PACKAGE  
       mv /bin/more /bin/more.no
