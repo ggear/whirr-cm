@@ -29,6 +29,7 @@ function install_cm_java() {
     JDK_INSTALL_PATH=/usr/java
   fi
   
+  WORKING_DIR=$(pwd)
   mkdir -p $JDK_INSTALL_PATH
   cd $JDK_INSTALL_PATH
 
@@ -70,5 +71,7 @@ function install_cm_java() {
     alternatives --set java $JAVA_HOME/bin/java
   fi
   
+  cd $WORKING_DIR
+
   INSTALL_JAVA_DONE=1
 }
