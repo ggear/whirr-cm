@@ -30,11 +30,11 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-public class CmNodeHandlerTest extends BaseTestHandler {
+public class CmJavaHandlerTest extends BaseTestHandler {
 
   @Override
   protected Set<String> getInstanceRoles() {
-    return ImmutableSet.of(CmNodeHandler.ROLE);
+    return ImmutableSet.of(CmJavaHandler.ROLE);
   }
 
   @Override

@@ -17,30 +17,13 @@
  */
 package com.cloudera.whirr.cm.handler;
 
-import static org.jclouds.scriptbuilder.domain.Statements.call;
+public class CmJavaHandler extends CmNodeHandler {
 
-import java.io.IOException;
-
-import org.apache.whirr.ClusterSpec;
-import org.apache.whirr.service.ClusterActionEvent;
-
-import com.cloudera.whirr.cm.server.impl.CmServerLog;
-
-public abstract class BaseHandlerCm extends BaseHandler {
-
-  protected static final CmServerLog logger = new CmServerLog.CmServerLogSysOut(LOG_TAG_WHIRR_HANDLER, false);
-
-  protected String getInstanceId(ClusterSpec spec) {
-    return getRole() + "-instance-id";
-  }
+  public static final String ROLE = "cm-java";
 
   @Override
-  protected void beforeBootstrap(ClusterActionEvent event) throws IOException, InterruptedException {
-    super.beforeBootstrap(event);
-    addStatement(event, call("configure_hostnames"));
-    addStatement(event, call("retry_helpers"));
-    addStatement(event, call("install_cm"));
-    addStatement(event, call("install_cm_java"));
+  public String getRole() {
+    return ROLE;
   }
 
 }

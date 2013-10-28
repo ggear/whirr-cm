@@ -97,7 +97,8 @@ public class CmServerHandlerTest extends BaseTestHandler {
     return and(
         containsPattern("configure_hostnames"),
         and(containsPattern("install_database"),
-            and(containsPattern("install_cm"), containsPattern("install_cm_server"))));
+            and(containsPattern("install_cm"),
+                and(containsPattern("install_cm_java"), containsPattern("install_cm_server")))));
   }
 
   @Override
