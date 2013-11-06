@@ -15,23 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cloudera.whirr.cm.server;
+package com.cloudera.whirr.cm.handler.cdh;
 
-import com.google.common.collect.ImmutableMap;
+import com.cloudera.whirr.cm.server.CmServerServiceType;
 
-public enum CmServerServiceTypeRepo {
+public class CmCdhImpalaCatalogServerHandler extends BaseHandlerCmCdh {
 
-  CDH, IMPALA, SOLR;
+  public static final String ROLE = "cm-cdh-impala-catalog-server";
+  public static final CmServerServiceType TYPE = CmServerServiceType.IMPALA_CATALOGSERVER;
 
-  private static final ImmutableMap<String, ImmutableMap<String, String>> TYPE_TO_REPO = ImmutableMap.of("CDH4",
-      ImmutableMap.of("CDH", "CDH", "IMPALA", "IMPALA", "SOLR", "SOLR"), "CDH5",
-      ImmutableMap.of("CDH", "CDH", "IMPALA", "CDH", "SOLR", "CDH"));
-
-  public String toString(String cdh) {
-    if (!TYPE_TO_REPO.containsKey(cdh) || !TYPE_TO_REPO.get(cdh).containsKey(this.toString())) {
-      throw new RuntimeException("Could not determine repo for [" + cdh + "] and [" + this + "]");
-    }
-    return TYPE_TO_REPO.containsKey(cdh) ? TYPE_TO_REPO.get(cdh).get(this.toString()) : null;
+  @Override
+  public String getRole() {
+    return ROLE;
   }
 
-};
+  @Override
+  public CmServerServiceType getType() {
+    return TYPE;
+  }
+
+}

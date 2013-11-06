@@ -45,6 +45,7 @@ com.cloudera.whirr.cm.handler.cdh.CmCdhSolrIndexerHBaseHandler
 
 com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaDaemonHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaStateStoreHandler
+com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaCatalogServerHandler
 
 com.cloudera.whirr.cm.handler.cdh.CmCdhHueServerHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhHueBeeswaxServerHandler

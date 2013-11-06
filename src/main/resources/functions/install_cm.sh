@@ -25,7 +25,7 @@ function install_cm() {
   elif which rpm &> /dev/null; then
     retry_yum install -y redhat-lsb
   fi
-  REPOCM=${REPOCM:-cm4}
+  REPOCM=${REPOCM:-cm5}
   CM_REPO_HOST=${CM_REPO_HOST:-archive.cloudera.com}
   CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9]\).*/\1/')
   CM_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9][0-9]*\)/\1/')

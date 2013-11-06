@@ -76,7 +76,8 @@ public enum CmServerServiceType {
 
   // Impala
   IMPALA(CLUSTER, "IMPALA", 3, CmServerServiceTypeRepo.IMPALA), IMPALA_STATE_STORE(IMPALA, "STATESTORE", 3,
-      CmServerServiceTypeRepo.IMPALA), IMPALA_DAEMON(IMPALA, "IMPALAD", 3, CmServerServiceTypeRepo.IMPALA),
+      CmServerServiceTypeRepo.IMPALA), IMPALA_DAEMON(IMPALA, "IMPALAD", 3, CmServerServiceTypeRepo.IMPALA), IMPALA_CATALOGSERVER(
+      IMPALA, "CATALOGSERVER", 6, CmServerServiceTypeRepo.IMPALA),
 
   // Flume
   FLUME(CLUSTER, "FLUME", 3, CmServerServiceTypeRepo.CDH), FLUME_AGENT(FLUME, "AGENT", 3, CmServerServiceTypeRepo.CDH),

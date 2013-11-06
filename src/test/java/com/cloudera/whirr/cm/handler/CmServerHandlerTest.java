@@ -45,6 +45,7 @@ import com.cloudera.whirr.cm.handler.cdh.CmCdhHiveMetaStoreHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHiveServer2Handler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHueBeeswaxServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhHueServerHandler;
+import com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaCatalogServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaDaemonHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaStateStoreHandler;
 import com.cloudera.whirr.cm.handler.cdh.CmCdhMapReduceJobTrackerHandler;
@@ -66,9 +67,9 @@ public class CmServerHandlerTest extends BaseTestHandler {
   private static final String[] WHIRR_INSTANCE_TEMPLATE_ROLES_MASTER = { CmCdhHdfsNameNodeHandler.ROLE,
       CmCdhHdfsSecondaryNameNodeHandler.ROLE, CmCdhHueServerHandler.ROLE, CmCdhHueBeeswaxServerHandler.ROLE,
       CmCdhMapReduceJobTrackerHandler.ROLE, CmCdhHBaseMasterHandler.ROLE, CmCdhHiveMetaStoreHandler.ROLE,
-      CmCdhImpalaStateStoreHandler.ROLE, CmCdhOozieServerHandler.ROLE, CmCdhHiveServer2Handler.ROLE,
-      CmCdhHiveHCatalogHandler.ROLE, CmCdhSqoopServerHandler.ROLE, CmCdhSolrServerHandler.ROLE,
-      CmCdhHdfsHttpFsHandler.ROLE };
+      CmCdhImpalaStateStoreHandler.ROLE, CmCdhImpalaCatalogServerHandler.ROLE, CmCdhOozieServerHandler.ROLE,
+      CmCdhHiveServer2Handler.ROLE, CmCdhHiveHCatalogHandler.ROLE, CmCdhSqoopServerHandler.ROLE,
+      CmCdhSolrServerHandler.ROLE, CmCdhHdfsHttpFsHandler.ROLE };
   private static final String[] WHIRR_INSTANCE_TEMPLATE_ROLES_SLAVES = { CmCdhHdfsDataNodeHandler.ROLE,
       CmCdhMapReduceTaskTrackerHandler.ROLE, CmCdhZookeeperServerHandler.ROLE, CmCdhHBaseRegionServerHandler.ROLE,
       CmCdhImpalaDaemonHandler.ROLE, CmCdhFlumeAgentHandler.ROLE, CmCdhSolrIndexerHBaseHandler.ROLE,
