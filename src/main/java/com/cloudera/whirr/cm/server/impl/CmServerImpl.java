@@ -36,7 +36,6 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.cxf.jaxrs.client.ServerWebApplicationException;
 import org.apache.cxf.jaxrs.ext.multipart.InputStreamDataSource;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -67,6 +66,7 @@ import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.api.v4.RootResourceV4;
 import com.cloudera.api.v5.RootResourceV5;
+import com.cloudera.api.v6.RootResourceV6;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerBuilder.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerCluster;
@@ -76,7 +76,6 @@ import com.cloudera.whirr.cm.server.CmServerService.CmServerServiceStatus;
 import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.CmServerServiceTypeCms;
-import com.cloudera.whirr.cm.server.CmServerServiceTypeRepo;
 import com.cloudera.whirr.cm.server.impl.CmServerLog.CmServerLogSyncCommand;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -87,7 +86,7 @@ public class CmServerImpl implements CmServer {
   // CM Version Matrix, of form {CM_VERSION=CM_API_VERSION}
   // Entry for the latest CM minor version for each API upgrade, from baseline 4.5.0
   public static Map<String, Integer> CM_VERSION_API_MATRIX = ImmutableMap.of("4.5.0", 3, "4.5.3", 3, "4.6.3", 4,
-      "4.7.0", 5);
+      "4.7.0", 5, "5.0.0", 6);
   public static String CM_VERSION_EARLIEST = CM_VERSION_API_MATRIX.keySet().toArray(
       new String[CM_VERSION_API_MATRIX.size()])[0];
   public static String CM_VERSION_LATEST = CM_VERSION_API_MATRIX.keySet().toArray(
@@ -118,6 +117,8 @@ public class CmServerImpl implements CmServer {
   final private RootResourceV4 apiResourceRootV4;
   @SuppressWarnings("unused")
   final private RootResourceV5 apiResourceRootV5;
+  @SuppressWarnings("unused")
+  final private RootResourceV6 apiResourceRootV6;
 
   private boolean isFirstStartRequired = true;
 
@@ -133,6 +134,7 @@ public class CmServerImpl implements CmServer {
     this.apiResourceRootV3 = apiResource.getRootV3();
     this.apiResourceRootV4 = this.versionApi >= 4 ? apiResource.getRootV4() : null;
     this.apiResourceRootV5 = this.versionApi >= 5 ? apiResource.getRootV5() : null;
+    this.apiResourceRootV6 = this.versionApi >= 6 ? apiResource.getRootV6() : null;
   }
 
   protected String getVersion(String version) throws CmServerException {
@@ -159,19 +161,28 @@ public class CmServerImpl implements CmServer {
       version = CM_VERSION_LATEST;
     }
     if (!version.contains(".")) {
-      version = version + "." + Integer.MAX_VALUE + "." + Integer.MAX_VALUE;
-    }
-    ArtifactVersion versionArtifact = new DefaultArtifactVersion(version);
-    for (String versionUpperBound : CM_VERSION_API_MATRIX.keySet()) {
-      if (versionArtifact.compareTo(new DefaultArtifactVersion(versionUpperBound)) <= 0) {
-        versionApiValidated = CM_VERSION_API_MATRIX.get(versionUpperBound);
-        break;
+      String versionLatest = null;
+      for (String versionIterator : CM_VERSION_API_MATRIX.keySet()) {
+        if (versionIterator.startsWith(version)) {
+          versionLatest = versionIterator;
+        }
       }
-      if (versionApiValidated == null) {
-        versionApiValidated = CM_VERSION_API_LATEST;
+      version = versionLatest;
+    }
+    if (version != null) {
+      ArtifactVersion versionArtifact = new DefaultArtifactVersion(version);
+      for (String versionUpperBound : CM_VERSION_API_MATRIX.keySet()) {
+        if (versionArtifact.compareTo(new DefaultArtifactVersion(versionUpperBound)) <= 0) {
+          versionApiValidated = CM_VERSION_API_MATRIX.get(versionUpperBound);
+          break;
+        }
+        if (versionApiValidated == null) {
+          versionApiValidated = CM_VERSION_API_LATEST;
+        }
       }
     }
-    if (versionApi != null
+    if (version == null
+        || versionApi != null
         && !versionApi.equals("")
         && (new DefaultArtifactVersion(versionApi)
             .compareTo(new DefaultArtifactVersion(versionApiValidated.toString())) > 0 || new DefaultArtifactVersion(
@@ -188,7 +199,7 @@ public class CmServerImpl implements CmServer {
   protected ApiClusterVersion getVersionCdh(String versionCdh) throws CmServerException {
     ApiClusterVersion versionCdhValidated = null;
     if (versionCdh == null || versionCdh.equals("")) {
-      versionCdhValidated = ApiClusterVersion.CDH4;
+      versionCdhValidated = ApiClusterVersion.CDH5;
     } else {
       try {
         versionCdhValidated = ApiClusterVersion.valueOf("CDH" + versionCdh);
@@ -790,10 +801,10 @@ public class CmServerImpl implements CmServer {
       try {
         cmsProvisionRequired = apiResourceRootV3.getClouderaManagerResource().getMgmtServiceResource()
             .readService(DataView.SUMMARY) == null;
-      } catch (ServerWebApplicationException exception) {
+      } catch (RuntimeException exception) {
         cmsProvisionRequired = true;
       }
-    } catch (ServerWebApplicationException exception) {
+    } catch (RuntimeException exception) {
       // ignore
     }
 
@@ -895,39 +906,55 @@ public class CmServerImpl implements CmServer {
 
     apiResourceRootV3.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "1") })));
-    final Set<CmServerServiceTypeRepo> repositoriesRequired = new HashSet<CmServerServiceTypeRepo>();
+
+    final Set<String> repositoriesRequired = new HashSet<String>();
     for (CmServerServiceType type : cluster.getServiceTypes(versionApi)) {
-      repositoriesRequired.add(type.getRepository());
+      repositoriesRequired.add(type.getRepository().toString(versionCdh.toString()));
     }
+    final List<String> repositoriesRequiredOrdered = new ArrayList<String>();
+    for (String repository : repositoriesRequired) {
+      if (repository.equals("CDH")) {
+        repositoriesRequiredOrdered.add(0, repository);
+      } else {
+        repositoriesRequiredOrdered.add(repository);
+      }
+    }
+
     execute("WaitForParcelsAvailability", new Callback() {
       @Override
       public boolean poll() {
-        Set<CmServerServiceTypeRepo> repositoriesNotLoaded = new HashSet<CmServerServiceTypeRepo>(repositoriesRequired);
         for (ApiParcel parcel : apiResourceRootV3.getClustersResource().getParcelsResource(getName(cluster))
             .readParcels(DataView.FULL).getParcels()) {
           try {
-            repositoriesNotLoaded.remove(CmServerServiceTypeRepo.valueOf(parcel.getProduct()));
+            repositoriesRequired.remove(parcel.getProduct());
           } catch (IllegalArgumentException e) {
             // ignore
           }
         }
-        return repositoriesNotLoaded.isEmpty();
+        return repositoriesRequired.isEmpty();
       }
     });
+
     apiResourceRootV3.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "60") })));
 
-    for (CmServerServiceTypeRepo repository : repositoriesRequired) {
+    for (String repository : repositoriesRequiredOrdered) {
       DefaultArtifactVersion parcelVersion = null;
       for (ApiParcel apiParcel : apiResourceRootV3.getClustersResource().getParcelsResource(getName(cluster))
           .readParcels(DataView.FULL).getParcels()) {
-        if (apiParcel.getProduct().equals(repository.toString())
-            && (parcelVersion == null || parcelVersion.compareTo(new DefaultArtifactVersion(apiParcel.getVersion())) < 0)) {
-          parcelVersion = new DefaultArtifactVersion(apiParcel.getVersion());
+        DefaultArtifactVersion parcelVersionTmp = new DefaultArtifactVersion(apiParcel.getVersion());
+        if (apiParcel.getProduct().equals(repository)) {
+          if (!apiParcel.getProduct().equals("CDH")
+              || versionCdh.toString().equals("CDH" + parcelVersionTmp.getMajorVersion())) {
+            if (parcelVersion == null || parcelVersion.compareTo(parcelVersionTmp) < 0) {
+              parcelVersion = new DefaultArtifactVersion(apiParcel.getVersion());
+            }
+          }
         }
       }
+
       final ParcelResource apiParcelResource = apiResourceRootV3.getClustersResource()
-          .getParcelsResource(getName(cluster)).getParcelResource(repository.toString(), parcelVersion.toString());
+          .getParcelsResource(getName(cluster)).getParcelResource(repository, parcelVersion.toString());
       execute(apiParcelResource.startDownloadCommand(), new Callback() {
         @Override
         public boolean poll() {
@@ -1095,6 +1122,8 @@ public class CmServerImpl implements CmServer {
       }
     }
 
+    execute(apiResourceRootV3.getClustersResource().deployClientConfig(getName(cluster)));
+
   }
 
   private void unconfigureServices(final CmServerCluster cluster) throws IOException, InterruptedException {
@@ -1121,7 +1150,7 @@ public class CmServerImpl implements CmServer {
       execute(apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
           .createHiveWarehouseCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
       execute(apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
-          .hiveCreateMetastoreDatabaseTablesCommand(cluster.getServiceName(CmServerServiceType.HIVE)));
+          .hiveCreateMetastoreDatabaseTablesCommand(cluster.getServiceName(CmServerServiceType.HIVE)), false);
       break;
     case OOZIE:
       execute(
@@ -1208,7 +1237,7 @@ public class CmServerImpl implements CmServer {
         CmServerImpl.this.execute("Start " + CmServerServiceTypeCms.MANAGEMENT.getId().toLowerCase(), apiResourceRootV3
             .getClouderaManagerResource().getMgmtServiceResource().startCommand());
       }
-    } catch (ServerWebApplicationException exception) {
+    } catch (RuntimeException exception) {
       // ignore
     }
 

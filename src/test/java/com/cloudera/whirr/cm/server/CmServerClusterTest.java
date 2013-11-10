@@ -64,6 +64,8 @@ public class CmServerClusterTest extends BaseTestServer {
     Assert.assertEquals("4.5", new CmServerFactory().getCmServer("4.5", "", "", 7180, "", "", null).getVersion());
     Assert.assertEquals("4.6.0", new CmServerFactory().getCmServer("4.6.0", "", "", 7180, "", "", null).getVersion());
     Assert.assertEquals("4.6.2", new CmServerFactory().getCmServer("4.6.2", "", "", 7180, "", "", null).getVersion());
+    Assert.assertEquals("5", new CmServerFactory().getCmServer("5", "", "", 7180, "", "", null).getVersion());
+    Assert.assertEquals("5.0.0", new CmServerFactory().getCmServer("5.0.0", "", "", 7180, "", "", null).getVersion());
     caught = false;
     try {
       Assert.assertNull(new CmServerFactory().getCmServer("-1", "", "", 7180, "", "", null).getVersion());
@@ -139,6 +141,9 @@ public class CmServerClusterTest extends BaseTestServer {
     Assert.assertEquals(3, new CmServerFactory().getCmServer("4.5", "3", "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(3, new CmServerFactory().getCmServer("4.6.0", "3", "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(3, new CmServerFactory().getCmServer("4.6.2", "3", "", "", 7180, "", "", null).getVersionApi());
+    Assert.assertEquals(3, new CmServerFactory().getCmServer("5", "3", "", "", 7180, "", "", null).getVersionApi());
+    Assert.assertEquals(6, new CmServerFactory().getCmServer("5", null, "", "", 7180, "", "", null).getVersionApi());
+    Assert.assertEquals(6, new CmServerFactory().getCmServer("5", "6", "", "", 7180, "", "", null).getVersionApi());
     caught = false;
     try {
       Assert.assertEquals(4, new CmServerFactory().getCmServer("3", "", "", 7180, "", "", null).getVersionApi());
@@ -194,10 +199,10 @@ public class CmServerClusterTest extends BaseTestServer {
   @Test
   public void testVersionCdh() throws CmServerException {
     boolean caught = false;
-    Assert.assertEquals("CDH4", new CmServerFactory().getCmServer("", "", 7180, "", "", null).getVersionCdh());
-    Assert.assertEquals("CDH4", new CmServerFactory().getCmServer(null, null, null, "", "", 7180, "", "", null)
+    Assert.assertEquals("CDH5", new CmServerFactory().getCmServer("", "", 7180, "", "", null).getVersionCdh());
+    Assert.assertEquals("CDH5", new CmServerFactory().getCmServer(null, null, null, "", "", 7180, "", "", null)
         .getVersionCdh());
-    Assert.assertEquals("CDH4", new CmServerFactory().getCmServer(null, null, "", "", "", 7180, "", "", null)
+    Assert.assertEquals("CDH5", new CmServerFactory().getCmServer(null, null, "", "", "", 7180, "", "", null)
         .getVersionCdh());
     Assert.assertEquals("CDH4", new CmServerFactory().getCmServer(null, null, "4", "", "", 7180, "", "", null)
         .getVersionCdh());
