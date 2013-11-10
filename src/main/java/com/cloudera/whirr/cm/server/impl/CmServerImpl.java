@@ -1107,6 +1107,8 @@ public class CmServerImpl implements CmServer {
       }
     }
 
+    execute(apiResourceRootV3.getClustersResource().deployClientConfig(getName(cluster)));
+
   }
 
   private void unconfigureServices(final CmServerCluster cluster) throws IOException, InterruptedException {

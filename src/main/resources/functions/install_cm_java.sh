@@ -47,11 +47,22 @@ function install_cm_java() {
       rm -rf $JDK_PACKAGE  
     fi 
   else 
-    if which dpkg &> /dev/null; then
-      retry_apt_get update
-      retry_apt_get -y install oracle-j2sdk1.6
-    elif which rpm &> /dev/null; then
-      retry_yum install -y jdk
+    REPOCM=${REPOCM:-cm5}
+    CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9]\).*/\1/')
+    if [ $CM_MAJOR_VERSION -ge 5 ]; then
+      if which dpkg &> /dev/null; then
+        retry_apt_get update
+        retry_apt_get -y install oracle-j2sdk1.7
+      elif which rpm &> /dev/null; then
+        retry_yum install -y oracle-j2sdk1.7
+      fi
+    else
+      if which dpkg &> /dev/null; then
+        retry_apt_get update
+        retry_apt_get -y install oracle-j2sdk1.6
+      elif which rpm &> /dev/null; then
+        retry_yum install -y jdk
+      fi
     fi
   fi
 
