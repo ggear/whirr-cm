@@ -906,38 +906,53 @@ public class CmServerImpl implements CmServer {
 
     apiResourceRootV3.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "1") })));
+
     final Set<String> repositoriesRequired = new HashSet<String>();
     for (CmServerServiceType type : cluster.getServiceTypes(versionApi)) {
       repositoriesRequired.add(type.getRepository().toString(versionCdh.toString()));
+    }
+    final List<String> repositoriesRequiredOrdered = new ArrayList<String>();
+    for (String repository : repositoriesRequired) {
+      if (repository.equals("CDH")) {
+        repositoriesRequiredOrdered.add(0, repository);
+      } else {
+        repositoriesRequiredOrdered.add(repository);
+      }
     }
 
     execute("WaitForParcelsAvailability", new Callback() {
       @Override
       public boolean poll() {
-        Set<String> repositoriesNotLoaded = new HashSet<String>(repositoriesRequired);
         for (ApiParcel parcel : apiResourceRootV3.getClustersResource().getParcelsResource(getName(cluster))
             .readParcels(DataView.FULL).getParcels()) {
           try {
-            repositoriesNotLoaded.remove(parcel.getProduct());
+            repositoriesRequired.remove(parcel.getProduct());
           } catch (IllegalArgumentException e) {
             // ignore
           }
         }
-        return repositoriesNotLoaded.isEmpty();
+        return repositoriesRequired.isEmpty();
       }
     });
+
     apiResourceRootV3.getClouderaManagerResource().updateConfig(
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "60") })));
 
-    for (String repository : repositoriesRequired) {
+    for (String repository : repositoriesRequiredOrdered) {
       DefaultArtifactVersion parcelVersion = null;
       for (ApiParcel apiParcel : apiResourceRootV3.getClustersResource().getParcelsResource(getName(cluster))
           .readParcels(DataView.FULL).getParcels()) {
-        if (apiParcel.getProduct().equals(repository)
-            && (parcelVersion == null || parcelVersion.compareTo(new DefaultArtifactVersion(apiParcel.getVersion())) < 0)) {
-          parcelVersion = new DefaultArtifactVersion(apiParcel.getVersion());
+        DefaultArtifactVersion parcelVersionTmp = new DefaultArtifactVersion(apiParcel.getVersion());
+        if (apiParcel.getProduct().equals(repository)) {
+          if (!apiParcel.getProduct().equals("CDH")
+              || versionCdh.toString().equals("CDH" + parcelVersionTmp.getMajorVersion())) {
+            if (parcelVersion == null || parcelVersion.compareTo(parcelVersionTmp) < 0) {
+              parcelVersion = new DefaultArtifactVersion(apiParcel.getVersion());
+            }
+          }
         }
       }
+
       final ParcelResource apiParcelResource = apiResourceRootV3.getClustersResource()
           .getParcelsResource(getName(cluster)).getParcelResource(repository, parcelVersion.toString());
       execute(apiParcelResource.startDownloadCommand(), new Callback() {
