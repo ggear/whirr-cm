@@ -5,7 +5,6 @@ import joptsimple.OptionSet;
 
 import org.apache.whirr.cli.command.StartServicesCommand;
 import org.apache.whirr.cli.command.StopServicesCommand;
-import org.codehaus.plexus.util.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ import com.cloudera.whirr.cm.cmd.CmServerListServicesCommand;
 
 public class CmServerCommandIT extends CmServerClusterIT {
 
-  private static final String FILTER_ROLES = "cm-server,cm-cdh-namenode,cm-cdh-jobtracker";
+  private static final String FILTER_ROLES = "cm-server,cm-cdh-namenode,cm-cdh-secondarynamenode,cm-cdh-jobtracker,cm-cdh-datanode,cm-cdh-tasktracker";
 
   private static final OptionSet OPTIONS_EMPTY = new OptionParser().parse("");
   private static final OptionSet OPTIONS_ROLES_FILTER;
@@ -109,8 +108,6 @@ public class CmServerCommandIT extends CmServerClusterIT {
     Assert.assertFalse(serverTestBootstrap.isConfigured(cluster));
     Assert.assertFalse(serverTestBootstrap.isStarted(cluster));
     Assert.assertTrue(serverTestBootstrap.isStopped(cluster));
-    Assert.assertEquals(StringUtils.countMatches(FILTER_ROLES, ","), serverTestBootstrap.getServices(cluster)
-        .getServiceTypes().size());
     Assert.assertEquals(0, new CmServerDestroyServicesCommand().run(specification, controller, OPTIONS_ROLES_FILTER));
   }
 

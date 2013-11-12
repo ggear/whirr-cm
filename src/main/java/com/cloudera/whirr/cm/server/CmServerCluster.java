@@ -124,6 +124,14 @@ public class CmServerCluster {
     return true;
   }
 
+  public synchronized int getServiceCount() {
+    int count = 0;
+    for (CmServerServiceType type : services.keySet()) {
+      count += services.get(type).size();
+    }
+    return count;
+  }
+
   public synchronized Set<CmServerServiceType> getServiceTypes() {
     return new TreeSet<CmServerServiceType>(services.keySet());
   }
