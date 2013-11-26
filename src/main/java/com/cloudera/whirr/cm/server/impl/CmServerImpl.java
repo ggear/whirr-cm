@@ -66,7 +66,6 @@ import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.api.v4.RootResourceV4;
 import com.cloudera.api.v5.RootResourceV5;
-import com.cloudera.api.v6.RootResourceV6;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerBuilder.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerCluster;
@@ -117,8 +116,9 @@ public class CmServerImpl implements CmServer {
   final private RootResourceV4 apiResourceRootV4;
   @SuppressWarnings("unused")
   final private RootResourceV5 apiResourceRootV5;
-  @SuppressWarnings("unused")
-  final private RootResourceV6 apiResourceRootV6;
+  // TODO
+  // @SuppressWarnings("unused")
+  // final private RootResourceV6 apiResourceRootV6;
 
   private boolean isFirstStartRequired = true;
 
@@ -134,7 +134,8 @@ public class CmServerImpl implements CmServer {
     this.apiResourceRootV3 = apiResource.getRootV3();
     this.apiResourceRootV4 = this.versionApi >= 4 ? apiResource.getRootV4() : null;
     this.apiResourceRootV5 = this.versionApi >= 5 ? apiResource.getRootV5() : null;
-    this.apiResourceRootV6 = this.versionApi >= 6 ? apiResource.getRootV6() : null;
+    // TODO
+    // this.apiResourceRootV6 = this.versionApi >= 6 ? apiResource.getRootV6() : null;
   }
 
   protected String getVersion(String version) throws CmServerException {
@@ -199,7 +200,9 @@ public class CmServerImpl implements CmServer {
   protected ApiClusterVersion getVersionCdh(String versionCdh) throws CmServerException {
     ApiClusterVersion versionCdhValidated = null;
     if (versionCdh == null || versionCdh.equals("")) {
-      versionCdhValidated = ApiClusterVersion.CDH5;
+      // TODO
+      // versionCdhValidated = ApiClusterVersion.CDH5;
+      versionCdhValidated = ApiClusterVersion.CDH4;
     } else {
       try {
         versionCdhValidated = ApiClusterVersion.valueOf("CDH" + versionCdh);
