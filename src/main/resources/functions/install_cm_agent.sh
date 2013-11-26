@@ -18,10 +18,16 @@
 set -x
 
 function install_cm_agent() {
+  REPOCM=${REPOCM:-cm5}
+  CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9]\).*/\1/')
+  CM_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9][0-9]*\)/\1/')
+  if [ "$CM_MAJOR_VERSION" != "$CM_VERSION" ]; then
+	CM_VERSION_PACKAGE="-"$CM_VERSION
+  fi
   if which dpkg &> /dev/null; then
     retry_apt_get update
-    retry_apt_get -y install cloudera-manager-agent cloudera-manager-daemons
+    retry_apt_get -y install cloudera-manager-agent$CM_VERSION_PACKAGE cloudera-manager-daemons$CM_VERSION_PACKAGE
   elif which rpm &> /dev/null; then
-    retry_yum install -y cloudera-manager-agent cloudera-manager-daemons
+    retry_yum install -y cloudera-manager-agent$CM_VERSION_PACKAGE cloudera-manager-daemons$CM_VERSION_PACKAGE
   fi
 }
