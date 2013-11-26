@@ -66,10 +66,6 @@ public enum CmServerServiceType {
   SQOOP(CLUSTER, "SQOOP", 4, CmServerServiceTypeRepo.CDH), SQOOP_SERVER(SQOOP, "SQOOP_SERVER", 4,
       CmServerServiceTypeRepo.CDH),
 
-  // Hue
-  HUE(CLUSTER, "HUE", 3, CmServerServiceTypeRepo.CDH), HUE_SERVER(HUE, "HUE_SERVER", 3, CmServerServiceTypeRepo.CDH), HUE_BEESWAX_SERVER(
-      HUE, "BEESWAX_SERVER", 3, CmServerServiceTypeRepo.CDH),
-
   // Oozie
   OOZIE(CLUSTER, "OOZIE", 3, CmServerServiceTypeRepo.CDH), OOZIE_SERVER(OOZIE, "OOZIE_SERVER", 3,
       CmServerServiceTypeRepo.CDH),
@@ -81,6 +77,10 @@ public enum CmServerServiceType {
 
   // Flume
   FLUME(CLUSTER, "FLUME", 3, CmServerServiceTypeRepo.CDH), FLUME_AGENT(FLUME, "AGENT", 3, CmServerServiceTypeRepo.CDH),
+
+  // Hue
+  HUE(CLUSTER, "HUE", 3, CmServerServiceTypeRepo.CDH), HUE_SERVER(HUE, "HUE_SERVER", 3, CmServerServiceTypeRepo.CDH), HUE_BEESWAX_SERVER(
+      HUE, "BEESWAX_SERVER", 3, CmServerServiceTypeRepo.CDH),
 
   // Client
   CLIENT(CLUSTER, "GATEWAY", 3, CmServerServiceTypeRepo.CDH);

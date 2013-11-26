@@ -66,6 +66,7 @@ import com.cloudera.api.v3.ParcelResource;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.api.v4.RootResourceV4;
 import com.cloudera.api.v5.RootResourceV5;
+import com.cloudera.api.v6.RootResourceV6;
 import com.cloudera.whirr.cm.server.CmServer;
 import com.cloudera.whirr.cm.server.CmServerBuilder.CmServerCommandMethod;
 import com.cloudera.whirr.cm.server.CmServerCluster;
@@ -90,6 +91,7 @@ public class CmServerImpl implements CmServer {
       new String[CM_VERSION_API_MATRIX.size()])[0];
   public static String CM_VERSION_LATEST = CM_VERSION_API_MATRIX.keySet().toArray(
       new String[CM_VERSION_API_MATRIX.size()])[CM_VERSION_API_MATRIX.size() - 1];
+  public static int CM_VERSION_LATEST_MAJOR = new DefaultArtifactVersion(CM_VERSION_LATEST).getMajorVersion();
   public static int CM_VERSION_API_EARLIEST = CM_VERSION_API_MATRIX.values().toArray(
       new Integer[CM_VERSION_API_MATRIX.size()])[0];
   public static int CM_VERSION_API_LATEST = CM_VERSION_API_MATRIX.values().toArray(
@@ -116,9 +118,8 @@ public class CmServerImpl implements CmServer {
   final private RootResourceV4 apiResourceRootV4;
   @SuppressWarnings("unused")
   final private RootResourceV5 apiResourceRootV5;
-  // TODO
-  // @SuppressWarnings("unused")
-  // final private RootResourceV6 apiResourceRootV6;
+  @SuppressWarnings("unused")
+  final private RootResourceV6 apiResourceRootV6;
 
   private boolean isFirstStartRequired = true;
 
@@ -134,8 +135,10 @@ public class CmServerImpl implements CmServer {
     this.apiResourceRootV3 = apiResource.getRootV3();
     this.apiResourceRootV4 = this.versionApi >= 4 ? apiResource.getRootV4() : null;
     this.apiResourceRootV5 = this.versionApi >= 5 ? apiResource.getRootV5() : null;
-    // TODO
-    // this.apiResourceRootV6 = this.versionApi >= 6 ? apiResource.getRootV6() : null;
+    this.apiResourceRootV6 = this.versionApi >= 6 ? apiResource.getRootV6() : null;
+    if (new DefaultArtifactVersion(this.version).getMajorVersion() < 5) {
+      throw new RuntimeException();
+    }
   }
 
   protected String getVersion(String version) throws CmServerException {
@@ -153,7 +156,7 @@ public class CmServerImpl implements CmServer {
         versionValidated = version;
       }
     }
-    return versionValidated;
+    return versionValidated == null ? "" + CM_VERSION_LATEST_MAJOR : versionValidated;
   }
 
   protected int getVersionApi(String version, String versionApi) throws CmServerException {
@@ -200,9 +203,7 @@ public class CmServerImpl implements CmServer {
   protected ApiClusterVersion getVersionCdh(String versionCdh) throws CmServerException {
     ApiClusterVersion versionCdhValidated = null;
     if (versionCdh == null || versionCdh.equals("")) {
-      // TODO
-      // versionCdhValidated = ApiClusterVersion.CDH5;
-      versionCdhValidated = ApiClusterVersion.CDH4;
+      versionCdhValidated = ApiClusterVersion.CDH5;
     } else {
       try {
         versionCdhValidated = ApiClusterVersion.valueOf("CDH" + versionCdh);
@@ -1023,9 +1024,26 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("solr_service", cluster.getServiceName(CmServerServiceType.HBASE)));
             break;
           case HUE:
-            apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_NAMENODE)));
-            apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
-            apiServiceConfig.add(new ApiConfig("oozie_service", cluster.getServiceName(CmServerServiceType.OOZIE)));
+            apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_HTTP_FS)));
+            Set<CmServerServiceType> serviceTypes = cluster.getServiceTypes(versionApi);
+            if (serviceTypes.contains(CmServerServiceType.HBASE)) {
+              apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.IMPALA)) {
+              apiServiceConfig.add(new ApiConfig("impala_service", cluster.getServiceName(CmServerServiceType.IMPALA)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.OOZIE)) {
+              apiServiceConfig.add(new ApiConfig("oozie_service", cluster.getServiceName(CmServerServiceType.OOZIE)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.SOLR)) {
+              apiServiceConfig.add(new ApiConfig("solr_service", cluster.getServiceName(CmServerServiceType.SOLR)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.SQOOP)) {
+              apiServiceConfig.add(new ApiConfig("sqoop_service", cluster.getServiceName(CmServerServiceType.SQOOP)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.HIVE)) {
+              apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
+            }
             break;
           case SQOOP:
             apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster

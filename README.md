@@ -7,8 +7,9 @@ allowing you to install, run and manage a CDH cluster.
 
 This plugin has dependencies on whirr and CM as per the pom, but remains backwards compatible with:
 
-* whirr 0.8+
-* CM 4.5+ (CM API 3+)
+* whirr-0.9+
+* CM5+ (CM API 3+)
+* CDH4+
 
 The plugin has been tested extensively on RHEL and Debian derivatives and ships with integrations tests targeting:
 
