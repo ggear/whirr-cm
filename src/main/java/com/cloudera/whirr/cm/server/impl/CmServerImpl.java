@@ -86,7 +86,7 @@ public class CmServerImpl implements CmServer {
   // CM Version Matrix, of form {CM_VERSION=CM_API_VERSION}
   // Entry for the latest CM minor version for each API upgrade, from baseline 4.5.0
   public static Map<String, Integer> CM_VERSION_API_MATRIX = ImmutableMap.of("4.5.0", 3, "4.5.3", 3, "4.6.3", 4,
-      "4.7.0", 5, "5.0.0", 6);
+      "4.8.0", 5, "5.0.0", 6);
   public static String CM_VERSION_EARLIEST = CM_VERSION_API_MATRIX.keySet().toArray(
       new String[CM_VERSION_API_MATRIX.size()])[0];
   public static String CM_VERSION_LATEST = CM_VERSION_API_MATRIX.keySet().toArray(
