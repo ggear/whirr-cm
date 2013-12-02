@@ -45,6 +45,7 @@ import com.cloudera.whirr.cm.server.CmServerService;
 import com.cloudera.whirr.cm.server.CmServerServiceBuilder;
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 import com.cloudera.whirr.cm.server.impl.CmServerFactory;
+import com.cloudera.whirr.cm.server.impl.CmServerImpl;
 import com.cloudera.whirr.cm.server.impl.CmServerLog;
 import com.cloudera.whirr.cm.server.impl.CmServerLog.CmServerLogSyncCommand;
 import com.google.common.collect.ImmutableMap;
@@ -194,8 +195,8 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
       }
 
       @Override
-      public String getVersionCdh() {
-        return "CDH4";
+      public int getVersionCdh() {
+        return CmServerImpl.VERSION_CDH_MAX;
       }
 
     });

@@ -36,32 +36,30 @@ public class CmServerClusterTest extends BaseTestServer {
     cluster = new CmServerCluster();
     cluster.setServer(new CmServerServiceBuilder().ip("192.168.0.1").build());
     cluster.addAgent(new CmServerServiceBuilder().host("some-host").build());
-    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
-        .qualifier("2").host("host-2").build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_NAMENODE).tag(CLUSTER_TAG)
-        .qualifier("1").host("host-1").build());
-    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
         .qualifier("1").host("host-1").build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_SECONDARY_NAMENODE).tag(CLUSTER_TAG)
         .qualifier("1").host("host-1").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_SERVER).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HUE_BEESWAX_SERVER).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
+        .qualifier("2").host("host-2").build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
         .qualifier("3").host("host-3").build());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
         .qualifier("4").host("host-4").build());
-    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HBASE_REGIONSERVER).tag(CLUSTER_TAG)
-        .qualifier("1").host("host-4").build());
-    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.IMPALA_DAEMON).tag(CLUSTER_TAG)
-        .qualifier("1").host("host-4").build());
   }
 
   @Test
   public void testVersion() throws CmServerException {
     boolean caught = false;
-    Assert.assertEquals("" + CmServerImpl.CM_VERSION_LATEST_MAJOR,
+    Assert.assertEquals("" + CmServerImpl.VERSION_CM_API_MATRIX_CM_MAX_MAJOR,
         new CmServerFactory().getCmServer("", "", 7180, "", "", null).getVersion());
-    Assert.assertEquals("" + CmServerImpl.CM_VERSION_LATEST_MAJOR,
+    Assert.assertEquals("" + CmServerImpl.VERSION_CM_API_MATRIX_CM_MAX_MAJOR,
         new CmServerFactory().getCmServer(null, "", "", 7180, "", "", null).getVersion());
-    Assert.assertEquals("" + CmServerImpl.CM_VERSION_LATEST_MAJOR,
+    Assert.assertEquals("" + CmServerImpl.VERSION_CM_API_MATRIX_CM_MAX_MAJOR,
         new CmServerFactory().getCmServer("", "", "", 7180, "", "", null).getVersion());
     Assert.assertEquals("5", new CmServerFactory().getCmServer("5", "", "", 7180, "", "", null).getVersion());
     Assert.assertEquals("5.0.0", new CmServerFactory().getCmServer("5.0.0", "", "", 7180, "", "", null).getVersion());
@@ -120,11 +118,11 @@ public class CmServerClusterTest extends BaseTestServer {
   @Test
   public void testVersionApi() throws CmServerException {
     boolean caught = false;
-    Assert.assertEquals(CmServerImpl.CM_VERSION_API_LATEST,
+    Assert.assertEquals(CmServerImpl.VERSION_CM_API_MATRIX_API_MAX,
         new CmServerFactory().getCmServer("", "", 7180, "", "", null).getVersionApi());
-    Assert.assertEquals(CmServerImpl.CM_VERSION_API_LATEST,
+    Assert.assertEquals(CmServerImpl.VERSION_CM_API_MATRIX_API_MAX,
         new CmServerFactory().getCmServer(null, "", "", 7180, "", "", null).getVersionApi());
-    Assert.assertEquals(CmServerImpl.CM_VERSION_API_LATEST,
+    Assert.assertEquals(CmServerImpl.VERSION_CM_API_MATRIX_API_MAX,
         new CmServerFactory().getCmServer("", "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(3, new CmServerFactory().getCmServer(null, "3", "", "", 7180, "", "", null).getVersionApi());
     Assert.assertEquals(4, new CmServerFactory().getCmServer(null, "4", "", "", 7180, "", "", null).getVersionApi());
@@ -190,12 +188,15 @@ public class CmServerClusterTest extends BaseTestServer {
   @Test
   public void testVersionCdh() throws CmServerException {
     boolean caught = false;
-    Assert.assertEquals("CDH5", new CmServerFactory().getCmServer("", "", 7180, "", "", null).getVersionCdh());
-    Assert.assertEquals("CDH5", new CmServerFactory().getCmServer(null, null, null, "", "", 7180, "", "", null)
+    Assert.assertEquals(CmServerImpl.VERSION_CDH_MAX, new CmServerFactory().getCmServer("", "", 7180, "", "", null)
         .getVersionCdh());
-    Assert.assertEquals("CDH5", new CmServerFactory().getCmServer(null, null, "", "", "", 7180, "", "", null)
+    Assert.assertEquals(CmServerImpl.VERSION_CDH_MAX,
+        new CmServerFactory().getCmServer(null, null, null, "", "", 7180, "", "", null).getVersionCdh());
+    Assert.assertEquals(CmServerImpl.VERSION_CDH_MAX,
+        new CmServerFactory().getCmServer(null, null, "", "", "", 7180, "", "", null).getVersionCdh());
+    Assert.assertEquals(4, new CmServerFactory().getCmServer(null, null, "4", "", "", 7180, "", "", null)
         .getVersionCdh());
-    Assert.assertEquals("CDH4", new CmServerFactory().getCmServer(null, null, "4", "", "", 7180, "", "", null)
+    Assert.assertEquals(5, new CmServerFactory().getCmServer(null, null, "5", "", "", 7180, "", "", null)
         .getVersionCdh());
     caught = false;
     try {
@@ -207,7 +208,7 @@ public class CmServerClusterTest extends BaseTestServer {
     Assert.assertTrue(caught);
     caught = false;
     try {
-      Assert.assertEquals("CDH10", new CmServerFactory().getCmServer(null, null, "10", "", "", 7180, "", "", null)
+      Assert.assertEquals(10, new CmServerFactory().getCmServer(null, null, "10", "", "", 7180, "", "", null)
           .getVersionCdh());
     } catch (CmServerException e) {
       caught = true;
@@ -358,8 +359,8 @@ public class CmServerClusterTest extends BaseTestServer {
 
   @Test
   public void testGetTypes() throws CmServerException {
-    Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS, CmServerServiceType.HBASE,
-        CmServerServiceType.IMPALA }, cluster.getServiceTypes().toArray());
+    Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS, CmServerServiceType.HUE }, cluster
+        .getServiceTypes().toArray());
   }
 
   @Test
@@ -370,45 +371,59 @@ public class CmServerClusterTest extends BaseTestServer {
     Assert.assertEquals(1, cluster.getServiceTypes(CmServerServiceType.HDFS_DATANODE).size());
     Assert.assertEquals(0, cluster.getServiceTypes(CmServerServiceType.CLIENT).size());
     Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
-        CmServerServiceType.HDFS_SECONDARY_NAMENODE, CmServerServiceType.HDFS_DATANODE,
-        CmServerServiceType.HBASE_REGIONSERVER, CmServerServiceType.IMPALA_DAEMON },
-        cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
+        CmServerServiceType.HDFS_SECONDARY_NAMENODE, CmServerServiceType.HDFS_DATANODE, CmServerServiceType.HUE_SERVER,
+        CmServerServiceType.HUE_BEESWAX_SERVER }, cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
     Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
         CmServerServiceType.HDFS_SECONDARY_NAMENODE, CmServerServiceType.HDFS_DATANODE },
         cluster.getServiceTypes(CmServerServiceType.HDFS).toArray());
     Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
         CmServerServiceType.HDFS_SECONDARY_NAMENODE, CmServerServiceType.HDFS_DATANODE },
-        cluster.getServiceTypes(CmServerServiceType.HDFS, 3).toArray());
+        cluster.getServiceTypes(CmServerServiceType.HDFS, 3, 4).toArray());
     Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
         CmServerServiceType.HDFS_SECONDARY_NAMENODE, CmServerServiceType.HDFS_DATANODE },
-        cluster.getServiceTypes(CmServerServiceType.HDFS, 4).toArray());
-    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 0)
+        cluster.getServiceTypes(CmServerServiceType.HDFS, 4, 4).toArray());
+    Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
+        CmServerServiceType.HDFS_SECONDARY_NAMENODE, CmServerServiceType.HDFS_DATANODE, CmServerServiceType.HUE_SERVER,
+        CmServerServiceType.HUE_BEESWAX_SERVER }, cluster.getServiceTypes(CmServerServiceType.CLUSTER, 6, 4).toArray());
+    Assert.assertArrayEquals(
+        new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE, CmServerServiceType.HDFS_SECONDARY_NAMENODE,
+            CmServerServiceType.HDFS_DATANODE, CmServerServiceType.HUE_SERVER },
+        cluster.getServiceTypes(CmServerServiceType.CLUSTER, 6, 5).toArray());
+    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 0, 4)
         .toArray());
-    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 2)
+    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 2, 4)
+        .toArray());
+    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 4, 0)
+        .toArray());
+    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 4, 3)
+        .toArray());
+    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 0, 0)
+        .toArray());
+    Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 2, 3)
         .toArray());
   }
 
   @Test
   public void testGetServices() throws InterruptedException, IOException {
-    Assert.assertEquals(8, cluster.getServices(CmServerServiceType.CLUSTER).size());
-    Assert.assertEquals(6, cluster.getServices(CmServerServiceType.HDFS).size());
+    Assert.assertEquals(7, cluster.getServices(CmServerServiceType.CLUSTER).size());
+    Assert.assertEquals(5, cluster.getServices(CmServerServiceType.HDFS).size());
     Assert.assertEquals(1, cluster.getServices(CmServerServiceType.HDFS_NAMENODE).size());
-    Assert.assertEquals(4, cluster.getServices(CmServerServiceType.HDFS_DATANODE).size());
+    Assert.assertEquals(3, cluster.getServices(CmServerServiceType.HDFS_DATANODE).size());
     Assert.assertEquals(0, cluster.getServices(CmServerServiceType.CLIENT).size());
     int i = 0;
     CmServerServiceType[] serviceTypes = new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
         CmServerServiceType.HDFS_SECONDARY_NAMENODE, CmServerServiceType.HDFS_DATANODE,
-        CmServerServiceType.HDFS_DATANODE, CmServerServiceType.HDFS_DATANODE, CmServerServiceType.HDFS_DATANODE,
-        CmServerServiceType.HBASE_REGIONSERVER, CmServerServiceType.IMPALA_DAEMON };
+        CmServerServiceType.HDFS_DATANODE, CmServerServiceType.HDFS_DATANODE, CmServerServiceType.HUE_SERVER,
+        CmServerServiceType.HUE_BEESWAX_SERVER };
     for (CmServerService service : cluster.getServices(CmServerServiceType.CLUSTER)) {
       Assert.assertEquals(serviceTypes[i++], service.getType());
     }
-    Assert.assertEquals(8, i);
+    Assert.assertEquals(7, i);
     i = 0;
     for (CmServerService service : cluster.getServices(CmServerServiceType.HDFS)) {
       Assert.assertEquals(serviceTypes[i++], service.getType());
     }
-    Assert.assertEquals(6, i);
+    Assert.assertEquals(5, i);
   }
 
   @Test
