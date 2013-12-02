@@ -21,7 +21,7 @@ Run the following commands from you local machine or edge node with access to yo
 Note that the latter is often preferable, providing a cluster client edge node for using your cluster, catering for:
 
 * network brownouts
-* minimial latency
+* minimal latency
 * private host/IP bindings
 
 
@@ -198,7 +198,7 @@ To download the CDH cluster client config to the whirr cluster working directory
 whirr download-config --config cm-ec2.properties
 ```
 
-This will then allow the CDH clients to be executed, for example to list files in HDFS root dir:
+This will then allow the CDH clients to be executed, for example to list files in HDFS root directory:
 
 ```bash
 hadoop --config $HOME/.whirr/whirr fs -ls /
@@ -234,7 +234,7 @@ rm -rf ~/.whirr/mycluster
 
 ## Unit and Integration Tests
 
-This project includes a full suite of unit tests, launchable via:
+This project includes a full suite of unit tests, launched via:
 
 ```bash
 mvn clean test
@@ -291,5 +291,3 @@ mvn exec:java -Dexec.mainClass="com.cloudera.whirr.cm.integration.BaseITServer\$
 
 As a convenience (especially for running within an IDE) the integration tests source the [cm-test.properties](cm-test.properties) as 
 system and Whirr properties prior to execution, absolving the need to specify these properties in less convenient forms (eg command line switches, maven properties, IDE properties etc).
-
-
