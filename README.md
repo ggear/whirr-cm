@@ -1,31 +1,34 @@
 # Whirr Cloudera Manager Plugin
 
-Follow these instructions to start a cluster on Amazon EC2 running Cloudera Manager (CM),
-allowing you to install, run and manage a CDH cluster.
+The Whirr-CM plugin provides the ability to boostrap, provision, initialise and then manage the full lifecycle of a Cloudera Manager (CM) CDH cluster.
 
 ## Requirements
 
-This plugin has dependencies on whirr and CM as per the pom, but remains backwards compatible with:
+This plugin has dependencies on Whirr and CM as per the pom, but remains backwards compatible with:
 
-* whirr 0.8+
-* CM 4.5+ (CM API 3+)
+* Whirr-0.9+
+* CM5+ (CM API 3+)
+* CDH4+
 
-The plugin has been tested extensively on RHEL and Debian derivatives and ships with integrations tests targeting:
+The plugin has been tested extensively on RHEL and Debian derivatives and ships with integration tests targeting:
 
 * CentOS 6.4
 * Ubuntu LTS 12.04
 
-## Install Whirr
+## Installing and configuring Whirr
 
-Run the following commands from you local machine or edge node with access to your Cloud providers resources.
+Run the following commands from you local machine or edge node with access to your infrastructure providers resources.
 Note that the latter is often preferable, providing a cluster client edge node for using your cluster, catering for:
 
 * network brownouts
-* minimial latency
+* minimal latency
 * private host/IP bindings
 
 
-### Set your AWS credentials:
+### Set your infrastructure providers credentials:
+
+For Amazon EC2:
+
 ```bash
 export WHIRR_CLOUD_PROVIDER_ID=...
 export WHIRR_CLOUD_PROVIDER_KEY=...
@@ -33,11 +36,13 @@ export WHIRR_CLOUD_PROVIDER_KEY=...
 
 ### Install Whirr:
 
-Install CDH repositories, eg for CDH4:
+Install the CDH repositories, eg for CDH5:
 
-http://www.cloudera.com/content/support/en/documentation/cdh4-documentation/cdh4-documentation-v4-latest.html#CDH4Installation-InstallingCDH4
+```bash
+sudo rpm -ivh http://archive.cloudera.com/cdh5/one-click-install/redhat/6/x86_64/cloudera-cdh-5-0.x86_64.rpm
+```
 
-then install the whirr package and create some environment variables, eg for RHEL/CentOS:
+then install the Whirr package and create some environment variables, eg for RHEL/CentOS:
 
 ```bash
 yum install whirr
@@ -51,10 +56,10 @@ export PATH=$WHIRR_HOME/bin:$PATH
 ssh-keygen -t rsa -P '' -f ~/.ssh/whirr
 ```
 
-## Install the Whirr Cloudera Manager Plugin (optional)
+## Install Whirr-CM (optional)
 
-As of CDH 4.2, whirr ships with the whirr CM plugin, but in the event that you would like to replace this, you can follow
-these instructions (take note of any files copied during the 'mvn dependency:copy-dependencies' command, this may indicate old and now stale versions remain and should be deleted from $WHIRR_HOME/lib)
+As of CDH4.2, Whirr ships with the Whirr-CM plugin, but in the event that you would like to replace this, you can follow
+these instructions (take note of any files copied during the 'mvn dependency:copy-dependencies' command, this may indicate old and now stale versions have been replaced and should be deleted from $WHIRR_HOME/lib)
 
 ```bash
 git clone https://github.com/cloudera/whirr-cm.git
@@ -65,23 +70,22 @@ rm -rf $WHIRR_HOME/lib/whirr-cdh-* $WHIRR_HOME/lib/whirr-cm-*
 cp -rvf target/whirr-cm-*.jar $WHIRR_HOME/lib
 ```
 
-## Launch a Cloudera Manager Cluster
+## Launch a Cloudera Manager managed CDH Cluster
 
-A sample Whirr CM CDH EC2 config is available ([cm-ec2.properties](cm-ec2.properties)) which should be locally copied to your whirr client host: 
+A sample Whirr-CM EC2 config is available ([cm-ec2.properties](cm-ec2.properties)) which should be locally copied to your Whirr client host: 
 
 ```bash
 curl -O https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties
 ```
 
 If you would like to upload a CM License as part of the installation (Cloudera can provide this if you do not
-have one), place the license in a file "cm-license.txt" on the whirr classpath (eg in $WHIRR_HOME/conf), eg
+have one), place the license in a file "cm-license.txt" (or with a file name of your chossing specified via the Whirr 'whirr.cm.license.uri' paramater) on the Whirr classpath (eg in $WHIRR_HOME/conf), eg
 
 ```bash
 mv -v eval_acme_20120925_cloudera_enterprise_license.txt $WHIRR_HOME/conf/cm-license.txt
 ```
 
-The following command will start a cluster with 7 nodes, 1 CM server, 3 master and 3 slave nodes. To change the
-cluster topology, edit the cm-ec2.properties file.
+As specified in the example cm-ec2.properties file, the following command will start a cluster with 7 nodes, 1 CM server, 3 master and 3 slave nodes. To change the cluster topology, edit the cm-ec2.properties file.
 
 ```bash
 whirr launch-cluster --config cm-ec2.properties
@@ -89,7 +93,7 @@ whirr launch-cluster --config cm-ec2.properties
 
 Whirr will report progress to the console as it runs and will exit once complete.
 
-During the various phases of execution, the Whirr CM plugin will report the CM Web Console URL, e.g. pre-provision
+During the various phases of execution, the Whirr-CM plugin will report the CM Web Console URL, e.g. pre-provision
 
 ```bash
 Whirr Handler -----------------------------------------------------------------
@@ -128,9 +132,6 @@ determines whether the Whirr CM plugin provisions, initialises and starts a new 
 or merely provisions the CM Server and Agents to allow manual CDH cluster management through
 the CM Web Console (false).
 
-In either case, once Whirr has completed, the CM infrastructure will be deployed and ready to
-use, as documented [here](http://www.cloudera.com/content/support/en/documentation/manager-enterprise/cloudera-manager-enterprise-v4-latest.html).
-
 Other Whirr properties can be used to affect the cluster provision process, refer to the example 
 [cm-ec2.properties](https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties) for more details.
 
@@ -146,7 +147,7 @@ or query the Whirr CM plugin services:
 whirr list-services --config cm-ec2.properties
 ```
 
-As well as supporting all the standard whirr commands, the Whirr CM plugin provides and or intergrates to the following additional commands:
+As well as supporting all the standard Whirr commands, the Whirr-CM plugin provides and or augments the following commands:
 
 * init-cluster
 * download-config 
@@ -197,7 +198,7 @@ To download the CDH cluster client config to the whirr cluster working directory
 whirr download-config --config cm-ec2.properties
 ```
 
-This will then allow the CDH clients to be executed, for example to list files in HDFS root dir:
+This will then allow the CDH clients to be executed, for example to list files in HDFS root directory:
 
 ```bash
 hadoop --config $HOME/.whirr/whirr fs -ls /
@@ -219,13 +220,13 @@ whirr destroy-cluster --config cm-ec2.properties
 
 During launch, errors will be printed to the console indicating root cause, halting operation and cleaning up any cluster resources that were provisioned. In some rare cases, Whirr can block for an extended time without an error message (eg node disk space exhaustion, network partition etc) in which case you can investigate the issue by looking at the client side whirr.log in the current dir, cloud web console, the nodes via SSH or Cloudera Manager depending upon which stage Whirr has got to. 
 
-If the host bootstrap has failed, you should investigate the image you are using, manually creating an instance from it and attempting connection via the whirr.bootstrap-user (ec2-user) by SSH and troubleshooting.  If this is successful, you should attempt to connect to the nodes provisioned by Whirr, by using the hosts specified in the cloud web console, the whirr.cluster-user (whirr) and the whirr.private-key-file (~/.ssh/whirr). If the connections succeed, it is likely Whirr is still running or blocking and the scripts and logs Whirr stages to /tmp on each node should help to determine the root cause:
+If the host bootstrap has failed, you should investigate the image you are using, manually creating an instance from it and attempting connection via the whirr.bootstrap-user (ec2-user) by SSH and troubleshooting.  If this is successful, you should attempt to connect to the nodes provisioned by Whirr, by using the hosts specified in the cloud web console, the whirr.cluster-user (whirr) and the whirr.private-key-file (~/.ssh/whirr). If the connections succeeds, it is likely Whirr is still running and or blocking and the scripts and logs Whirr stages to /tmp on each node should help to determine the root cause:
 
 ```bash
 ssh -o StrictHostKeyChecking=no -i ~/.ssh/whirr whirr@ec2-54-212-158-37.us-west-2.compute.amazonaws.com "ls -la /tmp/bootstrap* /tmp/configure*"
 ```
 
-If you destroy the instances Whirr has created outside of Whirr (ie through the cloud web console) you will have to clean up the Whirr instance store before re-running:
+If you destroy the instances Whirr has created outside of Whirr (ie through a cloud web console) you will have to clean up the Whirr instance store before re-running:
 
 ```bash
 rm -rf ~/.whirr/mycluster
@@ -233,7 +234,7 @@ rm -rf ~/.whirr/mycluster
 
 ## Unit and Integration Tests
 
-This project includes a full suite of unit tests, launchable via:
+This project includes a full suite of unit tests, launched via:
 
 ```bash
 mvn clean test
@@ -268,7 +269,7 @@ mvn clean test -Dtest=CmServerCommandIT#testCreateServices -Dwhirr.test.identity
 mvn clean test -Dtest=CmServerCommandIT#testCreateServices -Dwhirr.test.identity=$AWS_ACCESS_KEY -Dwhirr.test.credential=$AWS_SECRET_KEY -Dwhirr.test.platform=centos -Dwhirr.test.cm.version=cm4.6.2 -Dwhirr.test.cm.api.version=v4 -Dwhirr.test.cm.cdh.version=cdh4
 ```
 
-Note that 'whirr.test.cm.cdh.version' specifies only the major CDH version, both the minor and incremental versions are defaulted to the latest available from the list of parcel repos defined by 'whirr.cm.config.cm.remote_parcel_repo_urls', which defaults to the latest available.
+Note that 'whirr.test.cm.cdh.version' specifies only the major CDH version, both the minor and incremental versions are defaulted to the latest available from the list of parcel repos defined by 'whirr.cm.config.cm.remote_parcel_repo_urls', defaulting to the latest available.
 
 The [CmServerSmokeSuiteIT](src/test/java/com/cloudera/whirr/cm/integration/CmServerSmokeSuiteIT.java) leverages a matrix of platforms and component versions to test all supported permutations, it ignores the command line switches.
 
@@ -289,6 +290,4 @@ mvn exec:java -Dexec.mainClass="com.cloudera.whirr.cm.integration.BaseITServer\$
 ```
 
 As a convenience (especially for running within an IDE) the integration tests source the [cm-test.properties](cm-test.properties) as 
-system and whirr properties prior to execution, absolving the need to specify these properties in less convenient forms (eg command line switches, maven properties, IDE properties etc).
-
-
+system and Whirr properties prior to execution, absolving the need to specify these properties in less convenient forms (eg command line switches, maven properties, IDE properties etc).

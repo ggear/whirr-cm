@@ -85,16 +85,24 @@ public class CmServerImpl implements CmServer {
 
   // CM Version Matrix, of form {CM_VERSION=CM_API_VERSION}
   // Entry for the latest CM minor version for each API upgrade, from baseline 4.5.0
-  public static Map<String, Integer> CM_VERSION_API_MATRIX = ImmutableMap.of("4.5.0", 3, "4.5.3", 3, "4.6.3", 4,
-      "4.7.0", 5, "5.0.0", 6);
-  public static String CM_VERSION_EARLIEST = CM_VERSION_API_MATRIX.keySet().toArray(
-      new String[CM_VERSION_API_MATRIX.size()])[0];
-  public static String CM_VERSION_LATEST = CM_VERSION_API_MATRIX.keySet().toArray(
-      new String[CM_VERSION_API_MATRIX.size()])[CM_VERSION_API_MATRIX.size() - 1];
-  public static int CM_VERSION_API_EARLIEST = CM_VERSION_API_MATRIX.values().toArray(
-      new Integer[CM_VERSION_API_MATRIX.size()])[0];
-  public static int CM_VERSION_API_LATEST = CM_VERSION_API_MATRIX.values().toArray(
-      new Integer[CM_VERSION_API_MATRIX.size()])[CM_VERSION_API_MATRIX.size() - 1];
+  public static Map<String, Integer> VERSION_CM_API_MATRIX = ImmutableMap.of("4.5.0", 3, "4.5.3", 3, "4.6.3", 4,
+      "4.8.0", 5, "5.0.0", 6);
+  public static String VERSION_CM_API_MATRIX_CM_MIN = VERSION_CM_API_MATRIX.keySet().toArray(
+      new String[VERSION_CM_API_MATRIX.size()])[0];
+  public static String VERSION_CM_API_MATRIX_CM_MAX = VERSION_CM_API_MATRIX.keySet().toArray(
+      new String[VERSION_CM_API_MATRIX.size()])[VERSION_CM_API_MATRIX.size() - 1];
+  public static int VERSION_CM_API_MATRIX_CM_MAX_MAJOR = new DefaultArtifactVersion(VERSION_CM_API_MATRIX_CM_MAX)
+      .getMajorVersion();
+  public static int CM_VERSION_API_EARLIEST = VERSION_CM_API_MATRIX.values().toArray(
+      new Integer[VERSION_CM_API_MATRIX.size()])[0];
+  public static int VERSION_CM_API_MATRIX_API_MAX = VERSION_CM_API_MATRIX.values().toArray(
+      new Integer[VERSION_CM_API_MATRIX.size()])[VERSION_CM_API_MATRIX.size() - 1];
+
+  public static int VERSION_CM_MIN = 5;
+  public static int VERSION_CDH_MIN = 4;
+  public static int VERSION_CDH_MAX = 5;
+
+  private static final String CDH_REPO_PREFIX = "CDH";
 
   private static final String CM_PARCEL_STAGE_DOWNLOADED = "DOWNLOADED";
   private static final String CM_PARCEL_STAGE_DISTRIBUTED = "DISTRIBUTED";
@@ -110,7 +118,7 @@ public class CmServerImpl implements CmServer {
 
   private String version;
   private int versionApi;
-  private ApiClusterVersion versionCdh;
+  private int versionCdh;
   private CmServerService host;
 
   final private RootResourceV3 apiResourceRootV3;
@@ -142,15 +150,21 @@ public class CmServerImpl implements CmServer {
     if (version != null && !version.equals("")) {
       String versionFullyQualified = version.contains(".") ? version : version + "." + Integer.MAX_VALUE + "."
           + Integer.MAX_VALUE;
-      if (new DefaultArtifactVersion(versionFullyQualified).compareTo(new DefaultArtifactVersion(CM_VERSION_EARLIEST)) < 0
+      if (new DefaultArtifactVersion(versionFullyQualified).compareTo(new DefaultArtifactVersion(
+          VERSION_CM_API_MATRIX_CM_MIN)) < 0
           || new DefaultArtifactVersion(versionFullyQualified).compareTo(new DefaultArtifactVersion(
-              new DefaultArtifactVersion(CM_VERSION_LATEST).getMajorVersion() + "." + Integer.MAX_VALUE + "."
-                  + Integer.MAX_VALUE)) > 0) {
+              new DefaultArtifactVersion(VERSION_CM_API_MATRIX_CM_MAX).getMajorVersion() + "." + Integer.MAX_VALUE
+                  + "." + Integer.MAX_VALUE)) > 0) {
         throw new CmServerException("Requested CM version [" + version
-            + "] is invalid and cannot be reconciled with CM versions " + CM_VERSION_API_MATRIX.keySet());
+            + "] is invalid and cannot be reconciled with CM versions " + VERSION_CM_API_MATRIX.keySet());
       } else {
         versionValidated = version;
       }
+    }
+    versionValidated = versionValidated == null ? "" + VERSION_CM_API_MATRIX_CM_MAX_MAJOR : versionValidated;
+    if (new DefaultArtifactVersion(versionValidated).getMajorVersion() < VERSION_CM_MIN) {
+      throw new CmServerException("Requested CM version [" + version + "] is below required mininum [" + VERSION_CM_MIN
+          + "]");
     }
     return versionValidated;
   }
@@ -158,11 +172,11 @@ public class CmServerImpl implements CmServer {
   protected int getVersionApi(String version, String versionApi) throws CmServerException {
     Integer versionApiValidated = null;
     if (version == null || version.equals("")) {
-      version = CM_VERSION_LATEST;
+      version = VERSION_CM_API_MATRIX_CM_MAX;
     }
     if (!version.contains(".")) {
       String versionLatest = null;
-      for (String versionIterator : CM_VERSION_API_MATRIX.keySet()) {
+      for (String versionIterator : VERSION_CM_API_MATRIX.keySet()) {
         if (versionIterator.startsWith(version)) {
           versionLatest = versionIterator;
         }
@@ -171,13 +185,13 @@ public class CmServerImpl implements CmServer {
     }
     if (version != null) {
       ArtifactVersion versionArtifact = new DefaultArtifactVersion(version);
-      for (String versionUpperBound : CM_VERSION_API_MATRIX.keySet()) {
+      for (String versionUpperBound : VERSION_CM_API_MATRIX.keySet()) {
         if (versionArtifact.compareTo(new DefaultArtifactVersion(versionUpperBound)) <= 0) {
-          versionApiValidated = CM_VERSION_API_MATRIX.get(versionUpperBound);
+          versionApiValidated = VERSION_CM_API_MATRIX.get(versionUpperBound);
           break;
         }
         if (versionApiValidated == null) {
-          versionApiValidated = CM_VERSION_API_LATEST;
+          versionApiValidated = VERSION_CM_API_MATRIX_API_MAX;
         }
       }
     }
@@ -188,7 +202,7 @@ public class CmServerImpl implements CmServer {
             .compareTo(new DefaultArtifactVersion(versionApiValidated.toString())) > 0 || new DefaultArtifactVersion(
             versionApi).compareTo(new DefaultArtifactVersion("" + CM_VERSION_API_EARLIEST)) < 0)) {
       throw new CmServerException("Requested CM API version [" + versionApi + "] of CM version [" + version
-          + "] could not be reconciled with CM API version matrix " + CM_VERSION_API_MATRIX);
+          + "] could not be reconciled with CM API version matrix " + VERSION_CM_API_MATRIX);
     }
     if (versionApi != null && !StringUtils.isNumeric(versionApi)) {
       throw new CmServerException("CM API version requested is non-numeric [" + versionApi + "]");
@@ -196,17 +210,18 @@ public class CmServerImpl implements CmServer {
     return versionApi == null ? versionApiValidated : Integer.parseInt(versionApi);
   }
 
-  protected ApiClusterVersion getVersionCdh(String versionCdh) throws CmServerException {
-    ApiClusterVersion versionCdhValidated = null;
+  protected int getVersionCdh(String versionCdh) throws CmServerException {
+    int versionCdhValidated;
     if (versionCdh == null || versionCdh.equals("")) {
-      versionCdhValidated = ApiClusterVersion.CDH5;
+      versionCdhValidated = VERSION_CDH_MAX;
     } else {
       try {
-        versionCdhValidated = ApiClusterVersion.valueOf("CDH" + versionCdh);
-        if (new DefaultArtifactVersion(versionCdh).getMajorVersion() < 4) {
-          throw new CmServerException("CDH version requested [" + versionApi + "] is below mininum supported [4]");
+        versionCdhValidated = new DefaultArtifactVersion(versionCdh).getMajorVersion();
+        if (versionCdhValidated < 4 || versionCdhValidated > VERSION_CDH_MAX) {
+          throw new CmServerException("CDH version requested [" + versionApi
+              + "] is not within the supported major version range [" + VERSION_CDH_MIN + "-" + VERSION_CDH_MAX + "]");
         }
-      } catch (IllegalArgumentException e) {
+      } catch (Exception e) {
         throw new CmServerException("CDH version requested [" + versionApi + "] cannot be corelated with CDH versions "
             + Arrays.asList(ApiClusterVersion.values()));
       }
@@ -225,8 +240,8 @@ public class CmServerImpl implements CmServer {
   }
 
   @Override
-  public String getVersionCdh() {
-    return versionCdh.toString();
+  public int getVersionCdh() {
+    return versionCdh;
   }
 
   @Override
@@ -410,7 +425,7 @@ public class CmServerImpl implements CmServer {
   public CmServerService getService(final CmServerCluster cluster, final CmServerServiceType type)
       throws CmServerException {
 
-    return getServices(cluster, type).getService(type, versionApi);
+    return getServices(cluster, type).getService(type, versionApi, versionCdh);
 
   }
 
@@ -421,7 +436,8 @@ public class CmServerImpl implements CmServer {
     final CmServerCluster clusterView = new CmServerCluster();
     try {
 
-      for (CmServerService service : getServices(cluster).getServices(CmServerServiceType.CLUSTER, versionApi)) {
+      for (CmServerService service : getServices(cluster).getServices(CmServerServiceType.CLUSTER, versionApi,
+          versionCdh)) {
         if (type.equals(CmServerServiceType.CLUSTER) || type.equals(service.getType().getParent())
             || type.equals(service.getType())) {
           clusterView.addService(service);
@@ -465,7 +481,7 @@ public class CmServerImpl implements CmServer {
     try {
 
       if (isProvisioned(cluster)) {
-        for (CmServerService service : cluster.getServices(CmServerServiceType.CLUSTER, versionApi)) {
+        for (CmServerService service : cluster.getServices(CmServerServiceType.CLUSTER, versionApi, versionCdh)) {
           servicesNotConfigured.add(service.getName());
         }
         for (ApiService apiService : apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
@@ -494,7 +510,7 @@ public class CmServerImpl implements CmServer {
     try {
 
       if (isConfigured(cluster)) {
-        for (CmServerService service : cluster.getServices(CmServerServiceType.CLUSTER, versionApi)) {
+        for (CmServerService service : cluster.getServices(CmServerServiceType.CLUSTER, versionApi, versionCdh)) {
           servicesNotStarted.add(service.getName());
         }
         for (ApiService apiService : apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
@@ -525,7 +541,7 @@ public class CmServerImpl implements CmServer {
     try {
 
       if (isConfigured(cluster)) {
-        for (CmServerService service : cluster.getServices(CmServerServiceType.CLUSTER, versionApi)) {
+        for (CmServerService service : cluster.getServices(CmServerServiceType.CLUSTER, versionApi, versionCdh)) {
           servicesNotStopped.add(service.getName());
         }
         for (ApiService apiService : apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
@@ -643,15 +659,15 @@ public class CmServerImpl implements CmServer {
           configure(cluster);
         }
         if (!isStarted(cluster)) {
-          for (CmServerServiceType type : cluster.getServiceTypes(versionApi)) {
+          for (CmServerServiceType type : cluster.getServiceTypes(versionApi, versionCdh)) {
             if (isFirstStartRequired) {
-              for (CmServerService service : cluster.getServices(type, versionApi)) {
+              for (CmServerService service : cluster.getServices(type, versionApi, versionCdh)) {
                 initPreStartServices(cluster, service);
               }
             }
             startService(cluster, type);
             if (isFirstStartRequired) {
-              for (CmServerService service : cluster.getServices(type, versionApi)) {
+              for (CmServerService service : cluster.getServices(type, versionApi, versionCdh)) {
                 initPostStartServices(cluster, service);
               }
             }
@@ -687,7 +703,7 @@ public class CmServerImpl implements CmServer {
       if (!cluster.isEmpty()) {
         if (isConfigured(cluster) && !isStopped(cluster)) {
           final Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>(Collections.reverseOrder());
-          types.addAll(cluster.getServiceTypes(versionApi));
+          types.addAll(cluster.getServiceTypes(versionApi, versionCdh));
           for (CmServerServiceType type : types) {
             stopService(cluster, type);
           }
@@ -884,7 +900,7 @@ public class CmServerImpl implements CmServer {
     final ApiClusterList clusterList = new ApiClusterList();
     ApiCluster apiCluster = new ApiCluster();
     apiCluster.setName(getName(cluster));
-    apiCluster.setVersion(versionCdh);
+    apiCluster.setVersion(ApiClusterVersion.valueOf(CDH_REPO_PREFIX + versionCdh));
     clusterList.add(apiCluster);
 
     logger.logOperation("CreateCluster", new CmServerLogSyncCommand() {
@@ -908,12 +924,12 @@ public class CmServerImpl implements CmServer {
         new ApiConfigList(Arrays.asList(new ApiConfig[] { new ApiConfig("PARCEL_UPDATE_FREQ", "1") })));
 
     final Set<String> repositoriesRequired = new HashSet<String>();
-    for (CmServerServiceType type : cluster.getServiceTypes(versionApi)) {
-      repositoriesRequired.add(type.getRepository().toString(versionCdh.toString()));
+    for (CmServerServiceType type : cluster.getServiceTypes(versionApi, versionCdh)) {
+      repositoriesRequired.add(type.getRepository().toString(CDH_REPO_PREFIX + versionCdh));
     }
     final List<String> repositoriesRequiredOrdered = new ArrayList<String>();
     for (String repository : repositoriesRequired) {
-      if (repository.equals("CDH")) {
+      if (repository.equals(CDH_REPO_PREFIX)) {
         repositoriesRequiredOrdered.add(0, repository);
       } else {
         repositoriesRequiredOrdered.add(repository);
@@ -944,8 +960,7 @@ public class CmServerImpl implements CmServer {
           .readParcels(DataView.FULL).getParcels()) {
         DefaultArtifactVersion parcelVersionTmp = new DefaultArtifactVersion(apiParcel.getVersion());
         if (apiParcel.getProduct().equals(repository)) {
-          if (!apiParcel.getProduct().equals("CDH")
-              || versionCdh.toString().equals("CDH" + parcelVersionTmp.getMajorVersion())) {
+          if (!apiParcel.getProduct().equals(CDH_REPO_PREFIX) || versionCdh == parcelVersionTmp.getMajorVersion()) {
             if (parcelVersion == null || parcelVersion.compareTo(parcelVersionTmp) < 0) {
               parcelVersion = new DefaultArtifactVersion(apiParcel.getVersion());
             }
@@ -987,7 +1002,7 @@ public class CmServerImpl implements CmServer {
       public void execute() throws IOException, InterruptedException, CmServerException {
 
         ApiServiceList serviceList = new ApiServiceList();
-        for (CmServerServiceType type : cluster.getServiceTypes(versionApi)) {
+        for (CmServerServiceType type : cluster.getServiceTypes(versionApi, versionCdh)) {
 
           ApiService apiService = new ApiService();
           List<ApiRole> apiRoles = new ArrayList<ApiRole>();
@@ -1020,9 +1035,22 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("solr_service", cluster.getServiceName(CmServerServiceType.HBASE)));
             break;
           case HUE:
-            apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_NAMENODE)));
-            apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
+            apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_HTTP_FS)));
             apiServiceConfig.add(new ApiConfig("oozie_service", cluster.getServiceName(CmServerServiceType.OOZIE)));
+            apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
+            Set<CmServerServiceType> serviceTypes = cluster.getServiceTypes(versionApi, versionCdh);
+            if (serviceTypes.contains(CmServerServiceType.HBASE)) {
+              apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.IMPALA)) {
+              apiServiceConfig.add(new ApiConfig("impala_service", cluster.getServiceName(CmServerServiceType.IMPALA)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.SOLR)) {
+              apiServiceConfig.add(new ApiConfig("solr_service", cluster.getServiceName(CmServerServiceType.SOLR)));
+            }
+            if (serviceTypes.contains(CmServerServiceType.SQOOP)) {
+              apiServiceConfig.add(new ApiConfig("sqoop_service", cluster.getServiceName(CmServerServiceType.SQOOP)));
+            }
             break;
           case SQOOP:
             apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
@@ -1053,8 +1081,8 @@ public class CmServerImpl implements CmServer {
           }
           apiService.setConfig(apiServiceConfig);
 
-          for (CmServerService subService : cluster.getServices(type, versionApi)) {
-            if (versionApi >= subService.getType().getVersion()) {
+          for (CmServerService subService : cluster.getServices(type, versionApi, versionCdh)) {
+            if (subService.getType().isValid(versionApi, versionCdh)) {
               CmServerService subServiceHost = getServiceHost(subService, services);
               if (subServiceHost == null || subServiceHost.getHost() == null) {
                 throw new CmServerException("Could not find CM agent host to match [" + subService + "]");
@@ -1074,7 +1102,7 @@ public class CmServerImpl implements CmServer {
 
         apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster)).createServices(serviceList);
 
-        for (CmServerServiceType type : cluster.getServiceTypes(versionApi)) {
+        for (CmServerServiceType type : cluster.getServiceTypes(versionApi, versionCdh)) {
           for (ApiRoleConfigGroup roleConfigGroup : apiResourceRootV3.getClustersResource()
               .getServicesResource(getName(cluster)).getRoleConfigGroupsResource(cluster.getServiceName(type))
               .readRoleConfigGroups()) {
@@ -1115,7 +1143,7 @@ public class CmServerImpl implements CmServer {
     });
 
     // Necessary, since createServices a habit of kicking off async commands (eg ZkAutoInit )
-    for (CmServerServiceType type : cluster.getServiceTypes(versionApi)) {
+    for (CmServerServiceType type : cluster.getServiceTypes(versionApi, versionCdh)) {
       for (ApiCommand command : apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
           .listActiveCommands(cluster.getServiceName(type), DataView.SUMMARY)) {
         CmServerImpl.this.execute(command, false);
@@ -1129,7 +1157,7 @@ public class CmServerImpl implements CmServer {
   private void unconfigureServices(final CmServerCluster cluster) throws IOException, InterruptedException {
 
     final Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>(Collections.reverseOrder());
-    types.addAll(cluster.getServiceTypes(versionApi));
+    types.addAll(cluster.getServiceTypes(versionApi, versionCdh));
     logger.logOperation("DestroyClusterServices", new CmServerLogSyncCommand() {
       @Override
       public void execute() throws IOException {

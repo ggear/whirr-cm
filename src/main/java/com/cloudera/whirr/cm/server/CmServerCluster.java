@@ -52,23 +52,23 @@ public class CmServerCluster {
     return this.name = name;
   }
 
-  public synchronized void addServiceConfiguration(String version, String group, String setting, String value)
+  public synchronized void addServiceConfiguration(String versionApi, String group, String setting, String value)
       throws CmServerException {
-    if (configuration.get(version) == null) {
-      configuration.put(version, new HashMap<String, Map<String, String>>());
+    if (configuration.get(versionApi) == null) {
+      configuration.put(versionApi, new HashMap<String, Map<String, String>>());
     }
-    if (configuration.get(version).get(group) == null) {
-      configuration.get(version).put(group, new HashMap<String, String>());
+    if (configuration.get(versionApi).get(group) == null) {
+      configuration.get(versionApi).put(group, new HashMap<String, String>());
     }
-    configuration.get(version).get(group).put(setting, value);
+    configuration.get(versionApi).get(group).put(setting, value);
   }
 
   public synchronized void addServiceConfigurationAll(Map<String, Map<String, Map<String, String>>> configuration)
       throws CmServerException {
-    for (String version : configuration.keySet()) {
-      for (String group : configuration.get(version).keySet()) {
-        for (String setting : configuration.get(version).get(group).keySet()) {
-          addServiceConfiguration(version, group, setting, configuration.get(version).get(group).get(setting));
+    for (String versionApi : configuration.keySet()) {
+      for (String group : configuration.get(versionApi).keySet()) {
+        for (String setting : configuration.get(versionApi).get(group).keySet()) {
+          addServiceConfiguration(versionApi, group, setting, configuration.get(versionApi).get(group).get(setting));
         }
       }
     }
@@ -124,14 +124,22 @@ public class CmServerCluster {
     return true;
   }
 
+  public synchronized int getServiceCount() {
+    int count = 0;
+    for (CmServerServiceType type : services.keySet()) {
+      count += services.get(type).size();
+    }
+    return count;
+  }
+
   public synchronized Set<CmServerServiceType> getServiceTypes() {
     return new TreeSet<CmServerServiceType>(services.keySet());
   }
 
-  public synchronized Set<CmServerServiceType> getServiceTypes(int version) {
+  public synchronized Set<CmServerServiceType> getServiceTypes(int versionApi, int versionCdh) {
     Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>();
     for (CmServerServiceType type : services.keySet()) {
-      if (version < 0 || type.getVersion() <= version) {
+      if (type.isValid(versionApi, versionCdh)) {
         types.add(type);
       }
     }
@@ -139,29 +147,29 @@ public class CmServerCluster {
   }
 
   public synchronized Set<CmServerServiceType> getServiceTypes(CmServerServiceType type) {
-    return getServiceTypes(type, -1);
+    return getServiceTypes(type, CmServerService.VERSION_UNBOUNDED, CmServerService.VERSION_UNBOUNDED);
   }
 
-  public synchronized Set<CmServerServiceType> getServiceTypes(CmServerServiceType type, int version) {
+  public synchronized Set<CmServerServiceType> getServiceTypes(CmServerServiceType type, int versionApi, int versionCdh) {
     Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>();
     if (type.equals(CmServerServiceType.CLUSTER)) {
       for (CmServerServiceType serviceType : services.keySet()) {
         for (CmServerService service : services.get(serviceType)) {
-          if (version < 0 || service.getType().getVersion() <= version) {
+          if (service.getType().isValid(versionApi, versionCdh)) {
             types.add(service.getType());
           }
         }
       }
     } else if (services.containsKey(type)) {
       for (CmServerService service : services.get(type)) {
-        if (version < 0 || service.getType().getVersion() <= version) {
+        if (service.getType().isValid(versionApi, versionCdh)) {
           types.add(service.getType());
         }
       }
     } else if (services.containsKey(type.getParent())) {
       for (CmServerService service : services.get(type.getParent())) {
         if (service.getType().equals(type)) {
-          if (version < 0 || service.getType().getVersion() <= version) {
+          if (service.getType().isValid(versionApi, versionCdh)) {
             types.add(service.getType());
           }
         }
@@ -171,25 +179,25 @@ public class CmServerCluster {
   }
 
   public synchronized CmServerService getService(CmServerServiceType type) {
-    return getService(type, -1);
+    return getService(type, CmServerService.VERSION_UNBOUNDED, CmServerService.VERSION_UNBOUNDED);
   }
 
-  public synchronized CmServerService getService(CmServerServiceType type, int vesion) {
-    Set<CmServerService> serviceCopy = getServices(type, vesion);
+  public synchronized CmServerService getService(CmServerServiceType type, int vesionApi, int versionCdh) {
+    Set<CmServerService> serviceCopy = getServices(type, vesionApi, versionCdh);
     return serviceCopy.size() == 0 ? null : serviceCopy.iterator().next();
   }
 
   public synchronized Set<CmServerService> getServices(CmServerServiceType type) {
-    return getServices(type, -1);
+    return getServices(type, CmServerService.VERSION_UNBOUNDED, CmServerService.VERSION_UNBOUNDED);
   }
 
-  public synchronized Set<CmServerService> getServices(CmServerServiceType type, int version) {
+  public synchronized Set<CmServerService> getServices(CmServerServiceType type, int versionApi, int versionCdh) {
     Set<CmServerService> servicesCopy = new TreeSet<CmServerService>();
     if (type.equals(CmServerServiceType.CLUSTER)) {
       for (CmServerServiceType serviceType : services.keySet()) {
-        if (version < 0 || serviceType.getVersion() <= version) {
+        if (type.isValid(versionApi, versionCdh)) {
           for (CmServerService serviceTypeSub : services.get(serviceType)) {
-            if (version < 0 || serviceTypeSub.getType().getVersion() <= version) {
+            if (serviceTypeSub.getType().isValid(versionApi, versionCdh)) {
               servicesCopy.add(serviceTypeSub);
             }
           }
@@ -197,14 +205,14 @@ public class CmServerCluster {
       }
     } else if (services.containsKey(type)) {
       for (CmServerService serviceTypeSub : services.get(type)) {
-        if (version < 0 || serviceTypeSub.getType().getVersion() <= version) {
+        if (serviceTypeSub.getType().isValid(versionApi, versionCdh)) {
           servicesCopy.add(serviceTypeSub);
         }
       }
     } else if (services.containsKey(type.getParent())) {
       for (CmServerService service : services.get(type.getParent())) {
         if (service.getType().equals(type)) {
-          if (version < 0 || service.getType().getVersion() <= version) {
+          if (service.getType().isValid(versionApi, versionCdh)) {
             servicesCopy.add(service);
           }
         }
@@ -249,13 +257,13 @@ public class CmServerCluster {
     return configuration;
   }
 
-  public synchronized Map<String, Map<String, String>> getServiceConfiguration(int version) {
+  public synchronized Map<String, Map<String, String>> getServiceConfiguration(int versionApi) {
     Map<String, Map<String, String>> configuration = new HashMap<String, Map<String, String>>();
     for (String configVersion : this.configuration.keySet()) {
       for (String configGroup : this.configuration.get(configVersion).keySet()) {
         for (String configSetting : this.configuration.get(configVersion).get(configGroup).keySet()) {
           if (StringUtils.isNumeric(configVersion)) {
-            if (version < 0 || Integer.parseInt(configVersion) <= version) {
+            if (versionApi < 0 || Integer.parseInt(configVersion) <= versionApi) {
               if (configuration.get(configGroup) == null) {
                 configuration.put(configGroup, new HashMap<String, String>());
               }

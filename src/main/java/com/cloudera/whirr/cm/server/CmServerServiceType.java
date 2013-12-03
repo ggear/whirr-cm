@@ -20,81 +20,121 @@ package com.cloudera.whirr.cm.server;
 public enum CmServerServiceType {
 
   // Cluster
-  CLUSTER(null, "CLUSTER", 3, CmServerServiceTypeRepo.CDH),
+  CLUSTER(null, "CLUSTER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED),
 
   // Gateway
-  GATEWAY(null, "GATEWAY", 3, CmServerServiceTypeRepo.CDH),
+  GATEWAY(null, "GATEWAY", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED),
 
   // HDFS
-  HDFS(CLUSTER, "HDFS", 3, CmServerServiceTypeRepo.CDH), HDFS_GATEWAY(HDFS, "HDFS_GATEWAY", 3,
-      CmServerServiceTypeRepo.CDH), HDFS_NAMENODE(HDFS, "NAMENODE", 3, CmServerServiceTypeRepo.CDH), HDFS_SECONDARY_NAMENODE(
-      HDFS, "SECONDARYNAMENODE", 3, CmServerServiceTypeRepo.CDH), HDFS_BALANCER(HDFS, "BALANCER", 3,
-      CmServerServiceTypeRepo.CDH), HDFS_FAILOVER_CONTROLLER(HDFS, "FAILOVERCONTROLLER", 3, CmServerServiceTypeRepo.CDH), HDFS_JOURNALNODE(
-      HDFS, "JOURNALNODE", 3, CmServerServiceTypeRepo.CDH), HDFS_HTTP_FS(HDFS, "HTTPFS", 3, CmServerServiceTypeRepo.CDH), HDFS_DATANODE(
-      HDFS, "DATANODE", 3, CmServerServiceTypeRepo.CDH),
+  HDFS(CLUSTER, "HDFS", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HDFS_GATEWAY(HDFS, "HDFS_GATEWAY", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HDFS_NAMENODE(HDFS, "NAMENODE",
+      CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HDFS_SECONDARY_NAMENODE(
+      HDFS, "SECONDARYNAMENODE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HDFS_BALANCER(HDFS, "BALANCER", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HDFS_FAILOVER_CONTROLLER(HDFS,
+      "FAILOVERCONTROLLER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HDFS_JOURNALNODE(HDFS, "JOURNALNODE", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HDFS_HTTP_FS(HDFS, "HTTPFS",
+      CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HDFS_DATANODE(
+      HDFS, "DATANODE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED),
 
   // MapReduce
-  MAPREDUCE(CLUSTER, "MAPREDUCE", 3, CmServerServiceTypeRepo.CDH), MAPREDUCE_GATEWAY(MAPREDUCE, "MAPREDUCE_GATEWAY", 3,
-      CmServerServiceTypeRepo.CDH), MAPREDUCE_JOB_TRACKER(MAPREDUCE, "JOBTRACKER", 3, CmServerServiceTypeRepo.CDH), MAPREDUCE_TASK_TRACKER(
-      MAPREDUCE, "TASKTRACKER", 3, CmServerServiceTypeRepo.CDH),
+  MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), MAPREDUCE_GATEWAY(MAPREDUCE, "MAPREDUCE_GATEWAY",
+      CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), MAPREDUCE_JOB_TRACKER(
+      MAPREDUCE, "JOBTRACKER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), MAPREDUCE_TASK_TRACKER(MAPREDUCE, "TASKTRACKER", CmServerServiceTypeRepo.CDH,
+      3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Zookeeper
-  ZOOKEEPER(CLUSTER, "ZOOKEEPER", 3, CmServerServiceTypeRepo.CDH), ZOOKEEPER_SERVER(ZOOKEEPER, "SERVER", 3,
-      CmServerServiceTypeRepo.CDH),
+  ZOOKEEPER(CLUSTER, "ZOOKEEPER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), ZOOKEEPER_SERVER(ZOOKEEPER, "SERVER", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // HBase
-  HBASE(CLUSTER, "HBASE", 3, CmServerServiceTypeRepo.CDH), HBASE_GATEWAY(HBASE, "HBASE_GATEWAY", 3,
-      CmServerServiceTypeRepo.CDH), HBASE_MASTER(HBASE, "MASTER", 3, CmServerServiceTypeRepo.CDH), HBASE_THRIFT_SERVER(
-      HBASE, "HBASETHRIFTSERVER", 3, CmServerServiceTypeRepo.CDH), HBASE_REST_SERVER(HBASE, "HBASERESTSERVER", 3,
-      CmServerServiceTypeRepo.CDH), HBASE_REGIONSERVER(HBASE, "REGIONSERVER", 3, CmServerServiceTypeRepo.CDH),
+  HBASE(CLUSTER, "HBASE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HBASE_GATEWAY(HBASE, "HBASE_GATEWAY", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HBASE_MASTER(HBASE, "MASTER",
+      CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HBASE_THRIFT_SERVER(
+      HBASE, "HBASETHRIFTSERVER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HBASE_REST_SERVER(HBASE, "HBASERESTSERVER", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HBASE_REGIONSERVER(HBASE,
+      "REGIONSERVER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED),
 
   // Hive
-  HIVE(CLUSTER, "HIVE", 3, CmServerServiceTypeRepo.CDH), HIVE_GATEWAY(HIVE, "HIVE_GATEWAY", 3,
-      CmServerServiceTypeRepo.CDH), HIVE_METASTORE(HIVE, "HIVEMETASTORE", 3, CmServerServiceTypeRepo.CDH), HIVE_SERVER2(
-      HIVE, "HIVESERVER2", 4, CmServerServiceTypeRepo.CDH), HIVE_HCATALOG(HIVE, "WEBHCAT", 4,
-      CmServerServiceTypeRepo.CDH),
+  HIVE(CLUSTER, "HIVE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HIVE_GATEWAY(HIVE, "HIVE_GATEWAY", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HIVE_METASTORE(HIVE, "HIVEMETASTORE",
+      CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HIVE_SERVER2(
+      HIVE, "HIVESERVER2", CmServerServiceTypeRepo.CDH, 4, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HIVE_HCATALOG(HIVE, "WEBHCAT", CmServerServiceTypeRepo.CDH, 4,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Solr
-  SOLR(CLUSTER, "SOLR", 4, CmServerServiceTypeRepo.SOLR), SOLR_SERVER(SOLR, "SOLR_SERVER", 4,
-      CmServerServiceTypeRepo.SOLR),
+  SOLR(CLUSTER, "SOLR", CmServerServiceTypeRepo.SOLR, 4, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), SOLR_SERVER(SOLR, "SOLR_SERVER", CmServerServiceTypeRepo.SOLR, 4,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Solr Indexers
-  SOLR_INDEXER(CLUSTER, "KS_INDEXER", 5, CmServerServiceTypeRepo.SOLR), SOLR_INDEXER_HBASE(SOLR_INDEXER,
-      "HBASE_INDEXER", 5, CmServerServiceTypeRepo.SOLR),
+  SOLR_INDEXER(CLUSTER, "KS_INDEXER", CmServerServiceTypeRepo.SOLR, 5, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), SOLR_INDEXER_HBASE(SOLR_INDEXER, "HBASE_INDEXER",
+      CmServerServiceTypeRepo.SOLR, 5, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Sqoop
-  SQOOP(CLUSTER, "SQOOP", 4, CmServerServiceTypeRepo.CDH), SQOOP_SERVER(SQOOP, "SQOOP_SERVER", 4,
-      CmServerServiceTypeRepo.CDH),
-
-  // Hue
-  HUE(CLUSTER, "HUE", 3, CmServerServiceTypeRepo.CDH), HUE_SERVER(HUE, "HUE_SERVER", 3, CmServerServiceTypeRepo.CDH), HUE_BEESWAX_SERVER(
-      HUE, "BEESWAX_SERVER", 3, CmServerServiceTypeRepo.CDH),
+  SQOOP(CLUSTER, "SQOOP", CmServerServiceTypeRepo.CDH, 4, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), SQOOP_SERVER(SQOOP, "SQOOP_SERVER", CmServerServiceTypeRepo.CDH, 4,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Oozie
-  OOZIE(CLUSTER, "OOZIE", 3, CmServerServiceTypeRepo.CDH), OOZIE_SERVER(OOZIE, "OOZIE_SERVER", 3,
-      CmServerServiceTypeRepo.CDH),
+  OOZIE(CLUSTER, "OOZIE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), OOZIE_SERVER(OOZIE, "OOZIE_SERVER", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Impala
-  IMPALA(CLUSTER, "IMPALA", 3, CmServerServiceTypeRepo.IMPALA), IMPALA_STATE_STORE(IMPALA, "STATESTORE", 3,
-      CmServerServiceTypeRepo.IMPALA), IMPALA_DAEMON(IMPALA, "IMPALAD", 3, CmServerServiceTypeRepo.IMPALA), IMPALA_CATALOGSERVER(
-      IMPALA, "CATALOGSERVER", 6, CmServerServiceTypeRepo.IMPALA),
+  IMPALA(CLUSTER, "IMPALA", CmServerServiceTypeRepo.IMPALA, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), IMPALA_STATE_STORE(IMPALA, "STATESTORE", CmServerServiceTypeRepo.IMPALA, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), IMPALA_DAEMON(IMPALA, "IMPALAD",
+      CmServerServiceTypeRepo.IMPALA, 3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), IMPALA_CATALOGSERVER(
+      IMPALA, "CATALOGSERVER", CmServerServiceTypeRepo.IMPALA, 6, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED),
 
   // Flume
-  FLUME(CLUSTER, "FLUME", 3, CmServerServiceTypeRepo.CDH), FLUME_AGENT(FLUME, "AGENT", 3, CmServerServiceTypeRepo.CDH),
+  FLUME(CLUSTER, "FLUME", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), FLUME_AGENT(FLUME, "AGENT", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
+
+  // Hue
+  HUE(CLUSTER, "HUE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), HUE_SERVER(HUE, "HUE_SERVER", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), HUE_BEESWAX_SERVER(HUE,
+      "BEESWAX_SERVER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 4),
 
   // Client
-  CLIENT(CLUSTER, "GATEWAY", 3, CmServerServiceTypeRepo.CDH);
+  CLIENT(CLUSTER, "GATEWAY", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED);
 
   private CmServerServiceType parent;
   private String id;
-  private int version;
   private CmServerServiceTypeRepo respository;
+  private int versionApiMin;
+  private int versionApiMax;
+  private int versionCdhMin;
+  private int versionCdhMax;
 
-  private CmServerServiceType(CmServerServiceType parent, String id, int version, CmServerServiceTypeRepo respository) {
+  private CmServerServiceType(CmServerServiceType parent, String id, CmServerServiceTypeRepo respository,
+      int versionApiMin, int versionApiMax, int versionCdhMin, int versionCdhMax) {
     this.parent = parent;
     this.id = id;
-    this.version = version;
     this.respository = respository;
+    this.versionApiMin = versionApiMin;
+    this.versionApiMax = versionApiMax;
+    this.versionCdhMin = versionCdhMin;
+    this.versionCdhMax = versionCdhMax;
   }
 
   public CmServerServiceType getParent() {
@@ -105,12 +145,31 @@ public enum CmServerServiceType {
     return id;
   }
 
-  public int getVersion() {
-    return version;
-  }
-
   public CmServerServiceTypeRepo getRepository() {
     return respository;
+  }
+
+  public int getVersionApiMin() {
+    return versionApiMin;
+  }
+
+  public int getVersionApiMax() {
+    return versionApiMax;
+  }
+
+  public int getVersionCdhMin() {
+    return versionCdhMin;
+  }
+
+  public int getVersionCdhMax() {
+    return versionCdhMax;
+  }
+
+  public boolean isValid(int versionApi, int versionCdh) {
+    return (versionApi < 0 || (versionApiMin < 0 || versionApi >= versionApiMin)
+        && (versionApiMax < 0 || versionApi <= versionApiMax))
+        && (versionCdh < 0 || (versionCdhMin < 0 || versionCdh >= versionCdhMin)
+            && (versionCdhMax < 0 || versionCdh <= versionCdhMax));
   }
 
   public boolean isConcrete() {

@@ -23,6 +23,7 @@ public class CmServerService implements Comparable<CmServerService> {
     STARTING, STARTED, STOPPING, STOPPED, BUSY, UNKNOWN
   }
 
+  public static final int VERSION_UNBOUNDED = -1;
   public static final String NAME_TOKEN_DELIM = "_";
   public static final String NAME_TAG_DEFAULT = "cdh";
   public static final String NAME_QUALIFIER_DEFAULT = "1";
