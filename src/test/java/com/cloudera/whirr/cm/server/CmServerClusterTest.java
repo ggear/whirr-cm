@@ -364,7 +364,7 @@ public class CmServerClusterTest extends BaseTestServer {
   }
 
   @Test
-  public void testGetServiceTypes() throws InterruptedException, IOException {
+  public void testGetServiceTypes() throws InterruptedException, IOException, CmServerException {
     Assert.assertEquals(5, cluster.getServiceTypes(CmServerServiceType.CLUSTER).size());
     Assert.assertEquals(3, cluster.getServiceTypes(CmServerServiceType.HDFS).size());
     Assert.assertEquals(1, cluster.getServiceTypes(CmServerServiceType.HDFS_NAMENODE).size());
@@ -401,6 +401,39 @@ public class CmServerClusterTest extends BaseTestServer {
         .toArray());
     Assert.assertArrayEquals(new CmServerServiceType[] {}, cluster.getServiceTypes(CmServerServiceType.HDFS, 2, 3)
         .toArray());
+    CmServerCluster cluster = new CmServerCluster();
+    cluster.setServer(new CmServerServiceBuilder().ip("192.168.0.1").build());
+    cluster.addAgent(new CmServerServiceBuilder().host("some-host").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_NAMENODE).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_JOB_TRACKER).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_DATANODE).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_TASK_TRACKER).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
+        CmServerServiceType.HDFS_DATANODE, CmServerServiceType.MAPREDUCE_JOB_TRACKER,
+        CmServerServiceType.MAPREDUCE_TASK_TRACKER }, cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.YARN_JOB_HISTORY).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
+        CmServerServiceType.HDFS_DATANODE, CmServerServiceType.YARN_JOB_HISTORY },
+        cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_JOB_TRACKER).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
+        CmServerServiceType.HDFS_DATANODE, CmServerServiceType.YARN_JOB_HISTORY },
+        cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
+    cluster = new CmServerCluster();
+    cluster.setServer(new CmServerServiceBuilder().ip("192.168.0.1").build());
+    cluster.addAgent(new CmServerServiceBuilder().host("some-host").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.HDFS_NAMENODE).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.YARN_JOB_HISTORY).tag(CLUSTER_TAG)
+        .qualifier("1").host("host-1").build());
+    Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
+        CmServerServiceType.YARN_JOB_HISTORY }, cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
   }
 
   @Test

@@ -75,7 +75,6 @@ public class CmServerCluster {
   }
 
   public synchronized boolean addServiceType(CmServerServiceType type) throws CmServerException {
-
     if (type.getParent() == null || type.getParent().getParent() == null) {
       throw new CmServerException("Invalid cluster topology: Attempt to add non leaf type [" + type + "]");
     }
@@ -88,7 +87,18 @@ public class CmServerCluster {
     default:
       break;
     }
-
+    switch (type.getParent()) {
+    case YARN:
+      services.remove(CmServerServiceType.MAPREDUCE);
+      break;
+    case MAPREDUCE:
+      if (services.containsKey(CmServerServiceType.YARN)) {
+        return false;
+      }
+      break;
+    default:
+      break;
+    }
     if (!services.containsKey(type.getParent())) {
       services.put(type.getParent(), new TreeSet<CmServerService>());
       return true;
@@ -98,7 +108,9 @@ public class CmServerCluster {
 
   public synchronized boolean addService(CmServerService service) throws CmServerException {
     addServiceType(service.getType());
-    services.get(service.getType().getParent()).add(service);
+    if (services.containsKey(service.getType().getParent())) {
+      services.get(service.getType().getParent()).add(service);
+    }
     return true;
   }
 
@@ -122,14 +134,6 @@ public class CmServerCluster {
       throw new CmServerException("Invalid cluster topology: Attempt to add co-located nodes");
     }
     return true;
-  }
-
-  public synchronized int getServiceCount() {
-    int count = 0;
-    for (CmServerServiceType type : services.keySet()) {
-      count += services.get(type).size();
-    }
-    return count;
   }
 
   public synchronized Set<CmServerServiceType> getServiceTypes() {

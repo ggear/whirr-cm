@@ -260,7 +260,8 @@ public class CmServerImpl implements CmServer {
               CmServerServiceType type = CmServerServiceType.valueOfId(apiService.getType());
               if (type.equals(CmServerServiceType.HDFS) || type.equals(CmServerServiceType.MAPREDUCE)
                   || type.equals(CmServerServiceType.HBASE) || versionApi >= 4 && type.equals(CmServerServiceType.HIVE)
-                  || versionApi >= 5 && type.equals(CmServerServiceType.SOLR)) {
+                  || versionApi >= 5 && type.equals(CmServerServiceType.SOLR) || versionCdh >= 5
+                  && type.equals(CmServerServiceType.YARN)) {
                 ZipInputStream configInputZip = null;
                 try {
                   InputStreamDataSource configInput = apiResourceRootV3.getClustersResource()
@@ -1016,7 +1017,11 @@ public class CmServerImpl implements CmServer {
                   .get(setting)));
             }
           }
+          Set<CmServerServiceType> serviceTypes = cluster.getServiceTypes(versionApi, versionCdh);
           switch (type) {
+          case YARN:
+            apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
+            break;
           case MAPREDUCE:
             apiServiceConfig.add(new ApiConfig("hdfs_service", cluster.getServiceName(CmServerServiceType.HDFS)));
             break;
@@ -1038,7 +1043,6 @@ public class CmServerImpl implements CmServer {
             apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_HTTP_FS)));
             apiServiceConfig.add(new ApiConfig("oozie_service", cluster.getServiceName(CmServerServiceType.OOZIE)));
             apiServiceConfig.add(new ApiConfig("hive_service", cluster.getServiceName(CmServerServiceType.HIVE)));
-            Set<CmServerServiceType> serviceTypes = cluster.getServiceTypes(versionApi, versionCdh);
             if (serviceTypes.contains(CmServerServiceType.HBASE)) {
               apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
             }
@@ -1053,15 +1057,18 @@ public class CmServerImpl implements CmServer {
             }
             break;
           case SQOOP:
-            apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
+            apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", serviceTypes
+                .contains(CmServerServiceType.YARN) ? cluster.getServiceName(CmServerServiceType.YARN) : cluster
                 .getServiceName(CmServerServiceType.MAPREDUCE)));
             break;
           case OOZIE:
-            apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
+            apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", serviceTypes
+                .contains(CmServerServiceType.YARN) ? cluster.getServiceName(CmServerServiceType.YARN) : cluster
                 .getServiceName(CmServerServiceType.MAPREDUCE)));
             break;
           case HIVE:
-            apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", cluster
+            apiServiceConfig.add(new ApiConfig("mapreduce_yarn_service", serviceTypes
+                .contains(CmServerServiceType.YARN) ? cluster.getServiceName(CmServerServiceType.YARN) : cluster
                 .getServiceName(CmServerServiceType.MAPREDUCE)));
             if (versionApi >= 4) {
               apiServiceConfig.add(new ApiConfig("zookeeper_service", cluster
