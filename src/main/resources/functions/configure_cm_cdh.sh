@@ -56,7 +56,7 @@ function configure_cm_cdh() {
     fi
     wget -nv http://extjs.com/deploy/ext-2.2.zip
     unzip -q ext-2.2.zip -d /var/lib/oozie
-    chown -R oozie.oozie /var/lib/oozie 
-    chown -R oozie.oozie "${CM_CDH_DIRS_ARRAY[0]}/manager/parcels/parcel-runtime/CDH-*/lib/oozie"
+    find /var/lib/oozie -type d -exec chmod 755 {} \;
+    find /var/lib/oozie -type f -exec chmod 644 {} \;
   fi
 }
