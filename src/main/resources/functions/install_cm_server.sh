@@ -23,15 +23,19 @@ function install_cm_server() {
   CM_MAJOR_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9]\).*/\1/')
   CM_VERSION=$(echo $REPOCM | sed -e 's/cm\([0-9][0-9]*\)/\1/')
   if [ "$CM_MAJOR_VERSION" != "$CM_VERSION" ]; then
-	CM_VERSION_PACKAGE="-"$CM_VERSION
+    if which dpkg &> /dev/null; then
+      CM_VERSION_PACKAGE="="$CM_VERSION"*"
+    elif which rpm &> /dev/null; then
+      CM_VERSION_PACKAGE="-"$CM_VERSION
+    fi    
   fi
   CM_REPO_ROOT=${CM_REPO_ROOT:-http://$CM_REPO_HOST/cm$CM_MAJOR_VERSION}
   if which dpkg &> /dev/null; then
     export DEBIAN_FRONTEND=noninteractive
     retry_apt_get update
-    retry_apt_get -q -y install cloudera-manager-server$CM_VERSION_PACKAGE cloudera-manager-daemons$CM_VERSION_PACKAGE
+    retry_apt_get -q -y install "cloudera-manager-server$CM_VERSION_PACKAGE" "cloudera-manager-daemons$CM_VERSION_PACKAGE"
   elif which rpm &> /dev/null; then
-    retry_yum install --exclude jdk -y cloudera-manager-server$CM_VERSION_PACKAGE cloudera-manager-daemons$CM_VERSION_PACKAGE
+    retry_yum install --exclude jdk -y "cloudera-manager-server$CM_VERSION_PACKAGE" "cloudera-manager-daemons$CM_VERSION_PACKAGE"
   fi
   rm -rvf /etc/cloudera-scm-server/db.mgmt.properties
   mkdir -p /opt/cloudera/csd

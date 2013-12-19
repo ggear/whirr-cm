@@ -145,7 +145,7 @@ public class CmServerImpl implements CmServer {
     this.apiResourceRootV6 = this.versionApi >= 6 ? apiResource.getRootV6() : null;
   }
 
-  protected String getVersion(String version) throws CmServerException {
+  private static String getVersion(String version) throws CmServerException {
     String versionValidated = null;
     if (version != null && !version.equals("")) {
       String versionFullyQualified = version.contains(".") ? version : version + "." + Integer.MAX_VALUE + "."
@@ -169,7 +169,7 @@ public class CmServerImpl implements CmServer {
     return versionValidated;
   }
 
-  protected int getVersionApi(String version, String versionApi) throws CmServerException {
+  private static int getVersionApi(String version, String versionApi) throws CmServerException {
     Integer versionApiValidated = null;
     if (version == null || version.equals("")) {
       version = VERSION_CM_API_MATRIX_CM_MAX;
@@ -210,7 +210,7 @@ public class CmServerImpl implements CmServer {
     return versionApi == null ? versionApiValidated : Integer.parseInt(versionApi);
   }
 
-  protected int getVersionCdh(String versionCdh) throws CmServerException {
+  private static int getVersionCdh(String versionCdh) throws CmServerException {
     int versionCdhValidated;
     if (versionCdh == null || versionCdh.equals("")) {
       versionCdhValidated = VERSION_CDH_MAX;
@@ -218,11 +218,11 @@ public class CmServerImpl implements CmServer {
       try {
         versionCdhValidated = new DefaultArtifactVersion(versionCdh).getMajorVersion();
         if (versionCdhValidated < 4 || versionCdhValidated > VERSION_CDH_MAX) {
-          throw new CmServerException("CDH version requested [" + versionApi
+          throw new CmServerException("CDH version requested [" + versionCdh
               + "] is not within the supported major version range [" + VERSION_CDH_MIN + "-" + VERSION_CDH_MAX + "]");
         }
       } catch (Exception e) {
-        throw new CmServerException("CDH version requested [" + versionApi + "] cannot be corelated with CDH versions "
+        throw new CmServerException("CDH version requested [" + versionCdh + "] cannot be corelated with CDH versions "
             + Arrays.asList(ApiClusterVersion.values()));
       }
     }
@@ -1360,6 +1360,6 @@ public class CmServerImpl implements CmServer {
 
   private static abstract class Callback {
     public abstract boolean poll();
-  }
-
+  }  
+  
 }
