@@ -49,12 +49,14 @@ function configure_cm_cdh() {
 	  elif which rpm &> /dev/null; then
 	    retry_yum install -y unzip
 	  fi
-    mkdir -p /var/lib/oozie
+    mkdir -p /var/lib/oozie/work
     if [ -f "/usr/share/java/mysql-connector-java.jar" ]; then
       chmod 777 /var/lib/oozie
       ln -s /usr/share/java/mysql-connector-java.jar /var/lib/oozie/mysql-connector-java.jar
     fi
     wget -nv http://extjs.com/deploy/ext-2.2.zip
     unzip -q ext-2.2.zip -d /var/lib/oozie
+    chown -R oozie.oozie /var/lib/oozie 
+    chown -R oozie.oozie "${CM_CDH_DIRS_ARRAY[0]}/manager/parcels/parcel-runtime/CDH-*/lib/oozie"
   fi
 }
