@@ -43,12 +43,12 @@ public enum CmServerServiceType {
       CmServerService.VERSION_UNBOUNDED),
 
   // YARN
-  YARN(CLUSTER, "YARN", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 5,
+  YARN(CLUSTER, "YARN", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
       CmServerService.VERSION_UNBOUNDED), YARN_JOB_HISTORY(YARN, "JOBHISTORY", CmServerServiceTypeRepo.CDH, 3,
-      CmServerService.VERSION_UNBOUNDED, 5, CmServerService.VERSION_UNBOUNDED), YARN_RESOURCE_MANAGER(YARN,
-      "RESOURCEMANAGER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 5,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), YARN_RESOURCE_MANAGER(YARN,
+      "RESOURCEMANAGER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
       CmServerService.VERSION_UNBOUNDED), YARN_NODE_MANAGER(YARN, "NODEMANAGER", CmServerServiceTypeRepo.CDH, 3,
-      CmServerService.VERSION_UNBOUNDED, 5, CmServerService.VERSION_UNBOUNDED),
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // MapReduce
   MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 5), MAPREDUCE_GATEWAY(

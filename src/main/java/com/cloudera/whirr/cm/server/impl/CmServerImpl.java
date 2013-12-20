@@ -1360,6 +1360,6 @@ public class CmServerImpl implements CmServer {
 
   private static abstract class Callback {
     public abstract boolean poll();
-  }  
-  
+  }
+
 }
