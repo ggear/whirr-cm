@@ -110,7 +110,7 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
     addStatement(
         event,
         call(
-            "configure_cm_cdh",
+            "configure_cm_cdh_pre",
             "-r",
             getRole(),
             "-d",
@@ -128,6 +128,22 @@ public abstract class BaseHandlerCmCdh extends BaseHandler {
   @Override
   protected void beforeStart(ClusterActionEvent event) throws IOException, InterruptedException {
     super.beforeStart(event);
+    addStatement(
+        event,
+        call(
+            "configure_cm_cdh_post",
+            "-r",
+            getRole(),
+            "-d",
+            Joiner.on(',').join(
+                Lists.transform(
+                    Lists.newArrayList(CmServerClusterInstance.getMounts(event.getClusterSpec(), event.getCluster())),
+                    new Function<String, String>() {
+                      @Override
+                      public String apply(String input) {
+                        return input;
+                      }
+                    }))));
     try {
       CmServerClusterInstance.getCluster(event.getClusterSpec()).addService(
           new CmServerServiceBuilder()
