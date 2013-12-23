@@ -321,7 +321,8 @@ public class CmServerClusterInstance implements CmConstants {
         String[] keyTokens = getClusterConfigurationKeyTokens(clusterConfiguration, key,
             CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX);
         if (configuration.getString(CONFIG_WHIRR_CM_CONFIG_PREFIX + keyTokens[1].toLowerCase() + "." + keyTokens[2]) == null) {
-          if (keyTokens[2].endsWith(CONFIG_CM_DIR_SUFFIX_LIST) && !mounts.isEmpty()) {
+          if ((keyTokens[2].endsWith(CONFIG_CM_DIR_SUFFIX_LIST) || keyTokens[2].endsWith(CONFIG_CM_DIR_SUFFIX_PLURAL))
+              && !mounts.isEmpty()) {
             clusterConfiguration
                 .get(keyTokens[0])
                 .get(keyTokens[1])

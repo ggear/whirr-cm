@@ -42,13 +42,24 @@ public enum CmServerServiceType {
       HDFS, "DATANODE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
       CmServerService.VERSION_UNBOUNDED),
 
+  // YARN
+  YARN(CLUSTER, "YARN", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), YARN_JOB_HISTORY(YARN, "JOBHISTORY", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), YARN_RESOURCE_MANAGER(YARN,
+      "RESOURCEMANAGER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), YARN_NODE_MANAGER(YARN, "NODEMANAGER", CmServerServiceTypeRepo.CDH, 3,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
+
   // MapReduce
-  MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
-      CmServerService.VERSION_UNBOUNDED), MAPREDUCE_GATEWAY(MAPREDUCE, "MAPREDUCE_GATEWAY",
-      CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), MAPREDUCE_JOB_TRACKER(
-      MAPREDUCE, "JOBTRACKER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,
-      CmServerService.VERSION_UNBOUNDED), MAPREDUCE_TASK_TRACKER(MAPREDUCE, "TASKTRACKER", CmServerServiceTypeRepo.CDH,
-      3, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
+  MAPREDUCE(CLUSTER, "MAPREDUCE", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 5), MAPREDUCE_GATEWAY(
+      MAPREDUCE, "MAPREDUCE_GATEWAY", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 5), MAPREDUCE_JOB_TRACKER(
+      MAPREDUCE, "JOBTRACKER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 5), MAPREDUCE_TASK_TRACKER(
+      MAPREDUCE, "TASKTRACKER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 5),
+
+  SPARK(CLUSTER, "csd_spark", CmServerServiceTypeRepo.SPARK, 6, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), SPARK_MASTER(SPARK, "csd_spark_master", CmServerServiceTypeRepo.SPARK, 6,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), SPARK_WORKER(SPARK, "csd_spark_worker",
+      CmServerServiceTypeRepo.SPARK, 6, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Zookeeper
   ZOOKEEPER(CLUSTER, "ZOOKEEPER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4,

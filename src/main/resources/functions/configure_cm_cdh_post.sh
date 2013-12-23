@@ -17,7 +17,7 @@
 
 set -x
 
-function configure_cm_cdh() {
+function configure_cm_cdh_post() {
   local OPTIND
   local OPTARG
   CM_CDH_ROLE=
@@ -38,23 +38,8 @@ function configure_cm_cdh() {
     mkdir -p $i
     chmod 777 $i
   done
-  if [ "$CM_CDH_ROLE" = "cm-cdh-jobtracker" ]; then
-    mkdir -p "${CM_CDH_DIRS_ARRAY[0]}/mapreduce/jobtracker/history"
-    chmod 777 "${CM_CDH_DIRS_ARRAY[0]}/mapreduce/jobtracker/history"
-  elif [ "$CM_CDH_ROLE" = "cm-cdh-oozie-server" ]; then
-	  if which dpkg &> /dev/null; then
-	    export DEBIAN_FRONTEND=noninteractive
-	    retry_apt_get update
-	    retry_apt_get -q -y install unzip
-	  elif which rpm &> /dev/null; then
-	    retry_yum install -y unzip
-	  fi
-    mkdir -p /var/lib/oozie
-    if [ -f "/usr/share/java/mysql-connector-java.jar" ]; then
-      chmod 777 /var/lib/oozie
-      ln -s /usr/share/java/mysql-connector-java.jar /var/lib/oozie/mysql-connector-java.jar
-    fi
-    wget -nv http://extjs.com/deploy/ext-2.2.zip
-    unzip -q ext-2.2.zip -d /var/lib/oozie
+  if [ "$CM_CDH_ROLE" = "cm-cdh-oozie-server" ]; then
+    chown -R oozie.oozie /var/lib/oozie
+    chown -R oozie.oozie "${CM_CDH_DIRS_ARRAY[0]}/manager/parcels/parcel-runtime/CDH*/lib/oozie"
   fi
 }

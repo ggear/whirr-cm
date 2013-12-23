@@ -25,8 +25,15 @@ com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsSecondaryNameNodeHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsHttpFsHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsDataNodeHandler
 
+com.cloudera.whirr.cm.handler.cdh.CmCdhYarnJobHistoryHandler
+com.cloudera.whirr.cm.handler.cdh.CmCdhYarnResourceManagerHandler
+com.cloudera.whirr.cm.handler.cdh.CmCdhYarnNodeManagerHandler
+
 com.cloudera.whirr.cm.handler.cdh.CmCdhMapReduceJobTrackerHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhMapReduceTaskTrackerHandler
+
+com.cloudera.whirr.cm.handler.cdh.CmCdhSparkMasterHandler
+com.cloudera.whirr.cm.handler.cdh.CmCdhSparkWorkerHandler
 
 com.cloudera.whirr.cm.handler.cdh.CmCdhHiveMetaStoreHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhHiveServer2Handler
