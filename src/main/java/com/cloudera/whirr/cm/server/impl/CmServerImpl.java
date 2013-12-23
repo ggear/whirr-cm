@@ -259,9 +259,9 @@ public class CmServerImpl implements CmServer {
                 .readServices(DataView.SUMMARY)) {
               CmServerServiceType type = CmServerServiceType.valueOfId(apiService.getType());
               if (type.equals(CmServerServiceType.HDFS) || type.equals(CmServerServiceType.MAPREDUCE)
-                  || type.equals(CmServerServiceType.HBASE) || versionApi >= 4 && type.equals(CmServerServiceType.HIVE)
-                  || versionApi >= 5 && type.equals(CmServerServiceType.SOLR) || versionCdh >= 5
-                  && type.equals(CmServerServiceType.YARN)) {
+                  || type.equals(CmServerServiceType.YARN) || type.equals(CmServerServiceType.HBASE)
+                  || (versionApi >= 4 && type.equals(CmServerServiceType.HIVE))
+                  || (versionApi >= 5 && type.equals(CmServerServiceType.SOLR))) {
                 ZipInputStream configInputZip = null;
                 try {
                   InputStreamDataSource configInput = apiResourceRootV3.getClustersResource()
