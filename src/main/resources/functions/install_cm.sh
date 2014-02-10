@@ -53,4 +53,14 @@ EOF
           rpm --import $CM_REPO_ROOT/redhat/${RHEL_VERSION}/$(rpm -q --qf "%{ARCH}" $(rpm -q --whatprovides redhat-release))/cm/RPM-GPG-KEY-cloudera
       fi
   fi
+  if which dpkg &> /dev/null; then
+    export DEBIAN_FRONTEND=noninteractive
+    retry_apt_get update
+    retry_apt_get -q -y  install ntp
+  elif which rpm &> /dev/null; then
+    retry_yum install -y install ntp
+  fi
+  service ntpd stop
+  ntpdate pool.ntp.org
+  service ntpd start
 }
