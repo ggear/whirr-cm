@@ -1229,6 +1229,18 @@ public class CmServerImpl implements CmServer {
               .formatCommand(new ApiRoleNameList(ImmutableList.<String> builder().add(service.getName()).build())),
           false);
       break;
+    case YARN_RESOURCE_MANAGER:
+      if (versionApi >= 6) {
+        execute(apiResourceRootV6.getClustersResource().getServicesResource(getName(cluster))
+            .createYarnNodeManagerRemoteAppLogDirCommand((cluster.getServiceName(CmServerServiceType.YARN))));
+      }
+      break;
+    case YARN_JOB_HISTORY:
+      if (versionApi >= 6) {
+        execute(apiResourceRootV6.getClustersResource().getServicesResource(getName(cluster))
+            .createYarnJobHistoryDirCommand((cluster.getServiceName(CmServerServiceType.YARN))));
+      }
+      break;
     case HUE_SERVER:
       execute(
           apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
@@ -1256,18 +1268,6 @@ public class CmServerImpl implements CmServer {
       formatList.add(service.getName());
       execute(apiResourceRootV3.getClustersResource().getServicesResource(getName(cluster))
           .hdfsCreateTmpDir(cluster.getServiceName(CmServerServiceType.HDFS)));
-      break;
-    case YARN_RESOURCE_MANAGER:
-      if (versionApi >= 6) {
-        execute(apiResourceRootV6.getClustersResource().getServicesResource(getName(cluster))
-            .createYarnNodeManagerRemoteAppLogDirCommand((cluster.getServiceName(CmServerServiceType.YARN))));
-      }
-      break;
-    case YARN_JOB_HISTORY:
-      if (versionApi >= 6) {
-        execute(apiResourceRootV6.getClustersResource().getServicesResource(getName(cluster))
-            .createYarnJobHistoryDirCommand((cluster.getServiceName(CmServerServiceType.YARN))));
-      }
       break;
     default:
       break;

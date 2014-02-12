@@ -312,6 +312,18 @@ public class CmServerClusterTest extends BaseTestServer {
   }
 
   @Test
+  public void testIsValid() {
+    Assert.assertTrue(CmServerServiceType.MAPREDUCE.isValid(3, 4));
+    Assert.assertTrue(CmServerServiceType.MAPREDUCE.isValid(4, 4));
+    Assert.assertTrue(CmServerServiceType.MAPREDUCE.isValid(10, 4));
+    Assert.assertFalse(CmServerServiceType.MAPREDUCE.isValid(10, 5));
+    Assert.assertFalse(CmServerServiceType.YARN.isValid(3, 4));
+    Assert.assertFalse(CmServerServiceType.YARN.isValid(4, 4));
+    Assert.assertFalse(CmServerServiceType.YARN.isValid(10, 4));
+    Assert.assertTrue(CmServerServiceType.YARN.isValid(10, 5));
+  }
+
+  @Test
   public void testAdd() throws CmServerException {
     boolean caught = false;
     try {
@@ -419,12 +431,12 @@ public class CmServerClusterTest extends BaseTestServer {
         .qualifier("1").host("host-1").build());
     Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
         CmServerServiceType.HDFS_DATANODE, CmServerServiceType.YARN_JOB_HISTORY },
-        cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
+        cluster.getServiceTypes(CmServerServiceType.CLUSTER, 6, 5).toArray());
     cluster.addService(new CmServerServiceBuilder().type(CmServerServiceType.MAPREDUCE_JOB_TRACKER).tag(CLUSTER_TAG)
         .qualifier("1").host("host-1").build());
     Assert.assertArrayEquals(new CmServerServiceType[] { CmServerServiceType.HDFS_NAMENODE,
         CmServerServiceType.HDFS_DATANODE, CmServerServiceType.YARN_JOB_HISTORY },
-        cluster.getServiceTypes(CmServerServiceType.CLUSTER).toArray());
+        cluster.getServiceTypes(CmServerServiceType.CLUSTER, 6, 5).toArray());
     cluster = new CmServerCluster();
     cluster.setServer(new CmServerServiceBuilder().ip("192.168.0.1").build());
     cluster.addAgent(new CmServerServiceBuilder().host("some-host").build());
