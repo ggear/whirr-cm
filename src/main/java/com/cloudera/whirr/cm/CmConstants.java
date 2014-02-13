@@ -24,7 +24,6 @@ public interface CmConstants extends CmServerConstants {
 
   public static final String CONFIG_WHIRR_DEFAULT_FILE = "whirr-cm-default.properties";
 
-  public static final int CM_PORT = 7180;
   public static final String CM_USER = "admin";
   public static final String CM_PASSWORD = "admin";
 
@@ -49,6 +48,7 @@ public interface CmConstants extends CmServerConstants {
   public static final String CONFIG_WHIRR_INTERNAL_PORTS_DB_PREFIX = "database.port.";
   public static final String CONFIG_WHIRR_INTERNAL_PORTS_CLIENT_SUFFIX = ".client.ports";
   public static final String CONFIG_WHIRR_INTERNAL_PORT_WEB = CmServerHandler.ROLE + ".port.web";
+  public static final String CONFIG_WHIRR_INTERNAL_PORT_NAV = CmServerHandler.ROLE + ".port.nav";
   public static final String CONFIG_WHIRR_INTERNAL_PORT_COMMS = CmServerHandler.ROLE + ".port.comms";
 
   public static final String CONFIG_WHIRR_NAME_DEFAULT = "whirr";
