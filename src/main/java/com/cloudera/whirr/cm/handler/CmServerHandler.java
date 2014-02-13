@@ -80,10 +80,10 @@ public class CmServerHandler extends BaseHandlerCm {
     }
     for (CmServerServiceTypeCms type : CmServerServiceTypeCms.values()) {
       switch (type) {
-      case HOSTMONITOR:
-      case SERVICEMONITOR:
-      case ACTIVITYMONITOR:
-      case REPORTSMANAGER:
+      case HOST_MONITOR:
+      case SERVICE_MONITOR:
+      case ACTIVITY_MONITOR:
+      case REPORTS_MANAGER:
       case NAVIGATOR:
         addStatement(
             event,

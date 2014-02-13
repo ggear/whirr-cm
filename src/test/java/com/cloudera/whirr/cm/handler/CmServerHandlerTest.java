@@ -156,9 +156,9 @@ public class CmServerHandlerTest extends BaseTestHandler {
         CmServerClusterInstance.getClusterConfiguration(configuration, new TreeSet<String>(),
             CmServerServiceTypeCms.CM.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE));
     Assert.assertEquals("mysql", CmServerClusterInstance.getClusterConfiguration(configuration, new TreeSet<String>(),
-        CmServerServiceTypeCms.HOSTMONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE));
+        CmServerServiceTypeCms.HOST_MONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE));
     Assert.assertEquals("localhost:3306", CmServerClusterInstance.getClusterConfiguration(configuration,
-        new TreeSet<String>(), CmServerServiceTypeCms.HOSTMONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_HOST));
+        new TreeSet<String>(), CmServerServiceTypeCms.HOST_MONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_HOST));
     Assert.assertEquals(
         "mysql",
         CmServerClusterInstance.getClusterConfiguration(configuration, new TreeSet<String>(),
@@ -311,9 +311,9 @@ public class CmServerHandlerTest extends BaseTestHandler {
     Assert.assertEquals("postgres", CmServerClusterInstance.getClusterConfiguration(configuration,
         ImmutableSortedSet.of("/tmp"), CmServerServiceTypeCms.CM.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE));
     Assert.assertEquals("mysql", CmServerClusterInstance.getClusterConfiguration(configuration, new TreeSet<String>(),
-        CmServerServiceTypeCms.HOSTMONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE));
+        CmServerServiceTypeCms.HOST_MONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_TYPE));
     Assert.assertEquals("localhost:3306", CmServerClusterInstance.getClusterConfiguration(configuration,
-        new TreeSet<String>(), CmServerServiceTypeCms.HOSTMONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_HOST));
+        new TreeSet<String>(), CmServerServiceTypeCms.HOST_MONITOR.getId(), null, CONFIG_CM_DB_SUFFIX_HOST));
     Assert.assertEquals(
         "mysql",
         CmServerClusterInstance.getClusterConfiguration(configuration, new TreeSet<String>(),
