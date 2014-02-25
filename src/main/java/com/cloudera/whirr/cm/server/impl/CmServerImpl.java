@@ -125,7 +125,6 @@ public class CmServerImpl implements CmServer {
   final private RootResourceV4 apiResourceRootV4;
   @SuppressWarnings("unused")
   final private RootResourceV5 apiResourceRootV5;
-  @SuppressWarnings("unused")
   final private RootResourceV6 apiResourceRootV6;
 
   private boolean isFirstStartRequired = true;
@@ -259,9 +258,8 @@ public class CmServerImpl implements CmServer {
                 .readServices(DataView.SUMMARY)) {
               CmServerServiceType type = CmServerServiceType.valueOfId(apiService.getType());
               if (type.equals(CmServerServiceType.HDFS) || type.equals(CmServerServiceType.MAPREDUCE)
-                  || type.equals(CmServerServiceType.YARN) || type.equals(CmServerServiceType.HBASE)
-                  || (versionApi >= 4 && type.equals(CmServerServiceType.HIVE))
-                  || (versionApi >= 5 && type.equals(CmServerServiceType.SOLR))) {
+                  || type.equals(CmServerServiceType.YARN) || type.equals(CmServerServiceType.HBASE) || versionApi >= 4
+                  && type.equals(CmServerServiceType.HIVE) || versionApi >= 5 && type.equals(CmServerServiceType.SOLR)) {
                 ZipInputStream configInputZip = null;
                 try {
                   InputStreamDataSource configInput = apiResourceRootV3.getClustersResource()
@@ -1037,7 +1035,7 @@ public class CmServerImpl implements CmServer {
             break;
           case SOLR_INDEXER:
             apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
-            apiServiceConfig.add(new ApiConfig("solr_service", cluster.getServiceName(CmServerServiceType.HBASE)));
+            apiServiceConfig.add(new ApiConfig("solr_service", cluster.getServiceName(CmServerServiceType.SOLR)));
             break;
           case HUE:
             apiServiceConfig.add(new ApiConfig("hue_webhdfs", cluster.getServiceName(CmServerServiceType.HDFS_HTTP_FS)));
@@ -1229,6 +1227,18 @@ public class CmServerImpl implements CmServer {
               .getRoleCommandsResource(cluster.getServiceName(CmServerServiceType.HDFS))
               .formatCommand(new ApiRoleNameList(ImmutableList.<String> builder().add(service.getName()).build())),
           false);
+      break;
+    case YARN_RESOURCE_MANAGER:
+      if (versionApi >= 6) {
+        execute(apiResourceRootV6.getClustersResource().getServicesResource(getName(cluster))
+            .createYarnNodeManagerRemoteAppLogDirCommand(cluster.getServiceName(CmServerServiceType.YARN)));
+      }
+      break;
+    case YARN_JOB_HISTORY:
+      if (versionApi >= 6) {
+        execute(apiResourceRootV6.getClustersResource().getServicesResource(getName(cluster))
+            .createYarnJobHistoryDirCommand(cluster.getServiceName(CmServerServiceType.YARN)));
+      }
       break;
     case HUE_SERVER:
       execute(

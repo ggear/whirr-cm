@@ -44,7 +44,10 @@ public enum CmServerServiceTypeCms {
   REPORTSMANAGER(MANAGEMENT, "REPORTSMANAGER", true),
 
   // Navigator
-  NAVIGATOR(MANAGEMENT, "NAVIGATOR", true);
+  NAVIGATOR(MANAGEMENT, "NAVIGATOR", true),
+
+  // Navigator Meta Server
+  NAVIGATORMETASERVER(MANAGEMENT, "NAVIGATORMETASERVER", true);
 
   private CmServerServiceTypeCms parent;
   private String id;

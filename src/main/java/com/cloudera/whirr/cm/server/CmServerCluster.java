@@ -87,18 +87,6 @@ public class CmServerCluster {
     default:
       break;
     }
-    switch (type.getParent()) {
-    case YARN:
-      services.remove(CmServerServiceType.MAPREDUCE);
-      break;
-    case MAPREDUCE:
-      if (services.containsKey(CmServerServiceType.YARN)) {
-        return false;
-      }
-      break;
-    default:
-      break;
-    }
     if (!services.containsKey(type.getParent())) {
       services.put(type.getParent(), new TreeSet<CmServerService>());
       return true;

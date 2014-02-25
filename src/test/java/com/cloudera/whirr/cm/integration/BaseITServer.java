@@ -120,12 +120,13 @@ public abstract class BaseITServer implements BaseTest {
         controller.getClusterStateStore(specification)));
     Assert.assertNotNull(serverTestBootstrap = new CmServerFactory().getCmServer(CmServerClusterInstance
         .getVersion(configuration), CmServerClusterInstance.getVersionApi(configuration), CmServerClusterInstance
-        .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), CM_PORT,
-        CmConstants.CM_USER, CmConstants.CM_PASSWORD, log));
+        .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), configuration
+        .getInt(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB), CmConstants.CM_USER, CmConstants.CM_PASSWORD, log));
     Assert.assertNotNull(serverTest = new CmServerFactory().getCmServer(CmServerClusterInstance
         .getVersion(configuration), CmServerClusterInstance.getVersionApi(configuration), CmServerClusterInstance
-        .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), CM_PORT,
-        CmConstants.CM_USER, CmConstants.CM_PASSWORD, new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
+        .getVersionCdh(configuration), cluster.getServer().getIp(), cluster.getServer().getIpInternal(), configuration
+        .getInt(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB), CmConstants.CM_USER, CmConstants.CM_PASSWORD,
+        new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false)));
     Assert.assertTrue(serverTestBootstrap.initialise(cluster));
     if (isClusterBootstrappedStatically()) {
       try {
