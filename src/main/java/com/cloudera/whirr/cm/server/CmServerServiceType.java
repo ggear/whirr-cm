@@ -57,9 +57,9 @@ public enum CmServerServiceType {
       MAPREDUCE, "JOBTRACKER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 4), MAPREDUCE_TASK_TRACKER(
       MAPREDUCE, "TASKTRACKER", CmServerServiceTypeRepo.CDH, 3, CmServerService.VERSION_UNBOUNDED, 4, 4),
 
-  SPARK(CLUSTER, "csd_spark", CmServerServiceTypeRepo.SPARK, 6, CmServerService.VERSION_UNBOUNDED, 4,
-      CmServerService.VERSION_UNBOUNDED), SPARK_MASTER(SPARK, "csd_spark_master", CmServerServiceTypeRepo.SPARK, 6,
-      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), SPARK_WORKER(SPARK, "csd_spark_worker",
+  SPARK(CLUSTER, "SPARK", CmServerServiceTypeRepo.SPARK, 6, CmServerService.VERSION_UNBOUNDED, 4,
+      CmServerService.VERSION_UNBOUNDED), SPARK_MASTER(SPARK, "SPARK_MASTER", CmServerServiceTypeRepo.SPARK, 6,
+      CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED), SPARK_WORKER(SPARK, "SPARK_WORKER",
       CmServerServiceTypeRepo.SPARK, 6, CmServerService.VERSION_UNBOUNDED, 4, CmServerService.VERSION_UNBOUNDED),
 
   // Zookeeper
