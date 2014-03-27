@@ -57,10 +57,13 @@ EOF
     export DEBIAN_FRONTEND=noninteractive
     retry_apt_get update
     retry_apt_get -q -y  install ntp
+    service ntp stop
+    ntpdate pool.ntp.org
+    service ntp start
   elif which rpm &> /dev/null; then
     retry_yum install -y install ntp
+    service ntpd stop
+    ntpdate pool.ntp.org
+    service ntpd start
   fi
-  service ntpd stop
-  ntpdate pool.ntp.org
-  service ntpd start
 }
