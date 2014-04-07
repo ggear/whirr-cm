@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhImpalaStateStoreHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-impala-statestore";
+  public static final String ROLE = "cm-cdh-impalastatestore";
   public static final CmServerServiceType TYPE = CmServerServiceType.IMPALA_STATE_STORE;
 
   @Override

@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhSolrIndexerHBaseHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-solr-hbase-indexer";
+  public static final String ROLE = "cm-cdh-solrhbaseindexer";
   public static final CmServerServiceType TYPE = CmServerServiceType.SOLR_INDEXER_HBASE;
 
   @Override

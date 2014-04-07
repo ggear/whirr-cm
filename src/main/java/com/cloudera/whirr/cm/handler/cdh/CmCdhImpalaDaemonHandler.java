@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhImpalaDaemonHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-impala-daemon";
+  public static final String ROLE = "cm-cdh-impala";
   public static final CmServerServiceType TYPE = CmServerServiceType.IMPALA_DAEMON;
 
   @Override

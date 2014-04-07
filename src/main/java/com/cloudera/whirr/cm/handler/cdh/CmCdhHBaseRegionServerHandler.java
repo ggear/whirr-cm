@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhHBaseRegionServerHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-hbase-regionserver";
+  public static final String ROLE = "cm-cdh-hbaseregion";
   public static final CmServerServiceType TYPE = CmServerServiceType.HBASE_REGIONSERVER;
 
   @Override

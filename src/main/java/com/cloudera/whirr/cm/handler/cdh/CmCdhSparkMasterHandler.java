@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhSparkMasterHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-spark-master";
+  public static final String ROLE = "cm-cdh-sparkmaster";
   public static final CmServerServiceType TYPE = CmServerServiceType.SPARK_MASTER;
 
   @Override
