@@ -833,6 +833,10 @@ public class CmServerImpl implements CmServer {
       } catch (Exception e) {
         // ignore
       }
+      if (versionApi >= 7 && !licenseDeployed) {
+        apiResourceRootV6.getClouderaManagerResource().beginTrial();
+        licenseDeployed = true;
+      }
       final boolean enterpriseDeployed = licenseDeployed;
 
       if (versionApi >= 4 || licenseDeployed) {
