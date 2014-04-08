@@ -66,4 +66,5 @@ EOF
     ntpdate pool.ntp.org
     service ntpd start
   fi
+  echo -e "$(host -t a $(hostname) | awk '{print $4}')\t$(host -t a $(hostname) | awk '{print $1}')\t$(hostname)" >> /etc/hosts
 }
