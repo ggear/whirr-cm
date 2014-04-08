@@ -1048,10 +1048,6 @@ public class CmServerImpl implements CmServer {
             if (serviceTypes.contains(CmServerServiceType.HBASE)) {
               apiServiceConfig.add(new ApiConfig("hbase_service", cluster.getServiceName(CmServerServiceType.HBASE)));
             }
-            if (serviceTypes.contains(CmServerServiceType.HBASE_THRIFT_SERVER)) {
-              apiServiceConfig.add(new ApiConfig("hue_hbase_thrift", cluster
-                  .getServiceName(CmServerServiceType.HBASE_THRIFT_SERVER)));
-            }
             if (serviceTypes.contains(CmServerServiceType.IMPALA)) {
               apiServiceConfig.add(new ApiConfig("impala_service", cluster.getServiceName(CmServerServiceType.IMPALA)));
             }
@@ -1060,6 +1056,10 @@ public class CmServerImpl implements CmServer {
             }
             if (serviceTypes.contains(CmServerServiceType.SQOOP)) {
               apiServiceConfig.add(new ApiConfig("sqoop_service", cluster.getServiceName(CmServerServiceType.SQOOP)));
+            }
+            if (cluster.getService(CmServerServiceType.HBASE_THRIFT_SERVER) != null) {
+              apiServiceConfig.add(new ApiConfig("hue_hbase_thrift", cluster
+                  .getServiceName(CmServerServiceType.HBASE_THRIFT_SERVER)));
             }
             break;
           case SQOOP:
