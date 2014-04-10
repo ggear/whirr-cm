@@ -18,6 +18,7 @@
 package com.cloudera.whirr.cm.integration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.whirr.Cluster.Instance;
 import org.apache.whirr.ClusterController;
@@ -257,8 +259,10 @@ public abstract class BaseITServer implements BaseTest {
       } catch (Exception exception) {
         returnValue = 1;
       }
-      if (clusterStateStoreFile.getParentFile().exists()) {
-        clusterStateStoreFile.getParentFile().delete();
+      try {
+        FileUtils.deleteDirectory(clusterStateStoreFile.getParentFile());
+      } catch (IOException e) {
+        returnValue = 1;
       }
     }
     return returnValue;
