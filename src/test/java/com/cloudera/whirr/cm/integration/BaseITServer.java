@@ -220,46 +220,54 @@ public abstract class BaseITServer implements BaseTest {
     return configuration;
   }
 
-  private static void clusterBootstrap(Map<String, String> configuration) throws Exception {
-    if (!isClusterBootstrapped()) {
-      log.logOperationStartedSync("ClusterBootstrap");
-      Configuration configurationAggregate = clusterConfig();
-      for (String key : configuration.keySet()) {
-        if (configurationAggregate.containsKey(key)) {
-          configurationAggregate.clearProperty(key);
+  private static int clusterBootstrap(Map<String, String> configuration) {
+    int returnValue = 0;
+    try {
+      if (!isClusterBootstrapped()) {
+        log.logOperationStartedSync("ClusterBootstrap");
+        Configuration configurationAggregate = clusterConfig();
+        for (String key : configuration.keySet()) {
+          if (configurationAggregate.containsKey(key)) {
+            configurationAggregate.clearProperty(key);
+          }
+          configurationAggregate.addProperty(key, configuration.get(key));
         }
-        configurationAggregate.addProperty(key, configuration.get(key));
+        new ClusterController().launchCluster(ClusterSpec.withNoDefaults(configurationAggregate));
+        log.logOperationFinishedSync("ClusterBootstrap");
       }
-      new ClusterController().launchCluster(ClusterSpec.withNoDefaults(configurationAggregate));
-      log.logOperationFinishedSync("ClusterBootstrap");
+    } catch (Exception exception) {
+      returnValue = 1;
     }
+    return returnValue;
   }
 
-  private static void clusterDestroy() throws Exception {
+  private static int clusterDestroy() {
+    int returnValue = 0;
     final Configuration configuration = clusterConfig();
     if (isClusterBootstrapped()
         && (System.getProperty(TEST_PLATFORM_DESTROY) == null || System.getProperty(TEST_PLATFORM_DESTROY).equals(
             "true"))) {
-      log.logOperation("ClusterDestroy", new CmServerLogSyncCommand() {
-        @Override
-        public void execute() throws Exception {
-          new ClusterController().destroyCluster(ClusterSpec.withNoDefaults(configuration));
-        }
-      });
+      try {
+        log.logOperation("ClusterDestroy", new CmServerLogSyncCommand() {
+          @Override
+          public void execute() throws Exception {
+            new ClusterController().destroyCluster(ClusterSpec.withNoDefaults(configuration));
+          }
+        });
+      } catch (Exception exception) {
+        returnValue = 1;
+      }
+      if (clusterStateStoreFile.getParentFile().exists()) {
+        clusterStateStoreFile.getParentFile().delete();
+      }
     }
+    return returnValue;
   }
 
   public static class ClusterBoostrap {
 
     public static void main(String[] args) {
-      int returnValue = 0;
-      try {
-        BaseITServer.clusterBootstrap(ImmutableMap.of(CONFIG_WHIRR_AUTO, Boolean.FALSE.toString()));
-      } catch (Exception e) {
-        e.printStackTrace();
-        returnValue = 1;
-      }
-      System.exit(returnValue);
+      System.exit(BaseITServer.clusterBootstrap(ImmutableMap.of(CONFIG_WHIRR_AUTO, Boolean.FALSE.toString())));
     }
 
   }
@@ -267,16 +275,7 @@ public abstract class BaseITServer implements BaseTest {
   public static class ClusterDestroy {
 
     public static void main(String[] args) {
-      int returnValue = 0;
-      try {
-        BaseITServer.clusterDestroy();
-      } catch (Exception exception) {
-        returnValue = 1;
-      }
-      if (clusterStateStoreFile.getParentFile().exists()) {
-        clusterStateStoreFile.getParentFile().delete();
-      }
-      System.exit(returnValue);
+      System.exit(BaseITServer.clusterDestroy());
     }
 
   }
