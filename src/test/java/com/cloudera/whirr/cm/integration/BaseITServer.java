@@ -271,15 +271,10 @@ public abstract class BaseITServer implements BaseTest {
       try {
         BaseITServer.clusterDestroy();
       } catch (Exception exception) {
-        try {
-          // On EC2, dependency violations are common here due to the
-          // eventually consistent nature of the dependency graph, try again
-          Thread.sleep(1000);
-          BaseITServer.clusterDestroy();
-        } catch (Exception nestedException) {
-          nestedException.printStackTrace();
-          returnValue = 1;
-        }
+        returnValue = 1;
+      }
+      if (clusterStateStoreFile.getParentFile().exists()) {
+        clusterStateStoreFile.getParentFile().delete();
       }
       System.exit(returnValue);
     }

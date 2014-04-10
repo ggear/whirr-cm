@@ -56,15 +56,17 @@ EOF
   if which dpkg &> /dev/null; then
     export DEBIAN_FRONTEND=noninteractive
     retry_apt_get update
-    retry_apt_get -q -y  install ntp
+    retry_apt_get -q -y install ntp
     service ntp stop
     ntpdate pool.ntp.org
     service ntp start
   elif which rpm &> /dev/null; then
-    retry_yum install -y install ntp
+    retry_yum install -y install ntp bind-utils
     service ntpd stop
     ntpdate pool.ntp.org
     service ntpd start
+    setenforce Permissive
+    sed -i -e "s|SELINUX=enforcing|SELINUX=permissive|" /etc/sysconfig/selinux
   fi
   echo -e "$(host -t a $(hostname) | awk '{print $4}')\t$(host -t a $(hostname) | awk '{print $1}')\t$(hostname)" >> /etc/hosts
 }
