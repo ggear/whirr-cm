@@ -100,7 +100,7 @@ public abstract class CmServerLog {
 
   protected abstract void logMessageIntermediate(String message);
 
-  public abstract void logOperation(String operation, CmServerLogSyncCommand command);
+  public abstract void logOperation(String operation, CmServerLogSyncCommand command) throws Exception;
 
   public abstract void logOperationStartedSync(String operation);
 
@@ -314,7 +314,7 @@ public abstract class CmServerLog {
     }
 
     @Override
-    public void logOperation(String operation, CmServerLogSyncCommand command) {
+    public void logOperation(String operation, CmServerLogSyncCommand command) throws Exception {
       boolean failed = false;
       logOperationIntermediate(operation, "started .");
       try {
@@ -322,7 +322,7 @@ public abstract class CmServerLog {
       } catch (Exception e) {
         failed = true;
         logOperation(".. failed");
-        e.printStackTrace();
+        throw e;
       }
       if (!failed) {
         logOperation(".. finished");
