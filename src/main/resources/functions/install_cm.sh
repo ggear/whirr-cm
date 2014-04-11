@@ -67,6 +67,8 @@ EOF
     service ntpd start
     setenforce Permissive
     sed -i -e "s|SELINUX=enforcing|SELINUX=permissive|" /etc/sysconfig/selinux
+    echo "echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag" >> /etc/rc.local
+    echo "echo never > /sys/kernel/mm/redhat_transparent_hugepage/enabled" >> /etc/rc.local
   fi
   echo -e "$(host -t a $(hostname) | awk '{print $4}')\t$(host -t a $(hostname) | awk '{print $1}')\t$(hostname)" >> /etc/hosts
 }
