@@ -19,10 +19,10 @@ package com.cloudera.whirr.cm.handler.cdh;
 
 import com.cloudera.whirr.cm.server.CmServerServiceType;
 
-public class CmCdhSparkWorkerHandler extends BaseHandlerCmCdh {
+public class CmCdhHBaseRestServerHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-sparkworker";
-  public static final CmServerServiceType TYPE = CmServerServiceType.SPARK_WORKER;
+  public static final String ROLE = "cm-cdh-hbaserest";
+  public static final CmServerServiceType TYPE = CmServerServiceType.HBASE_REST_SERVER;
 
   @Override
   public String getRole() {

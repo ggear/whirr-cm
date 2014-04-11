@@ -12,7 +12,7 @@ This plugin has dependencies on Whirr and CM as per the pom, but remains backwar
 
 The plugin has been tested extensively on RHEL and Debian derivatives and ships with integration tests targeting:
 
-* CentOS 6.4
+* CentOS 6.5
 * Ubuntu LTS 12.04
 
 ## Installing and configuring Whirr

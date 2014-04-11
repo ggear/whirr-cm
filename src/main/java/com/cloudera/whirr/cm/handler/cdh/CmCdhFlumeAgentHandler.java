@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhFlumeAgentHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-flume-agent";
+  public static final String ROLE = "cm-cdh-flumeagent";
   public static final CmServerServiceType TYPE = CmServerServiceType.FLUME_AGENT;
 
   @Override

@@ -45,6 +45,9 @@ com.cloudera.whirr.cm.handler.cdh.CmCdhZookeeperServerHandler
 
 com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseMasterHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseRegionServerHandler
+com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseThriftServerHandler
+com.cloudera.whirr.cm.handler.cdh.CmCdhHBaseRestServerHandler
+
 
 com.cloudera.whirr.cm.handler.cdh.CmCdhSolrServerHandler
 

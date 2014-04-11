@@ -809,7 +809,7 @@ public class CmServerImpl implements CmServer {
 
   }
 
-  private void provisionManagement(final CmServerCluster cluster) throws CmServerException, InterruptedException {
+  private void provisionManagement(final CmServerCluster cluster) throws Exception {
 
     boolean cmsProvisionRequired = false;
     try {
@@ -832,6 +832,10 @@ public class CmServerImpl implements CmServer {
         licenseDeployed = apiResourceRootV3.getClouderaManagerResource().readLicense() != null;
       } catch (Exception e) {
         // ignore
+      }
+      if (versionApi >= 7 && !licenseDeployed) {
+        apiResourceRootV6.getClouderaManagerResource().beginTrial();
+        licenseDeployed = true;
       }
       final boolean enterpriseDeployed = licenseDeployed;
 
@@ -891,8 +895,7 @@ public class CmServerImpl implements CmServer {
 
   }
 
-  private void provsionCluster(final CmServerCluster cluster) throws IOException, InterruptedException,
-      CmServerException {
+  private void provsionCluster(final CmServerCluster cluster) throws Exception {
 
     execute(apiResourceRootV3.getClouderaManagerResource().inspectHostsCommand());
 
@@ -991,8 +994,7 @@ public class CmServerImpl implements CmServer {
 
   }
 
-  private void configureServices(final CmServerCluster cluster) throws IOException, InterruptedException,
-      CmServerException {
+  private void configureServices(final CmServerCluster cluster) throws Exception {
 
     final List<CmServerService> services = getServiceHosts();
 
@@ -1052,6 +1054,10 @@ public class CmServerImpl implements CmServer {
             }
             if (serviceTypes.contains(CmServerServiceType.SQOOP)) {
               apiServiceConfig.add(new ApiConfig("sqoop_service", cluster.getServiceName(CmServerServiceType.SQOOP)));
+            }
+            if (cluster.getService(CmServerServiceType.HBASE_THRIFT_SERVER) != null) {
+              apiServiceConfig.add(new ApiConfig("hue_hbase_thrift", cluster
+                  .getServiceName(CmServerServiceType.HBASE_THRIFT_SERVER)));
             }
             break;
           case SQOOP:
@@ -1159,7 +1165,7 @@ public class CmServerImpl implements CmServer {
 
   }
 
-  private void unconfigureServices(final CmServerCluster cluster) throws IOException, InterruptedException {
+  private void unconfigureServices(final CmServerCluster cluster) throws Exception {
 
     final Set<CmServerServiceType> types = new TreeSet<CmServerServiceType>(Collections.reverseOrder());
     types.addAll(cluster.getServiceTypes(versionApi, versionCdh));

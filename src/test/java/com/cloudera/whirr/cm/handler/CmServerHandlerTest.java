@@ -367,7 +367,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
             .get(CmServerClusterInstance.CM_API_BASE_VERSION).get(CmServerServiceType.HDFS_NAMENODE.getId())
             .get("dfs_name_dir_list"));
     Assert.assertEquals(
-        "/data0"
+        "/data"
             + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX
                 + CmServerServiceType.HDFS_SECONDARY_NAMENODE.getId().toLowerCase() + ".fs_checkpoint_dir_list"),
         CmServerClusterInstance.getClusterConfiguration(configuration, new TreeSet<String>())
@@ -380,7 +380,7 @@ public class CmServerHandlerTest extends BaseTestHandler {
             .get(CmServerClusterInstance.CM_API_BASE_VERSION).get(CmServerServiceType.IMPALA_DAEMON.getId())
             .get("audit_event_log_dir"));
     Assert.assertEquals(
-        "/data0"
+        "/data"
             + configuration.getString(CONFIG_WHIRR_INTERNAL_CM_CONFIG_DEFAULT_PREFIX + "5."
                 + CmServerServiceType.IMPALA_DAEMON.getId().toLowerCase() + ".audit_event_log_dir"),
         CmServerClusterInstance.getClusterConfiguration(configuration, new TreeSet<String>()).get("5")

@@ -17,6 +17,13 @@
 
 set -x
 
+function config_os() {
+  if [ -f $1 ]; then
+    $($2 > $1)
+    echo "$2 > $1" >> /etc/rc.local
+  fi
+}
+
 function install_cm() {
   if which dpkg &> /dev/null; then
     export DEBIAN_FRONTEND=noninteractive
@@ -56,14 +63,20 @@ EOF
   if which dpkg &> /dev/null; then
     export DEBIAN_FRONTEND=noninteractive
     retry_apt_get update
-    retry_apt_get -q -y  install ntp
+    retry_apt_get -q -y install ntp
     service ntp stop
     ntpdate pool.ntp.org
     service ntp start
   elif which rpm &> /dev/null; then
-    retry_yum install -y install ntp
+    retry_yum install -y install ntp bind-utils
     service ntpd stop
     ntpdate pool.ntp.org
     service ntpd start
+    setenforce Permissive
+    sed -i -e "s|SELINUX=enforcing|SELINUX=permissive|" /etc/sysconfig/selinux
+    config_os /sys/kernel/mm/redhat_transparent_hugepage/enabled "echo never"
+    config_os /sys/devices/vif-0/net/eth0/queues/rx-0/rps_cpus "echo 7f"
+    config_os /proc/sys/net/ipv4/tcp_low_latency "echo 1"
   fi
+  echo -e "$(host -t a $(hostname) | awk '{print $4}')\t$(host -t a $(hostname) | awk '{print $1}')\t$(hostname)" >> /etc/hosts
 }

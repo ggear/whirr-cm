@@ -21,7 +21,7 @@ import com.cloudera.whirr.cm.server.CmServerServiceType;
 
 public class CmCdhImpalaCatalogServerHandler extends BaseHandlerCmCdh {
 
-  public static final String ROLE = "cm-cdh-impala-catalog-server";
+  public static final String ROLE = "cm-cdh-impalacatalog";
   public static final CmServerServiceType TYPE = CmServerServiceType.IMPALA_CATALOGSERVER;
 
   @Override

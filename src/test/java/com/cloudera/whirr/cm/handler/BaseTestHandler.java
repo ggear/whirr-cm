@@ -249,12 +249,17 @@ public abstract class BaseTestHandler extends BaseServiceDryRunTest implements B
   }
 
   private static Object any(Object value) {
-    new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false).logOperation(
-        WordUtils.capitalize(Thread.currentThread().getStackTrace()[4].getMethodName()), new CmServerLogSyncCommand() {
-          @Override
-          public void execute() throws Exception {
-          }
-        });
+    try {
+      new CmServerLog.CmServerLogSysOut(LOG_TAG_CM_SERVER_API, false).logOperation(
+          WordUtils.capitalize(Thread.currentThread().getStackTrace()[4].getMethodName()),
+          new CmServerLogSyncCommand() {
+            @Override
+            public void execute() throws Exception {
+            }
+          });
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     return value;
   }
 
