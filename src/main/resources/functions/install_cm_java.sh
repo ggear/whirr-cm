@@ -67,9 +67,8 @@ function install_cm_java() {
   fi
 
   export JAVA_HOME=$(ls -dt $JDK_INSTALL_PATH/j* | head -n 1)
-  if [ ! -d "$JDK_INSTALL_PATH/default" ]; then
-     ln -s $JAVA_HOME $JDK_INSTALL_PATH/default
-  fi
+  rm -rf $JDK_INSTALL_PATH/default
+  ln -s $JAVA_HOME $JDK_INSTALL_PATH/default
 
   echo "export JAVA_HOME=$JAVA_HOME" >> /etc/profile
   echo "export CMF_AGENT_JAVA_HOME=$JAVA_HOME" >> /etc/profile

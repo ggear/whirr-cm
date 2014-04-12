@@ -38,7 +38,7 @@ function configure_cm_cdh_post() {
     mkdir -p $i
     chmod 777 $i
   done
-  if [ "$CM_CDH_ROLE" = "cm-cdh-oozie-server" ]; then
+  if [ "$CM_CDH_ROLE" = "cm-cdh-oozie" ]; then
     chown -R oozie.oozie /var/lib/oozie
     chown -R oozie.oozie "${CM_CDH_DIRS_ARRAY[0]}/manager/parcels/parcel-runtime/CDH*/lib/oozie"
   fi
