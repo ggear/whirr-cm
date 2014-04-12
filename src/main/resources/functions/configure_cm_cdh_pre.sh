@@ -43,7 +43,7 @@ function configure_cm_cdh_pre() {
     chmod 777 "${CM_CDH_DIRS_ARRAY[0]}/mapreduce/jobtracker/history"
 elif [ "$CM_CDH_ROLE" = "cm-cdh-impala" -o "$CM_CDH_ROLE" = "cm-cdh-impalastatestore" -o "$CM_CDH_ROLE" = "cm-cdh-impalacatalog" ]; then
     JAVA_HOME=$(grep "export JAVA_HOME" /etc/profile | cut -d= -f 2)
-    REPOCDH=${REPOCDH:-cdh4}
+    REPOCDH=${REPOCDH:-cdh5}
     CDH_MAJOR_VERSION=$(echo $REPOCDH | sed -e 's/cdh\([0-9]\).*/\1/')
     if [ $CDH_MAJOR_VERSION -le 4 ]; then
       if which dpkg &> /dev/null; then

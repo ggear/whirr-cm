@@ -88,6 +88,10 @@ public abstract class BaseITServer implements BaseTest {
     } catch (ConfigurationException e) {
       throw new RuntimeException("Could not load test properties [" + TEST_CM_TEST_GLOBAL_PROPERTIES + "]", e);
     }
+    setSystemProperty(TEST_CM_VERSION, CmServerSmokeSuiteIT.CM_VERSION_MATRIX[0][0], false);
+    setSystemProperty(TEST_CM_API_VERSION, CmServerSmokeSuiteIT.CM_VERSION_MATRIX[0][1], false);
+    setSystemProperty(TEST_CM_CDH_VERSION, CmServerSmokeSuiteIT.CM_VERSION_MATRIX[0][2], false);
+    setSystemProperty(TEST_PLATFORM, CmServerSmokeSuiteIT.OS_VERSION_MATRIX[0], false);
   }
 
   @Rule
@@ -286,7 +290,6 @@ public abstract class BaseITServer implements BaseTest {
 
   protected static void setSystemProperty(String name, String value) {
     setSystemProperty(name, value, true);
-
   }
 
   protected static void setSystemProperty(String name, String value, boolean overide) {
