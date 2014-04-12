@@ -31,7 +31,7 @@ public interface CmConstants extends CmServerConstants {
 
   public static final String CONFIG_WHIRR_CM_VERSION = "whirr.env.repocm";
   public static final String CONFIG_WHIRR_CM_API_VERSION = "whirr.cm.api";
-  public static final String CONFIG_WHIRR_CM_CDH_VERSION = "whirr.cm.cdh";
+  public static final String CONFIG_WHIRR_CM_CDH_VERSION = "whirr.env.repocdh";
 
   public static final String CONFIG_WHIRR_AUTO = "whirr.cm.auto";
   public static final String CONFIG_WHIRR_USE_PACKAGES = "whirr.cm.use.packages";
