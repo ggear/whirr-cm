@@ -286,7 +286,6 @@ public abstract class BaseITServer implements BaseTest {
 
   protected static void setSystemProperty(String name, String value) {
     setSystemProperty(name, value, true);
-
   }
 
   protected static void setSystemProperty(String name, String value, boolean overide) {

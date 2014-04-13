@@ -41,7 +41,27 @@ function configure_cm_cdh_pre() {
   if [ "$CM_CDH_ROLE" = "cm-cdh-jobtracker" ]; then
     mkdir -p "${CM_CDH_DIRS_ARRAY[0]}/mapreduce/jobtracker/history"
     chmod 777 "${CM_CDH_DIRS_ARRAY[0]}/mapreduce/jobtracker/history"
-  elif [ "$CM_CDH_ROLE" = "cm-cdh-oozie-server" ]; then
+elif [ "$CM_CDH_ROLE" = "cm-cdh-impala" -o "$CM_CDH_ROLE" = "cm-cdh-impalastatestore" -o "$CM_CDH_ROLE" = "cm-cdh-impalacatalog" ]; then
+    JAVA_HOME=$(grep "export JAVA_HOME" /etc/profile | cut -d= -f 2)
+    REPOCDH=${REPOCDH:-cdh5}
+    CDH_MAJOR_VERSION=$(echo $REPOCDH | sed -e 's/cdh\([0-9]\).*/\1/')
+    if [ $CDH_MAJOR_VERSION -le 4 ]; then
+      if which dpkg &> /dev/null; then
+        retry_apt_get update
+        retry_apt_get -y install oracle-j2sdk1.6
+        rm -rf /usr/lib/jvm/default
+        ln -s $JAVA_HOME /usr/lib/jvm/default 
+        update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
+        update-alternatives --set java $JAVA_HOME/bin/java
+      elif which rpm &> /dev/null; then
+        retry_yum install -y jdk
+        rm -rf /usr/java/default
+        ln -s $JAVA_HOME /usr/java/default  
+        alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
+        alternatives --set java $JAVA_HOME/bin/java
+      fi        
+    fi
+  elif [ "$CM_CDH_ROLE" = "cm-cdh-oozie" ]; then
     if which dpkg &> /dev/null; then
       export DEBIAN_FRONTEND=noninteractive
       retry_apt_get update
