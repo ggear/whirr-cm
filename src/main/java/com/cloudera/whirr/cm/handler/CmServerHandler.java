@@ -65,6 +65,8 @@ public class CmServerHandler extends BaseHandlerCm {
         .getString(CONFIG_WHIRR_INTERNAL_PORT_WEB));
     ports.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec())
         .getString(CONFIG_WHIRR_INTERNAL_PORT_NAV));
+    ports.add(CmServerClusterInstance.getConfiguration(event.getClusterSpec())
+        .getString(CONFIG_WHIRR_INTERNAL_PORT_HUE));
     return ports;
   }
 

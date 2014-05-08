@@ -45,6 +45,7 @@ import com.cloudera.whirr.cm.handler.CmAgentHandler;
 import com.cloudera.whirr.cm.handler.CmNodeHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
+import com.cloudera.whirr.cm.handler.cdh.CmCdhHueServerHandler;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
@@ -469,6 +470,31 @@ public class CmServerClusterInstance implements CmConstants {
               + cluster.getServer().getIp());
     } else {
       logger.logOperationInProgressSync(label, "NO CM SERVER");
+    }
+    logger.logOperationInProgressSync(label, "NAVIGATOR SERVER");
+    if (cluster.getServer() != null) {
+      logger.logOperationInProgressSync(
+          label,
+          "  http://" + cluster.getServer().getHost() + ":"
+              + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_NAV));
+    } else {
+      logger.logOperationInProgressSync(label, "NO NAVIGATOR SERVER");
+    }
+    logger.logOperationInProgressSync(label, "HUE SERVER");
+    if (cluster.getServiceTypes(CmServerServiceType.HUE) != null) {
+      String hueHost = null;
+      for (Instance instance : instances) {
+        if (instance.getRoles().contains(CmCdhHueServerHandler.ROLE)) {
+          hueHost = instance.getPublicHostName();
+          break;
+        }
+      }
+      logger.logOperationInProgressSync(
+          label,
+          "  http://" + hueHost + ":"
+              + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_HUE));
+    } else {
+      logger.logOperationInProgressSync(label, "NO HUE SERVER");
     }
     return !cluster.isEmpty();
   }
