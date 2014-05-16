@@ -45,6 +45,7 @@ import com.cloudera.whirr.cm.handler.CmAgentHandler;
 import com.cloudera.whirr.cm.handler.CmNodeHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
+import com.cloudera.whirr.cm.handler.cdh.CmCdhHueServerHandler;
 import com.cloudera.whirr.cm.server.CmServerCluster;
 import com.cloudera.whirr.cm.server.CmServerException;
 import com.cloudera.whirr.cm.server.CmServerService;
@@ -416,23 +417,14 @@ public class CmServerClusterInstance implements CmConstants {
   public static boolean logCluster(CmServerLog logger, String label, Configuration configuration,
       CmServerCluster cluster, Set<Instance> instances) throws IOException {
     if (!instances.isEmpty()) {
-      logger.logOperationInProgressSync(label, "HOSTS");
+      logger.logOperationInProgressSync(label, "HOST ADDRESSES");
       for (Instance instance : instances) {
         logger.logOperationInProgressSync(label, "  " + instance.getId() + "@" + instance.getPublicHostName() + "@"
             + instance.getPublicIp() + "@" + instance.getPrivateIp());
       }
     }
-    if (!cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
-      for (CmServerServiceType type : cluster.getServiceTypes()) {
-        logger.logOperationInProgressSync(label, "CDH " + type.toString() + " SERVICE");
-        for (CmServerService service : cluster.getServices(type)) {
-          logger.logOperationInProgressSync(label,
-              "  " + service.getName() + "@" + service.getIp() + "=" + service.getStatus());
-        }
-      }
-    }
     if (!cluster.getAgents().isEmpty()) {
-      logger.logOperationInProgressSync(label, "CM AGENTS");
+      logger.logOperationInProgressSync(label, "HOST SSH");
     }
     SortedSet<String> cmAgentsSorted = new TreeSet<String>();
     for (CmServerService cmAgent : cluster.getAgents()) {
@@ -442,6 +434,15 @@ public class CmServerClusterInstance implements CmConstants {
     }
     for (String cmAgentSorted : cmAgentsSorted) {
       logger.logOperationInProgressSync(label, cmAgentSorted);
+    }
+    if (!cluster.getServiceTypes(CmServerServiceType.CLUSTER).isEmpty()) {
+      for (CmServerServiceType type : cluster.getServiceTypes()) {
+        logger.logOperationInProgressSync(label, "CDH " + type.toString() + " SERVICE");
+        for (CmServerService service : cluster.getServices(type)) {
+          logger.logOperationInProgressSync(label,
+              "  " + service.getName() + "@" + service.getIp() + "=" + service.getStatus());
+        }
+      }
     }
     if (!cluster.getNodes().isEmpty()) {
       logger.logOperationInProgressSync(label, "CM NODES");
@@ -455,20 +456,39 @@ public class CmServerClusterInstance implements CmConstants {
     for (String cmNodeSorted : cmNodesSorted) {
       logger.logOperationInProgressSync(label, cmNodeSorted);
     }
-    logger.logOperationInProgressSync(label, "CM SERVER");
+    logger.logOperationInProgressSync(label, "MANAGER CONSOLE");
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(
           label,
           "  http://" + cluster.getServer().getHost() + ":"
               + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_WEB));
-      logger.logOperationInProgressSync(
-          label,
-          "  ssh -o StrictHostKeyChecking=no -i "
-              + configuration.getString(ClusterSpec.Property.PRIVATE_KEY_FILE.getConfigName()) + " "
-              + configuration.getString(ClusterSpec.Property.CLUSTER_USER.getConfigName()) + "@"
-              + cluster.getServer().getIp());
     } else {
       logger.logOperationInProgressSync(label, "NO CM SERVER");
+    }
+    logger.logOperationInProgressSync(label, "NAVIGATOR CONSOLE");
+    if (cluster.getServer() != null) {
+      logger.logOperationInProgressSync(
+          label,
+          "  http://" + cluster.getServer().getHost() + ":"
+              + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_NAV));
+    } else {
+      logger.logOperationInProgressSync(label, "NO NAVIGATOR SERVER");
+    }
+    logger.logOperationInProgressSync(label, "HUE CONSOLE");
+    if (cluster.getServiceTypes(CmServerServiceType.HUE) != null) {
+      String hueHost = null;
+      for (Instance instance : instances) {
+        if (instance.getRoles().contains(CmCdhHueServerHandler.ROLE)) {
+          hueHost = instance.getPublicHostName();
+          break;
+        }
+      }
+      logger.logOperationInProgressSync(
+          label,
+          "  http://" + hueHost + ":"
+              + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_HUE));
+    } else {
+      logger.logOperationInProgressSync(label, "NO HUE SERVER");
     }
     return !cluster.isEmpty();
   }

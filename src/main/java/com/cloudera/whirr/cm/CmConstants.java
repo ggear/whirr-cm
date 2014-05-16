@@ -49,6 +49,7 @@ public interface CmConstants extends CmServerConstants {
   public static final String CONFIG_WHIRR_INTERNAL_PORTS_CLIENT_SUFFIX = ".client.ports";
   public static final String CONFIG_WHIRR_INTERNAL_PORT_WEB = CmServerHandler.ROLE + ".port.web";
   public static final String CONFIG_WHIRR_INTERNAL_PORT_NAV = CmServerHandler.ROLE + ".port.nav";
+  public static final String CONFIG_WHIRR_INTERNAL_PORT_HUE = CmServerHandler.ROLE + ".port.hue";
   public static final String CONFIG_WHIRR_INTERNAL_PORT_COMMS = CmServerHandler.ROLE + ".port.comms";
 
   public static final String CONFIG_WHIRR_NAME_DEFAULT = "whirr";
