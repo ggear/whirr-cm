@@ -12,8 +12,8 @@ import org.junit.runners.Parameterized.Parameters;
 public class CmServerSmokeSuiteIT extends CmServerSmokeIT {
 
   public static String[] OS_VERSION_MATRIX = new String[] { "centos", "ubuntu" };
-  public static String[][] CM_VERSION_MATRIX = new String[][] { { "cm5.0.0", "v6", "cdh5" },
-      { "cm5.0.0", "v6", "cdh4" } };
+  public static String[][] CM_VERSION_MATRIX = new String[][] { { "cm5.0.0", "v6", "cdh5" }, { "cm5", "v6", "cdh5" },
+      { "cm5", "v6", "cdh4" } };
 
   @Parameters
   public static Collection<String[]> data() {

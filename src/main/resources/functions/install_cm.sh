@@ -44,8 +44,8 @@ function install_cm() {
   if [ $CM_MAJOR_VERSION -ge 4 ]; then
       if which dpkg &> /dev/null; then
           cat > /etc/apt/sources.list.d/cloudera-$REPOCM.list <<EOF
-deb [arch=amd64] $CM_REPO_ROOT/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-cm$CM_MAJOR_VERSION contrib
-deb-src $CM_REPO_ROOT/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-cm$CM_MAJOR_VERSION contrib
+deb [arch=amd64] $CM_REPO_ROOT/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-cm$CM_VERSION contrib
+deb-src $CM_REPO_ROOT/$OS_DISTID/$OS_CODENAME/amd64/cm $OS_CODENAME-cm$CM_VERSION contrib
 EOF
           curl -s $CM_REPO_ROOT/$OS_DISTID/$OS_CODENAME/amd64/cm/archive.key | apt-key add -
       elif which rpm &> /dev/null; then
@@ -53,7 +53,7 @@ EOF
           cat > /etc/yum.repos.d/cloudera-$REPOCM.repo <<EOF
 [cloudera-manager-$REPOCM]
 name=Cloudera Manager, Version $CM_VERSION
-baseurl=$CM_REPO_ROOT/redhat/$RHEL_VERSION/\$basearch/cm/$CM_MAJOR_VERSION/
+baseurl=$CM_REPO_ROOT/redhat/$RHEL_VERSION/\$basearch/cm/$CM_VERSION/
 gpgkey=$CM_REPO_ROOT/redhat/$RHEL_VERSION/\$basearch/cm/RPM-GPG-KEY-cloudera
 gpgcheck=1
 EOF
