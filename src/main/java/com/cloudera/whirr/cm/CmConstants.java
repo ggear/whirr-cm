@@ -17,6 +17,7 @@
  */
 package com.cloudera.whirr.cm;
 
+import com.cloudera.whirr.cm.handler.CmBalancerHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.server.CmServerConstants;
 
@@ -51,6 +52,7 @@ public interface CmConstants extends CmServerConstants {
   public static final String CONFIG_WHIRR_INTERNAL_PORT_NAV = CmServerHandler.ROLE + ".port.nav";
   public static final String CONFIG_WHIRR_INTERNAL_PORT_HUE = CmServerHandler.ROLE + ".port.hue";
   public static final String CONFIG_WHIRR_INTERNAL_PORT_COMMS = CmServerHandler.ROLE + ".port.comms";
+  public static final String CONFIG_WHIRR_INTERNAL_PORT_BALANCER_IMPALA = CmBalancerHandler.ROLE + ".port.impala";
 
   public static final String CONFIG_WHIRR_NAME_DEFAULT = "whirr";
 

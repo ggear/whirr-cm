@@ -42,6 +42,7 @@ import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.hadoop.VolumeManager;
 
 import com.cloudera.whirr.cm.handler.CmAgentHandler;
+import com.cloudera.whirr.cm.handler.CmBalancerHandler;
 import com.cloudera.whirr.cm.handler.CmNodeHandler;
 import com.cloudera.whirr.cm.handler.CmServerHandler;
 import com.cloudera.whirr.cm.handler.cdh.BaseHandlerCmCdh;
@@ -444,19 +445,22 @@ public class CmServerClusterInstance implements CmConstants {
         }
       }
     }
-    if (!cluster.getNodes().isEmpty()) {
-      logger.logOperationInProgressSync(label, "CM NODES");
+    Set<Instance> balancerInstances = new HashSet<Cluster.Instance>();
+    for (Instance instance : instances) {
+      if (instance.getRoles().contains(CmBalancerHandler.ROLE)) {
+        balancerInstances.add(instance);
+      }
     }
-    SortedSet<String> cmNodesSorted = new TreeSet<String>();
-    for (CmServerService cmNode : cluster.getNodes()) {
-      cmNodesSorted.add("  ssh -o StrictHostKeyChecking=no -i "
-          + configuration.getString(ClusterSpec.Property.PRIVATE_KEY_FILE.getConfigName()) + " "
-          + configuration.getString(ClusterSpec.Property.CLUSTER_USER.getConfigName()) + "@" + cmNode.getIp());
+    if (!balancerInstances.isEmpty()) {
+      logger.logOperationInProgressSync(label, "BALANCER IMPALA");
+      for (Instance instance : balancerInstances) {
+        logger.logOperationInProgressSync(
+            label,
+            "  impala-shell://" + instance.getPrivateIp() + ":"
+                + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_BALANCER_IMPALA));
+      }
     }
-    for (String cmNodeSorted : cmNodesSorted) {
-      logger.logOperationInProgressSync(label, cmNodeSorted);
-    }
-    logger.logOperationInProgressSync(label, "MANAGER CONSOLE");
+    logger.logOperationInProgressSync(label, "CONSOLE MANAGER");
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(
           label,
@@ -465,7 +469,7 @@ public class CmServerClusterInstance implements CmConstants {
     } else {
       logger.logOperationInProgressSync(label, "NO CM SERVER");
     }
-    logger.logOperationInProgressSync(label, "NAVIGATOR CONSOLE");
+    logger.logOperationInProgressSync(label, "CONSOLE NAVIGATOR");
     if (cluster.getServer() != null) {
       logger.logOperationInProgressSync(
           label,
@@ -474,7 +478,7 @@ public class CmServerClusterInstance implements CmConstants {
     } else {
       logger.logOperationInProgressSync(label, "NO NAVIGATOR SERVER");
     }
-    logger.logOperationInProgressSync(label, "HUE CONSOLE");
+    logger.logOperationInProgressSync(label, "CONSOLE HUE");
     if (cluster.getServiceTypes(CmServerServiceType.HUE) != null) {
       String hueHost = null;
       for (Instance instance : instances) {
@@ -483,10 +487,8 @@ public class CmServerClusterInstance implements CmConstants {
           break;
         }
       }
-      logger.logOperationInProgressSync(
-          label,
-          "  http://" + hueHost + ":"
-              + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_HUE));
+      logger.logOperationInProgressSync(label,
+          "  http://" + hueHost + ":" + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_HUE));
     } else {
       logger.logOperationInProgressSync(label, "NO HUE SERVER");
     }
