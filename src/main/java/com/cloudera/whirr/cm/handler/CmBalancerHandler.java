@@ -17,6 +17,7 @@
  */
 package com.cloudera.whirr.cm.handler;
 
+import static org.apache.whirr.RolePredicates.role;
 import static org.jclouds.scriptbuilder.domain.Statements.call;
 
 import java.io.IOException;
@@ -25,6 +26,8 @@ import org.apache.whirr.Cluster;
 import org.apache.whirr.RolePredicates;
 import org.apache.whirr.service.ClusterActionEvent;
 import org.apache.whirr.service.ClusterActionHandlerSupport;
+import org.apache.whirr.service.FirewallManager.Rule;
+import org.jclouds.scriptbuilder.domain.Statement;
 
 import com.cloudera.whirr.cm.CmConstants;
 import com.cloudera.whirr.cm.CmServerClusterInstance;
@@ -32,6 +35,7 @@ import com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaDaemonHandler;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 
 public class CmBalancerHandler extends ClusterActionHandlerSupport implements CmConstants {
 
@@ -47,6 +51,7 @@ public class CmBalancerHandler extends ClusterActionHandlerSupport implements Cm
     super.beforeStart(event);
     final String portBalancerImpala = CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getString(
         CmConstants.CONFIG_WHIRR_INTERNAL_PORT_BALANCER_IMPALA);
+    addStatement(event, call("retry_helpers"));
     addStatement(
         event,
         call(
@@ -63,6 +68,12 @@ public class CmBalancerHandler extends ClusterActionHandlerSupport implements Cm
                         return input.getPrivateIp() + ":" + portBalancerImpala;
                       }
                     }))));
+    if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE, true)) {
+      event.getFirewallManager().addRules(Rule.create().destination(role(getRole())).ports(Integer.parseInt(portBalancerImpala)));
+      for (Statement portIngressStatement : event.getFirewallManager().getRulesAsStatements()) {
+        addStatement(event, portIngressStatement);
+      }
+    }
   }
 
 }

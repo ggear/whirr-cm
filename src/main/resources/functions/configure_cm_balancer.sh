@@ -41,7 +41,8 @@ function configure_cm_balancer() {
     retry_yum install -y haproxy
   fi
   CM_BALANCER_CONFIG='
-  listen '$(hostname)':'$CM_BALANCER_BIND_PORT'
+
+  listen '$(hostname)' :'$CM_BALANCER_BIND_PORT'
     mode tcp
     option tcplog
     balance leastconn
