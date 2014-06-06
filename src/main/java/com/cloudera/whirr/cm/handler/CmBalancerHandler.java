@@ -35,7 +35,6 @@ import com.cloudera.whirr.cm.handler.cdh.CmCdhImpalaDaemonHandler;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
 
 public class CmBalancerHandler extends ClusterActionHandlerSupport implements CmConstants {
 
@@ -69,7 +68,8 @@ public class CmBalancerHandler extends ClusterActionHandlerSupport implements Cm
                       }
                     }))));
     if (CmServerClusterInstance.getConfiguration(event.getClusterSpec()).getBoolean(CONFIG_WHIRR_FIREWALL_ENABLE, true)) {
-      event.getFirewallManager().addRules(Rule.create().destination(role(getRole())).ports(Integer.parseInt(portBalancerImpala)));
+      event.getFirewallManager().addRules(
+          Rule.create().destination(role(getRole())).ports(Integer.parseInt(portBalancerImpala)));
       for (Statement portIngressStatement : event.getFirewallManager().getRulesAsStatements()) {
         addStatement(event, portIngressStatement);
       }
