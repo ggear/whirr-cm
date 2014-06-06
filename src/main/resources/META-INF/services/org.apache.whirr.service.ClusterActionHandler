@@ -19,6 +19,7 @@ com.cloudera.whirr.cm.handler.CmJavaHandler
 com.cloudera.whirr.cm.handler.CmNodeHandler
 com.cloudera.whirr.cm.handler.CmAgentHandler
 com.cloudera.whirr.cm.handler.CmServerHandler
+com.cloudera.whirr.cm.handler.CmBalancerHandler
 
 com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsNameNodeHandler
 com.cloudera.whirr.cm.handler.cdh.CmCdhHdfsSecondaryNameNodeHandler

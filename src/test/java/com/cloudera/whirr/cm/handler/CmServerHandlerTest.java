@@ -66,18 +66,19 @@ import com.google.common.collect.ImmutableSortedSet;
 public class CmServerHandlerTest extends BaseTestHandler {
 
   private static final int WHIRR_INSTANCE_TEMPLATE_NUM_SLAVES = 3;
-  private static final String[] WHIRR_INSTANCE_TEMPLATE_ROLES_MASTER = { CmCdhHdfsNameNodeHandler.ROLE,
-      CmCdhHdfsSecondaryNameNodeHandler.ROLE, CmCdhHueServerHandler.ROLE, CmCdhHueBeeswaxServerHandler.ROLE,
-      CmCdhMapReduceJobTrackerHandler.ROLE, CmCdhSparkMasterHandler.ROLE, CmCdhHBaseMasterHandler.ROLE,
-      CmCdhHiveMetaStoreHandler.ROLE, CmCdhImpalaStateStoreHandler.ROLE, CmCdhImpalaCatalogServerHandler.ROLE,
-      CmCdhOozieServerHandler.ROLE, CmCdhHiveServer2Handler.ROLE, CmCdhHiveHCatalogHandler.ROLE,
-      CmCdhSqoopServerHandler.ROLE, CmCdhSolrServerHandler.ROLE, CmCdhHdfsHttpFsHandler.ROLE };
+  private static final String[] WHIRR_INSTANCE_TEMPLATE_ROLES_MASTER = { CmBalancerHandler.ROLE,
+      CmCdhHdfsNameNodeHandler.ROLE, CmCdhHdfsSecondaryNameNodeHandler.ROLE, CmCdhHueServerHandler.ROLE,
+      CmCdhHueBeeswaxServerHandler.ROLE, CmCdhMapReduceJobTrackerHandler.ROLE, CmCdhSparkMasterHandler.ROLE,
+      CmCdhHBaseMasterHandler.ROLE, CmCdhHiveMetaStoreHandler.ROLE, CmCdhImpalaStateStoreHandler.ROLE,
+      CmCdhImpalaCatalogServerHandler.ROLE, CmCdhOozieServerHandler.ROLE, CmCdhHiveServer2Handler.ROLE,
+      CmCdhHiveHCatalogHandler.ROLE, CmCdhSqoopServerHandler.ROLE, CmCdhSolrServerHandler.ROLE,
+      CmCdhHdfsHttpFsHandler.ROLE };
   private static final String[] WHIRR_INSTANCE_TEMPLATE_ROLES_SLAVES = { CmCdhHdfsDataNodeHandler.ROLE,
       CmCdhMapReduceTaskTrackerHandler.ROLE, CmCdhSparkWorkerHandler.ROLE, CmCdhZookeeperServerHandler.ROLE,
       CmCdhHBaseRegionServerHandler.ROLE, CmCdhImpalaDaemonHandler.ROLE, CmCdhFlumeAgentHandler.ROLE,
       CmCdhSolrIndexerHBaseHandler.ROLE, CmCdhHdfsHttpFsHandler.ROLE };
   private static final int WHIRR_INSTANCE_TEMPLATE_NUM_ROLES = WHIRR_INSTANCE_TEMPLATE_ROLES_MASTER.length
-      + WHIRR_INSTANCE_TEMPLATE_NUM_SLAVES * WHIRR_INSTANCE_TEMPLATE_ROLES_SLAVES.length;
+      + WHIRR_INSTANCE_TEMPLATE_NUM_SLAVES * WHIRR_INSTANCE_TEMPLATE_ROLES_SLAVES.length - 1;
   private static String WHIRR_INSTANCE_TEMPLATE_ALL = "1 " + CmServerHandler.ROLE + "+" + CmAgentHandler.ROLE + ",1 "
       + CmAgentHandler.ROLE;
   static {
