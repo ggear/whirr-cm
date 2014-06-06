@@ -456,7 +456,7 @@ public class CmServerClusterInstance implements CmConstants {
       for (Instance instance : balancerInstances) {
         logger.logOperationInProgressSync(
             label,
-            "  impala-shell://" + instance.getPrivateIp() + ":"
+            "  impala-shell -i " + instance.getPrivateIp() + ":"
                 + configuration.getString(CmConstants.CONFIG_WHIRR_INTERNAL_PORT_BALANCER_IMPALA));
       }
     }
