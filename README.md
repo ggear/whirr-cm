@@ -75,7 +75,7 @@ cp -rvf target/whirr-cm-*.jar $WHIRR_HOME/lib
 A sample Whirr-CM EC2 config is available ([cm-ec2.properties](cm-ec2.properties)) which should be locally copied to your Whirr client host: 
 
 ```bash
-curl -O https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties
+wget https://raw.github.com/cloudera/whirr-cm/master/cm-ec2.properties
 ```
 
 If you would like to upload a CM License as part of the installation (Cloudera can provide this if you do not
